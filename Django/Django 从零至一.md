@@ -1,0 +1,134 @@
+简要记录 Python 迈入门槛后，第一个学习的项目，并基于 Django 搭建这个简单不如说简陋的 Blog 网站。网站仍有许多问题亟待结果，下一刻的事情就放到下一个解决，现在将 Django 一些简明扼要的知识点总结一下。
+
+***
+
+### **Virtualenv 虚拟环境**
+
+Virtualenv 是一个 Python 工具，它可以创建一个独立的 Python 环境。这个独立环境与原来的 Python 环境隔离，用以解决依赖、版本以及间接权限问题。同时，每个环境都是独立，这个环境不与其他虚拟环境共享库, 能够方便的管理 Python 版本和 Python 库。
+
+```shell
+# 指定 Python 版本
+virtualenv ENV --python=python3.6
+# 打包虚拟环境所安装 Python 库
+pip freeze > requirements.txt
+```
+
+***
+
+### **Project 目录结构**
+
+进入终端
+
+```shell
+django-admin startproject blogproject
+```
+
+blogproject 项目目录结构
+
+```shell
+blogproject/
+    manage.py
+    blogproject/
+        __init__.py
+        settings.py
+        urls.py
+        wsgi.py
+```
+
+这些目录和文件的用处:
+
+* 最外层 blogproject/ 根目录是项目容器
+* manage.py 项目管理器，与项目进行交互的命令行工具集入口。可执行python manage.py 查看所有命令。
+* 里面一层的 blogproject/ 目录就是你项目的实际 Python 包，引用它内部任何东西时需要用到的 Python 包名。
+* blogproject/\_\_init\_\_.py ：一个用于指明此目录是 Python 包的空白文件。
+* blogproject/settings.py ：项目的总配置文件。包含数据库、 Web 应用、时间等各种配置。
+* blogproject/urls.py ：url 映射配置文件。可视其为网站的目录。
+* blogproject/wsgi.py ：Python 应用程序或框架与web服务器之间的接口。全称是 Python Web Server Gateway Interface。
+
+***
+
+### **App 目录结构**
+
+在 Django 中，每一个应用都是一个 Python 包。在每个应用目录中，都可以发现 \_\_init\_\_.py 文件。
+> 项目和应用有什么区别？  
+>应用是一个专门做某件事的网络应用程序，比如博客系统、公共记录的数据库、或者简单的投票程序。项目则是一个网站使用的配置和应用的集合。项目可以包含很多个应用；而应用可以被很多个项目使用。
+
+根目录下
+
+```shell
+python manage.py startapp blog
+```
+
+blog 应用目录结构
+
+```shell
+blog/
+    __init__.py
+    admin.py
+    apps.py
+    models.py
+    tests.py
+    urls.py
+    views.py
+```
+
+* admin.py : 后台管理系统配置文件。
+* apps.py : 应用的一些配置
+* models.py : 使用 ORM 框架，Object Relational Mapping(对象关系映射)。主要采用 Python 类来描述数据表。基于这个类，可以使用简单的 Python 的代码来创建、检索、更新、删除 数据库中的记录，而无需写一条又一条的SQL语句。
+* test.py : 自动化测试模块，在这里编写测试脚本。
+* urls.py ： 建立url与响应函数之间的关系。
+* views.py ： 执行响应的代码模块，代码逻辑处理的主要地点。响应用户 http 请求，进行逻辑处理，返回 html 页面。
+
+***
+
+### **Project 和 App 之间区别**
+
+* Project 的作用是提供配置文件，例如 App 安装列表，数据库连接信息、url 配置、Template 配置等。
+* 一个 App 是一套 Django 功能的集合，通常包括模型和视图，并以 Python 的包结构的方式存在。
+* 一个 Project 可以包含很多个 App 以及对它们的配置。
+* App 的关键点是它们是很容易移植到其他 Project 或被多个 Project 复用。
+
+***
+
+### **Django 简洁工作流程**
+
+运行服务器
+
+```shell
+python manage.py runserver
+```
+
+Django 简单易懂工作流程
+
+1. 用户通过浏览器请求一个页面
+1. 通过 urls.py 文件和请求的 URL 找到相应的 Views
+1. 调用 Views 中的函数
+1. Views 通过操控 Models 和 Template 得到 Response
+1. Response返回到浏览器，呈现用户
+
+流程图如下：
+<div align="center">
+<img src="https://wx2.sinaimg.cn/mw690/af9e9c30ly1fmnbupcq4gj20m80j2q7p.jpg" width = "350" height = "300" alt="图片名称" align=center />
+</div>
+
+***
+
+### **MVC 设计模式**
+
+MVC 设计模式是把数据存取逻辑、业务逻辑和表现逻辑组合在一起的概念。这种设计模式关键的优势在于各种组件都是**松散结合**。
+
+* Model（模型）是应用程序中用于处理应用程序**数据逻辑**的部分。通常模型对象负责在数据库中存取数据。
+* View（视图）是应用程序中处理**数据显示**的部分。选择显示哪些数据要显示以及怎样显示的部分，由视图和模板处理。
+* Controller（控制器）是应用程序中处理**用户交互**的部分。根据用户输入委派视图的部分，由 Django 框架根据 URLconf 设置，对给定 URL 调用适当的 Python 函数。通常控制器负责从视图读取数据，控制用户输入，并向模型发送数据。
+
+<div align="center">
+<img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fmnkb5covxj20g30bvjs0.jpg" width = "350" height = "300" alt="图片名称" align=center />
+</div>
+
+***
+
+### **MTV 设计模式**
+
+Django 有意弱化 Controller ,更注重 Template（模板）。这便是 Model 、Template 和 Views，即 MTV 设计模式。
+
+* Template（模板）把数据渲染变成可浏览的网页。

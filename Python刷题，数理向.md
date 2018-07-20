@@ -1,0 +1,143 @@
+> 1.输出100以内的所有素数，素数之间以一个空格区分（注意，最后一个数字之后不能有空格）。
+
+```python
+prime_numbers = [2]
+for i in range(3, 101, 2):
+    for j in range(2, i):
+        if i%j == 0:
+            break
+    else:
+        prime_numbers.append(i)
+print(' '.join(map(str, prime_numbers)))
+```
+
+***
+> 2.给你一个整数列表L, 输出L的中位数（若结果为小数，则保留一位小数）。例如： L=[0,1,2,3,4]  ，则输出：2  。
+
+```python
+L.sort()
+if len(L)%2 == 0:
+    print((L[len(L)/2]+L[len(L)/2 - 1])/2.0)
+else:
+    print(L[int(len(L)/2)])
+```
+
+***
+> 3.给你两个正整数a和b， 输出它们的最大公约数。例如：a = 3, b = 5，则输出：1。
+
+```python
+def gcd(a, b):
+    for i in range(1, min(a, b) + 1):
+        if (a%i == 0) and (b%i == 0):
+            gcd = i
+    return gcd
+print(gcd(a, b))
+```
+
+* 辗转相除法
+
+```python
+def gcd(a, b):
+    if a%b == 0:
+        return b
+    return gcd(b, a%b)
+print(gcd(a, b))
+```
+
+```python
+while b:
+    a,b = b, a%b
+print(a)
+```
+
+* 更相减损法
+
+```python
+def gcd(a, b):
+    if a > b:
+        a, b = b, a
+    if a==b:
+        return a
+    return gcd(b-a, a)
+print(gcd(a, b))
+```
+
+***
+> 4.给你两个正整数a和b， 输出它们的最小公倍数。例如：a = 3, b = 5，则输出：15。
+
+```python
+c = a*b
+while b:
+    a, b = b, a%b
+print(c/a)
+```
+
+***
+> 5.给你一个正整数列表 L, 输出L内所有数字的乘积末尾0的个数。(提示:不要直接相乘,数字很多,相乘得到的结果可能会很大)。例如： L=[2,8,3,50]，则输出：2。
+
+```python
+count_2 = 0
+count_5 = 0
+for i in L:
+    while i%2 == 0:
+        count_2 += 1
+        i = i/2
+    while i%5 == 0:
+        count_5 += 1
+        i = i/5
+if count_2>count_5:
+    print(count_5)
+else:
+    print(count_2)
+```
+
+***
+> 6.给你一个正整数列表 L, 判断列表内所有数字乘积的最后一个非零数字的奇偶性。如果为奇数输出1,偶数则输出0。例如：L=[2,8,3,50]，则输出：0。
+
+```python
+count_2 = 0
+count_5 = 0
+for i in L:
+    while i%2 == 0:
+        count_2 += 1
+        i = i/2
+    while i%5 == 0:
+        count_5 += 1
+        i = i/5
+if count_2 == count_5:
+    print(1)
+else:
+    print(0)
+```
+
+***
+> 7.逆解最大公约数与最小公倍数。输出这两个数，小的在前，大的在后，以空格隔开。若有多组解，输出它们之和最小的那组。注：所给数据都有解，不用考虑无解的情况。例如：a=3, b = 60，则输出：12 15。
+
+```python
+x = [i for i in range(1, b+1) if b % i == 0]
+y = [int(a*b/i) for i in x]
+z = [(i, j) for i, j in zip(x, y)]
+result = sorted(z, key=sum)[0]
+print('%d %d' % (min(result), max(result)))
+```
+
+* 已知x、y乘积，x、y相等时和最小。
+
+```python
+import math
+for i in range(int(math.sqrt(a*b)), 0, -1):
+    if (i % a == 0) and (a*b/i % a == 0):
+        print('%d %d' % (i, a*b/i))
+        break
+```
+
+***
+
+> 8.乘法表
+
+```python3
+for i in range(1, 10):
+    for j in range(1, i+1):
+        print("{}x{}={:>2}".format(i, j, i*j), end='\t')
+    print('')
+```
