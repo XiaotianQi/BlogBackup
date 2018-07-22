@@ -1,0 +1,75 @@
+***
+
+## 常用装饰器
+
+### `@lru_cache`
+
+***
+
+### `@property`
+
+`@property` 使方法像属性一样调用，并且提供了可读、可写、可删除的操作。
+
+#### 只读
+
+```python
+class Exam(object):
+    def __init__(self, score):
+        self._score = score
+
+    @property
+    def score(self):
+        return self._score
+```
+
+仅使用 `@property` 时，`score` 就变成一个只读属性。此时只能用 `test = Exam(60)` 进行赋值。若使用 `test.score = 75` 则会返回 `AttributeError: can't set attribute` 错误。
+
+```python
+test = Exam(60)
+print(test.score)
+
+
+输出结果：
+60
+```
+
+#### 可写
+
+`@property` 本身又创建了另一个装饰器 `@score.setter`，负责把一个 `setter` 方法变成属性赋值。此时，`score` 不仅可读，还可以写入。
+
+```python
+class Exam(object):
+    def __init__(self, score):
+        self._score = score
+
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        if not isinstance(value, int):
+            raise ValueError('score must be an integer!')
+        if value < 0 or value > 100:
+            raise ValueError('score must between 0 ~ 100!')
+        self._score = value
+```
+
+```python
+test = Exam(60)
+print(test.score)
+test.score = 75
+print(test.score)
+test.score = 175
+print(test.score)
+
+
+输出结果：
+60
+75
+ValueError: score must between 0 ~ 100!
+```
+
+***
+
+### @total_ordering
