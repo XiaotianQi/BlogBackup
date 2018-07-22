@@ -1,10 +1,98 @@
 装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。他们有助于让我们的代码更简短，也更Pythonic。
 
-## 装饰器
-
 装饰器是可调用对象，其参数是被装饰的函数/类。装饰器处理并返回被装饰的函数，或者替换成另一个可调用对象，以某种方式增强函数。
 
+## 函数装饰器
+
+### 简单的日志
+
+每次函数调用，都会在屏幕中打印日志信息。
+
+```python
+import functools
+
+def logit(func):
+    @functools.wraps(func)
+    def wrapped_function(*args, **kwargs):
+        logging.warn("%s was called" % func.__name__)
+        return func(*args, **kwargs)
+    return wrapped_function
+```
+
+```python
+@decorator
+def foo(x):
+    print('its foo')
+    return x+x
+
+print(foo(2))
+```
+
+```bash
+WARNING:root:foo was called
+its foo
+4
+```
+
 装饰器本质上是一个 Python 函数或类，它可以让其他函数或类在不需要做任何代码修改的前提下增加额外功能，装饰器的返回值也是一个函数/类对象。可以抽离出大量与函数功能本身无关的雷同代码到装饰器中并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。典型的行为：把被装饰的函数替换成新函数，二者接受相同的参数，而且返回被装饰函数本该返回的值，同时还会做些而外的操作。
+
+***
+
+### 带参数的日志装饰器
+
+插入参数 `logfile` 是日志信息输出的文件。被装饰函数调用成功和失败，都会打印不同的日志信息。
+
+```python
+import functools, logging
+
+def logit(logfile='out.log'):
+    def logging_decorator(func):
+        logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=logfile,
+                    filemode='w')
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+        console.setFormatter(formatter)
+        @functools.wraps(func)
+        def wrapped_function(*args, **kwargs):
+            try:
+                result = func(*args, **kwargs)
+            except:
+                logging.getLogger('').addHandler(console)
+                logging.warn("%s was crashed" % func.__name__)
+            else:
+                logging.getLogger('').addHandler(console)
+                logging.warn("%s was called" % func.__name__)
+            return result
+        return wrapped_function
+    return logging_decorator
+```
+
+关键是 `logit` 是装饰器工厂函数，要返回 `logging_decorator`。
+
+```python
+@logit(logfile='out.log')
+def foo(x):
+    print('its foo')
+    return x+x
+
+print(foo(2))
+```
+
+若不使用语法糖 `@logit(logfile='out.log')`，则：`logit()(foo)` 或者 `logit(logfile='out_1.log')(foo)`。
+
+```bash
+its foo
+2018-07-21 10:55:50,861 1.py[line:24] WARNING foo was called
+4
+```
+
+***
+
+### 装饰器调用顺序
 
 函数装饰器再导入模块时立即执行，而被装饰的函数只有在调用时运行。
 
@@ -49,15 +137,11 @@ running f3
 
 显而易见，当使用装饰器 `register` 时，`register` 已经执行。`f1`、`f2` 与 `f3`相同，直到被调用才执行。
 
-```python
-def decorator(func):
-        def wrapper(*args, **kwargs):
-            logging.warn("%s is running" % func.__name__)
-            return func(*args, **kwargs)
-        return wrapper
-```
-
 ***
+
+### clock 装饰器
+
+计算函数调用使用的时间的装饰器。
 
 ```python
 import time
@@ -158,72 +242,37 @@ if __name__ == '__main__':
 
 ***
 
-## 常用装饰器
+## 类装饰器
 
-### `@property`
-
-`@property` 使方法像属性一样调用，并且提供了可读、可写、可删除的操作。
-
-#### 只读
+相比函数装饰器，类装饰器具有灵活度大、高内聚、封装性等优点。使用类装饰器主要依靠类的__call__方法，当使用 @ 形式将装饰器附加到函数上时，就会调用此方法。
 
 ```python
-class Exam(object):
-    def __init__(self, score):
-        self._score = score
+class logit(object):
+    def __init__(self, func):
+        self._func = func
 
-    @property
-    def score(self):
-        return self._score
-```
-
-仅使用 `@property` 时，`score` 就变成一个只读属性。此时只能用 `test = Exam(60)` 进行赋值。若使用 `test.score = 75` 则会返回 `AttributeError: can't set attribute` 错误。
-
-```python
-test = Exam(60)
-print(test.score)
-
-
-输出结果：
-60
-```
-
-#### 可写
-
-`@property` 本身又创建了另一个装饰器 `@score.setter`，负责把一个 `setter` 方法变成属性赋值。此时，`score` 不仅可读，还可以写入。
-
-```python
-class Exam(object):
-    def __init__(self, score):
-        self._score = score
-
-    @property
-    def score(self):
-        return self._score
-
-    @score.setter
-    def score(self, value):
-        if not isinstance(value, int):
-            raise ValueError('score must be an integer!')
-        if value < 0 or value > 100:
-            raise ValueError('score must between 0 ~ 100!')
-        self._score = value
+    def __call__(self, *args, **kwargs):
+        logging.warn("%s started" % self._func.__name__)
+        self._func()
+        logging.warn("%s stopped" % self._func.__name__)
 ```
 
 ```python
-test = Exam(60)
-print(test.score)
-test.score = 75
-print(test.score)
-test.score = 175
-print(test.score)
+@logit
+def bar():
+    print ('bar')
 
+bar()
+```
 
-输出结果：
-60
-75
-ValueError: score must between 0 ~ 100!
+```bash
+WARNING:root:bar started
+bar
+WARNING:root:bar stopped
 ```
 
 ***
 
-### @total_ordering
+参考：
+
+[刘志军](https://foofish.net/python-decorator.html)
