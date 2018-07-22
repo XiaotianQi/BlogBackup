@@ -46,6 +46,34 @@ Out[10]: 2210988897088
 
 可以看出 `a` 值由 `abc` 变化为 `abcd`。同时，其标识也发生了变化。也就是说，我们没有对 `a` 的值进行操作，而是对 `a` 进行了重新赋值！
 
+```python
+def add_to(num, target=[]):
+    target.append(num)
+    return target
+```
+
+```python
+print(add_to(1))
+print(add_to(2))
+print(add_to(3))
+```
+
+```bash
+[1]
+[1, 2]
+[1, 2, 3]
+```
+
+在设置函数默认参数时，使用可变变量会产生错误，可以使用 `target=None` 代替。
+
+```python
+def add_to(element, target=None):
+    if target is None:
+        target = []
+    target.append(element)
+    return target
+```
+
 ***
 
 ## 元组的相对不可变性
@@ -87,7 +115,7 @@ Out[63]: 1885692320
 ```
 
 * 可以对元组 `t1` 中的 list 类型的可变对象进行操作；
-* 但是，对元组中的可变对象操作后，无论可变对象的标识还是元组的标识，都为发生变化；
+* 但是，对元组中的可变对象操作后，无论可变对象的标识还是元组的标识，都未发生变化；
 * 只有，当对 `t1` 进行修改的时候，二者才同时发生了变化。
 
 元组不可以修改，只能增加新的部分。可使用切片操作，但是无法使用 `append()`、`pop()` 等方法。
