@@ -418,15 +418,16 @@ def func1():
     print(name)
 
 def func2():
-    name = "456"
+    name = "789"
     return func1
 
+name = "456"
 foo = func2()
 foo()
 ```
 
 ```bash
-123
+456
 ```
 
 `func2` 对变量的修改，无法影响 `func1` 中的变量值。
