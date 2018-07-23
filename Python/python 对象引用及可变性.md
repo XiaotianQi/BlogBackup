@@ -391,19 +391,17 @@ Out[94]: tuple
 序列拆封：
 
 ```cmd
-In [95]: x, y, z = t
+In [1]: user_tuple = ('Bob', 25, 180, 70)
 
-In [96]: x
-Out[96]: 1
+In [2]: name, age, height, weight = user_tuple
 
-In [97]: y
-Out[97]: 2
+In [3]: print(name, age, height, weight)
+Bob 25 180 70
 
-In [98]: z
-Out[98]: 3
+In [4]: name, *others = user_tuple
 
-In [99]: type(x)
-Out[99]: int
+In [5]: print(name, others)
+Bob [25, 180, 70]
 ```
 
 元组封装的逆操作就是序列拆封。这个调用等号右边可以是任何线性序列，序列拆封要求左侧的变量数目与序列的元素个数相同。
