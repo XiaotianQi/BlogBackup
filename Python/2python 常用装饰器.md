@@ -1,16 +1,15 @@
+
+常用装饰器
+
+## `@lru_cache`
+
 ***
 
-## 常用装饰器
-
-### `@lru_cache`
-
-***
-
-### `@property`
+## `@property`
 
 `@property` 使方法像属性一样调用，并且提供了可读、可写、可删除的操作。
 
-#### 只读
+### 只读
 
 ```python
 class Exam(object):
@@ -33,7 +32,7 @@ print(test.score)
 60
 ```
 
-#### 可写
+### 可写
 
 `@property` 本身又创建了另一个装饰器 `@score.setter`，负责把一个 `setter` 方法变成属性赋值。此时，`score` 不仅可读，还可以写入。
 
@@ -72,4 +71,36 @@ ValueError: score must between 0 ~ 100!
 
 ***
 
-### @total_ordering
+## `@total_ordering`
+
+让类支持比较操作。只需要在类中实现 `__eq__` 方法和以下方法中的任意一个 `__lt__`、`__le__`、`__gt__`、`__ge__`，那么 `@total_ordering` 就能自动实现余下的几种比较运算。
+
+```python
+from functools import total_ordering
+
+@total_ordering
+class Rectangle(object):
+    __slots__ = ('width', 'height')
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def __eq__(self,rect):
+        return self.area() == rect.area()
+
+    def __lt__(self,rect):
+        return self.area() < rect.area()
+```
+
+```python
+rect1 = Rectangle(1.0,2.0)
+rect2 = Rectangle(2.0,1.0)
+print(rect1 <= rect2)
+```
+
+```bash
+True
+```
