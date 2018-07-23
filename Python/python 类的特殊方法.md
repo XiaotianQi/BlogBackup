@@ -45,7 +45,7 @@
 ```python
 # 文件对象的装饰类，用来保证文件被删除时能够正确关闭
 class FileObject(object):
-
+    __slots__ = ('filepath', 'filename')
     def __init__(self, filepath='~', filename='sample.txt'):
         # 使用读写模式打开 filepath 中的 filename 文件
         self.file = open(join(filepath, filename), 'r+')
