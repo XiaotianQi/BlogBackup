@@ -1,7 +1,4 @@
-
 常用装饰器
-
-## `@lru_cache`
 
 ***
 
@@ -104,3 +101,36 @@ print(rect1 <= rect2)
 ```bash
 True
 ```
+
+***
+
+## `@enum.unique`
+
+专门用于枚举的类装饰器。搜索 `__members__`，收集发现的任何别名。如果有的话，反馈 `ValueError`。
+
+```python
+from enum import Enum, unique
+
+@unique
+class MonthEnum(Enum):
+    Jan = 1
+    Feb = 2
+    Mar = 3
+    Apr = 4
+    May = 5
+    Jun = 6
+    Jul = 7
+    Aug = 8
+    Sep = 9
+    Oct = 10
+    Nov = 11
+    Dec = 12
+```
+
+***
+
+## `@lru_cache`
+
+***
+
+## `@classmethod`
