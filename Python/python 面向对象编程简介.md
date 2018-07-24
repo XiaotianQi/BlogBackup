@@ -151,14 +151,33 @@ class Test:
     def prt(self):
         print(self)
         print(self.__class__)
+```
 
+```python
 t = Test()
 t.prt()
+```
 
-
-输出结果：
+```bash
 <__main__.Test object at 0x0000022F3152CE10>
 <class '__main__.Test'>
+```
+
+### 访问实例方法
+
+```python
+test = Test()
+print(test.prt)
+print(Test.prt)
+```
+
+使用实例访问实例方法时，方法是绑定的(bound)。
+
+使用类名访问实例方法时，方法是未绑定的(unbound)。
+
+```bash
+<bound method Test.prt of <__main__.Test object at 0x000001CF50712080>>
+<function Test.prt at 0x000001CF506F2EA0>
 ```
 
 ### `__init__`
