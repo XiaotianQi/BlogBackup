@@ -22,7 +22,7 @@ class Animals(object):
         # 类的属性
         self.name = name
         self.qty = qty
-    # 类的方法
+    # 方法
     def print_qty(self):
         print("{}:{}".format(self.name, self.qty))
 
@@ -108,8 +108,6 @@ if __name__ == '__main__':
     # 用于验证双下划线是否是真正的私有属性
     print(cats._Animals__id)
 ```
-
-输出结果：
 
 ```python
 ['_Animals__id', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_qty', 'get_id', 'name']
@@ -265,9 +263,7 @@ class Dogs(Animals):
         print("DOGS:{}-{}".format(self.name, self.qty))
 ```
 
-输出结果：
-
-```python
+```bash
 DOGS:Husky-3
 ```
 
@@ -285,8 +281,6 @@ print(isinstance(dog, Animals))
 print(isinstance(husky, Dogs))
 print(isinstance(husky, Animals))
 ```
-
-输出结果：
 
 ```python
 True
@@ -340,101 +334,7 @@ print_twice(siamese)
 
 ***
 
-## 获取对象信息
-
-### `type()`
-
-基本类型都可以用 `type()` 判断。比如：`int`、`str`、`FunctionType`、`BuiltinFunctionType`、`LambdaType`、`GeneratorType`。
-
-```python
-import types
-
-def fn():
-    pass
-
-print(type(123)==int)
-print(type('abc')==str)
-print(type(fn)==types.FunctionType)
-print(type(abs)==types.BuiltinFunctionType)
-print(type(lambda x: x)==types.LambdaType)
-print(type((x for x in range(10)))==types.GeneratorType)
-```
-
-以上输出结果均为 `True`。
-
-但在判断 class 的继承关系就不方便。
-
-```python
-print(type(husky))
-print(type(siamese))
-
-
-输出结果：
-<class '__main__.Dogs'>
-<class '__main__.Cats'>
-```
-
-均返回了各自所属的类，而没有返回父类 `Animals`。
-
-### `isinstance()`
-
-```python
-isinstance(object, classinfo)
-```
-
-* `object` -- 实例对象。
-* `classinfo` -- 可以是直接或间接类名、基本类型或者由它们组成的元组。
-
-```python
-test = 2
-print(isinstance (test,int))
-print(isinstance (test,str))
-print(isinstance (test,(str,int,list)))
-
-输出结果：
-True
-False
-True
-```
-
-判断 `class` 的类型，可以使用 `isinstance()` 函数，尤其判断继承关系。
-
-```python
-object --> Animals --> Dogs --> husky
-```
-
-```python
-test = Animals('Test', 3)
-husky = Dogs('Husky', 2)
-print(isinstance(test, Animals))
-print(isinstance(husky, Animals))
-print(isinstance(husky, Dogs))
-
-
-输出结果：
-True
-True
-True
-```
-
-`isinstance()` 与 `type()` 区别：
-
-* `type()` 不会认为子类是一种父类类型，不考虑继承关系。
-* `isinstance()` 会认为子类是一种父类类型，考虑继承关系。
-
-如果要判断两个类型是否相同**推荐**使用 isinstance()。
-
-### `dir()`
-
-```python
-dir([object])
-```
-
-* `object` -- 对象、变量、类型。
-
-`dir()` 函数不带参数时，返回当前范围内的变量、方法和定义的类型列表；带参数时，返回参数的属性、方法列表。如果参数包含方法 `__dir__()`，该方法将被调用。如果参数不包含 `__dir__()`，该方法将最大限度地收集参数信息。
-
-### `getattr()`、`setattr()` 以及 `hasattr()`
+## `getattr()`、`setattr()` 以及 `hasattr()`
 
 `getattr()` 函数用于返回一个对象属性值。
 
@@ -490,9 +390,9 @@ if hasattr(animals, 'print_qty'):
     print(getattr(animals, 'print_qty'))
     fn = getattr(animals, 'print_qty')
     fn()
+```
 
-
-输出结果：
+```bash
 Animals
 404
 001
