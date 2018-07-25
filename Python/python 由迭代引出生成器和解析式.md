@@ -74,16 +74,162 @@ for i in fib(100):
 ```python
 def triangles(num):
     lst = [1]
-    n = 0
-    while n<num:
+    for i in range(num):
         yield lst
         lst = [sum(i) for i in zip([0] + lst, lst + [0])]
-        n += 1
+
 
 for i in triangles(10):
     print(i)
 ```
 
+字母加密：
+
+```python
+def key_value_gen(k):
+    yield chr(k+65)
+    yield chr((k+13)%26+65)
+
+d = dict(map(key_value_gen, range(26)))
+```
+
+***
+
+## 解析式(comprehensions)
+
+解析式（又称推导式）是Python的一种独有特性。解析式是可以从一个数据序列构建另一个新的数据序列的结构体。 共有三种推导：
+
+* 列表(list)解析式
+* 集合(set)解析式
+* 字典(dict)解析式
+
+### 列表(list)解析式
+
+```python
+list_variable = [out_exp for out_exp in input_list if exp]
+```
+
+```python
+In [1]: lst = [i for i in range(20) if i%2 == 0]
+
+In [2]: lst
+Out[2]: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+```
+
+使用嵌套 `if`：
+
+```python
+In [7]: lst = [i**2 for i in range(50) if i%2 == 0 if i%5 == 0]
+
+In [8]: lst
+Out[8]: [0, 100, 400, 900, 1600]
+```
+
+嵌套循环：
+
+```python
+In [11]: lst = [i*j for i in [1, 3, 5] for j in [2, 4, 6]]
+
+In [12]: lst
+Out[12]: [2, 4, 6, 6, 12, 18, 10, 20, 30]
+```
+
+当传入函数时：
+
+以 `lambda` 为例，`lst` 中储存的是函数，并不是函数的调用结果。当调用其中的函数时，`i` 的值已经是 2。
+
+```python
+In [22]: lst = [lambda :x**2 for x in range(3)]
+
+In [23]: lst
+Out[23]:
+[<function __main__.<listcomp>.<lambda>()>,
+ <function __main__.<listcomp>.<lambda>()>,
+ <function __main__.<listcomp>.<lambda>()>]
+
+In [24]: lst[0]()
+Out[24]: 4
+
+In [25]: lst[1]()
+Out[25]: 4
+
+In [26]: lst[2]()
+Out[26]: 4
+```
+
+### 集合(set)解析式
+
+集合解析式跟列表解析式类似。唯一的区别在于集合解析式使用大括号 `{}`。
+
+```python
+In [3]: s = {i for i in range(20) if i%2 != 0}
+
+In [4]: s
+Out[4]: {1, 3, 5, 7, 9, 11, 13, 15, 17, 19}
+```
+
+### 字典(dict)解析式
+
+```python
+d = {key: value for (key, value) in iterable}
+```
+
+```python
+In [45]: d = {i:chr(i+65) for i in range(5)}
+
+In [46]: d
+Out[46]: {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E'}
+```
+
+交换上面代码中字典 `d` 的 key 和 value 的位置。
+
+```python
+In [50]: d = {v: k for k, v in d.items()}
+
+In [51]: d
+Out[51]: {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4}
+
+```
+
+把同一个字母但不同大小写的值合并。
+
+```python
+mcase = {'a': 10, 'b': 34, 'A': 7, 'Z': 3}
+
+mcase_frequency = {
+    k.lower(): mcase.get(k.lower(), 0) + mcase.get(k.upper(), 0)
+    for k in mcase.keys()
+}
+```
+
+```bash
+mcase_frequency == {'a': 17, 'z': 3, 'b': 34}
+```
+
+***
+
+## 生成器表达式
+
+将解析式外围括号改为圆括号 `(` `)`，便是生成器表达式。
+
+生成器表达式的语法与解析式相似，但它返回的是生成器对象。解析式自创建之后便存在，会占用所有必要内存来存储其值。生成器表达式不会使用这么多的存储空间，而是处于暂挂状态，当对其进行迭代时才恢复，就像生成器函数的主体一样。
+
+```python
+In [52]: lst = (i for i in 'abcdef')
+
+In [53]: lst
+Out[53]: <generator object <genexpr> at 0x0000022A5A55DA20>
+
+In [54]: for i in lst:
+    ...:     print(i)
+    ...:
+a
+b
+c
+d
+e
+f
+```
 ***
 
 参考：
