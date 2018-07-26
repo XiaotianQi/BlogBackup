@@ -116,7 +116,7 @@ In [2]: lst
 Out[2]: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 ```
 
-使用嵌套 `if`：
+* 使用嵌套 `if`：
 
 ```python
 In [7]: lst = [i**2 for i in range(50) if i%2 == 0 if i%5 == 0]
@@ -125,7 +125,34 @@ In [8]: lst
 Out[8]: [0, 100, 400, 900, 1600]
 ```
 
-嵌套循环：
+* 多维数组：
+
+```python
+In [15]: lst = [[x, x**2] for x in range(5)]
+
+In [16]: lst
+Out[16]: [[0, 0], [1, 1], [2, 4], [3, 9], [4, 16]]
+```
+
+`out_exp` 也可以替换为 dict 和 tuple 等：
+
+```python
+In [17]: lst = [{x:x**2} for x in range(5)]
+
+In [18]: lst
+Out[18]: [{0: 0}, {1: 1}, {2: 4}, {3: 9}, {4: 16}]
+```
+
+5x3 矩阵：
+
+```python
+In [30]: lst = [[i for i in range(5)] for j in range(3)]
+
+In [31]: lst
+Out[31]: [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]
+```
+
+区别于不使用 `[]` 的情况：
 
 ```python
 In [11]: lst = [i*j for i in [1, 3, 5] for j in [2, 4, 6]]
@@ -134,54 +161,106 @@ In [12]: lst
 Out[12]: [2, 4, 6, 6, 12, 18, 10, 20, 30]
 ```
 
-当传入函数时：
+与下面代码效果相同：
+
+```python
+lst = []
+for i in [1, 3, 5]:
+    for j in [2, 4, 6]:
+        lst.append(i*j)
+```
+
+* 列表展平
+
+```python
+In [31]: lst
+Out[31]: [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]
+
+In [32]: [i for j in lst for i in j]
+Out[32]: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+```
+
+与下面代码效果相同：
+
+```python
+l = []
+for j in lst:
+    for i in j:
+        l.append(i)
+print(l)
+```
+
+* 矩阵转置
+
+```python
+In [65]: lst = [[i for i in range(5)] for j in range(3)]
+
+In [66]: lst
+Out[66]: [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]
+
+In [67]: l = [[row[i] for row in lst] for i in range(5)]
+
+In [68]: l
+Out[68]: [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]
+```
+
+或者写为：
+
+```python
+l = []
+for i in range(5):
+    l_row = []
+    for row in lst:
+        l_row.append(row[i])
+    l.append(l_row)
+```
+
+或者：
+
+```python
+list(zip(*lst))
+```
+
+* `out_exp` 为函数：
 
 以 `lambda` 为例，`lst` 中储存的是函数，并不是函数的调用结果。
 
 ```python
-In [10]: lst = [lambda x:x*2 for x in range(3)]
+In [36]: lst = [lambda x:x*2 for i in range(10)]
 
-In [11]: lst
-Out[11]:
+In [37]: lst
+Out[37]:
 [<function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
  <function __main__.<listcomp>.<lambda>(x)>,
  <function __main__.<listcomp>.<lambda>(x)>]
 
-In [12]: lst[0](1)
-Out[12]: 2
-
-In [13]: lst[2](1)
-Out[13]: 2
-
-In [14]: for i in lst:
-    ...:     print(i(1))
-    ...:
-2
-2
-2
+In [38]: [i(1) for i in lst]
+Out[38]: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 ```
 
-区别于以下这种情况：
-
-当调用其中的函数时，`x` 的值已经是 `2`。
+如果引起闭包：
 
 ```python
-In [22]: lst = [lambda :x*2 for x in range(3)]
+In [33]: lst = [lambda x:x*i for i in range(10)]
 
-In [23]: lst
-Out[23]:
-[<function __main__.<listcomp>.<lambda>()>,
- <function __main__.<listcomp>.<lambda>()>,
- <function __main__.<listcomp>.<lambda>()>]
+In [34]: [i(1) for i in lst]
+Out[34]: [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+```
 
-In [24]: lst[0]()
-Out[24]: 4
+解决上面代码中 `i` 值为 9 的方法，可以使用 `lambda` 本地变量，或者使用生成器表达式。
 
-In [25]: lst[1]()
-Out[25]: 4
+```python
+In [38]: lst = [lambda x, i=i: x*i for i in range(10)]
 
-In [26]: lst[2]()
-Out[26]: 4
+In [39]: [i(1) for i in lst]
+Out[39]: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
 ### 集合(set)解析式
