@@ -136,10 +136,37 @@ Out[12]: [2, 4, 6, 6, 12, 18, 10, 20, 30]
 
 当传入函数时：
 
-以 `lambda` 为例，`lst` 中储存的是函数，并不是函数的调用结果。当调用其中的函数时，`i` 的值已经是 2。
+以 `lambda` 为例，`lst` 中储存的是函数，并不是函数的调用结果。
 
 ```python
-In [22]: lst = [lambda :x**2 for x in range(3)]
+In [10]: lst = [lambda x:x*2 for x in range(3)]
+
+In [11]: lst
+Out[11]:
+[<function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>]
+
+In [12]: lst[0](1)
+Out[12]: 2
+
+In [13]: lst[2](1)
+Out[13]: 2
+
+In [14]: for i in lst:
+    ...:     print(i(1))
+    ...:
+2
+2
+2
+```
+
+区别于以下这种情况：
+
+当调用其中的函数时，`x` 的值已经是 `2`。
+
+```python
+In [22]: lst = [lambda :x*2 for x in range(3)]
 
 In [23]: lst
 Out[23]:
