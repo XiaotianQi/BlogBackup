@@ -119,6 +119,22 @@ for x in range(3):
 
 同上，x 循环亦被 `break` 跳出。
 
+* `for/else`
+
+`else` 会在循环正常结束时执行。这意味着，循环没有遇到任何 `break`。根据这个特点，可以清楚掌握循环结束的原因，或者获取与 `break` 相左的信息。
+
+找出2到10之间的数字的因子和质数：
+
+```python
+for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            print(n, 'equals', x, '*', n / x)
+            break
+    else:
+        print(n, 'is a prime number')
+```
+
 ### `yield`
 
 生成器函数。其后语句仍会执行。
