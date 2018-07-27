@@ -8,15 +8,16 @@
 
 ### str.split()
 
-split() 通过指定分隔符对字符串进行切片，如果参数 num 有指定值，则仅分隔 num 个子字符串。
-
 ```python
 str.split(str="", maxsplit=string.count(str))
 ```
 
-* str：分隔符，默认为所有的空字符，包括空格、换行(\n)、制表符(\t)等。
-* maxsplit：分割次数。
-* 返回分割后的**字符串列表**。
+* `str`：分隔符，默认为所有的空字符，包括空格、换行(`\n`)、制表符(`\t`)等。
+* `maxsplit`：分割次数。
+
+返回分割后的字符串列表。
+
+通过指定分隔符对字符串进行切片，如果参数 `maxsplit` 有指定值，则分裂器会分裂出 `maxsplit + 1` 个元素。如果未给值，或者给了 -1 作为值，那就表示没有分裂数量限制。
 
 ```python
 test_str = "a:b::c:d"
@@ -31,13 +32,24 @@ print(test_str.split(':'))
 ['a', 'b', '', 'c', 'd']
 ```
 
-**tip**:
+* 配合 `*args` 分割字符串：
 
-如果给定了一个参数 maxsplit，且不是负数，分裂器会分裂出 maxsplit + 1 个元素。
+```python
+In [10]: line = 'nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false'
 
-如果未给值，或者给了 -1 作为值，那就表示没有分裂数量限制。
+In [11]: uname, *fields, homedir, sh =line.split(':')
 
-* 提取 str() 后的字典中的数值
+In [12]: uname
+Out[12]: 'nobody'
+
+In [13]: homedir
+Out[13]: '/var/empty'
+
+In [14]: sh
+Out[14]: '/usr/bin/false'
+```
+
+* 提取字典中的数值
 
 ```python
 # 提取'author'的值
