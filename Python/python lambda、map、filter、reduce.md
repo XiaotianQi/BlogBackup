@@ -27,6 +27,8 @@ Out[8]: 6
 
 * 按照指定元素排序：
 
+多维列表排序：
+
 ```python
 pairs = [('b', 1), ('a', 0), ('d', 3), ('c', 2)]
 pairs.sort(key=lambda pairs:pairs[1])
@@ -35,6 +37,25 @@ print(pairs)
 
 ```bash
 [('a', 0), ('b', 1), ('c', 2), ('d', 3)]
+```
+
+字典排序：
+
+```python
+prices = {
+    'A': 45.23,
+    'B': 612.78,
+    'C': 205.55,
+    'D': 37.20,
+    'E': 10.75
+}
+
+prices = sorted(prices.items(), key=lambda x: x[1])
+print(prices)
+```
+
+```bash
+[('E', 10.75), ('D', 37.2), ('A', 45.23), ('C', 205.55), ('B', 612.78)]
 ```
 
 * 跳转表(jump table)：
