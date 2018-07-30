@@ -121,7 +121,7 @@ Out[40]: True
 
 ## 示例
 
-获取列表中，多次出现的元素
+* 获取列表中，多次出现的元素
 
 ```python
 In [47]: l = ['a', 'b', 'c', 'b', 'd', 'm', 'n', 'n']
@@ -130,4 +130,27 @@ In [48]: s = set([i for i in l if l.count(i)>1])
 
 In [49]: s
 Out[49]: {'b', 'n'}
+```
+
+* 删除序列相同元素并保持顺序
+
+```python
+def dedupe(items, key=None):
+    seen = set()
+    for item in items:
+        val = item if key is None else key(item)
+        if val not in seen:
+            yield item
+            seen.add(val)
+```
+
+```python
+a = [ {'x':1, 'y':2}, {'x':1, 'y':3}, {'x':1, 'y':2}, {'x':2, 'y':4}]
+print(list(dedupe(a, key=lambda d: (d['x'], d['y']))))
+print(list(dedupe(a, key=lambda d: (d['x']))))
+```
+
+```bash
+[{'x': 1, 'y': 2}, {'x': 1, 'y': 3}, {'x': 2, 'y': 4}]
+[{'x': 1, 'y': 2}, {'x': 2, 'y': 4}]
 ```
