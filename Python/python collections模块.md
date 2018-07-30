@@ -168,7 +168,7 @@ defaultdict(<class 'list'>, {'Yasoob': ['Yellow', 'Red'], 'Ali': ['Blue', 'Black
 collections.Counter([iterable-or-mapping])
 ```
 
-`Counter`是一个计数器，可以针对某项数据进行计数。
+`Counter`是一个计数器，可以针对某项数据进行计数。 `Counter` 对象可以接受任意的由可哈希(hashable)元素构成的序列对象。在底层实现上，一个 `Counter` 对象就是一个字典，将元素映射到它出现的次数上。`Counter` 是 `dict` 的子类。
 
 ```python
 test = ['a', 'b', 'c', 'a', 'b', 'a']
@@ -183,7 +183,7 @@ c = Counter(test)
 print(c)
 ```
 
-`Counter` 是 `dict` 的子类，所以操作同 `dict`，在此基础上，又添加了`most_common()`、`elements()`.
+在操作同 `dict` 基础上，又添加了`most_common()`、`elements()`。
 
 ```python
 from collections import Counter
