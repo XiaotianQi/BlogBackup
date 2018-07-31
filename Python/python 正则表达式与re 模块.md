@@ -358,6 +358,15 @@ print(re.sub(r'2', 'b', test))
 a1bbc3
 ```
 
+将形式为 11/27/2012 的日期字符串改成 2012-11-27：
+
+```python
+In [31]: text = 'Today is 11/27/2012. PyCon starts 3/13/2013.'
+
+In [32]: re.sub(r'(\d+)/(\d+)/(\d+)', r'\3-\1-\2', text)
+Out[32]: 'Today is 2012-11-27. PyCon starts 2013-3-13.'
+```
+
 * `re.subn(pattern, repl, string[, count=0, flags=0])`
 
 与 `re.sub()` 调用相同，但 `re.subn()` 返回的是一个 `tuple`，包含替换后的字符串和替换次数。
