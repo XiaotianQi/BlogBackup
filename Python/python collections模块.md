@@ -64,6 +64,31 @@ user_dict = user5._asdict()
 name, *others = user5
 ```
 
+命名元组的一个主要用途是将代码从下标操作中解脱出来。因此，如果从数据库调用中返回了一个很大的元组列表，通过下标去操作其中的元素，当在表中添加了新的列的时候代码可能就会出错了。下标操作通常会让代码表意不清晰，并且非常依赖记录的结构。
+
+```python
+from collections import namedtuple
+
+Stock = namedtuple('Stock', ['name', 'Chinese', 'Math'])
+def compute_cost(records):
+    total = 0.0
+    for rec in records:
+        s = Stock(*rec)
+        total += s.Chinese + s.Math
+    return total
+```
+
+```python
+user =(
+    ('Alice', 90, 94),
+    ('Bob', 80, 80),
+    ('Clur', 76, 86),
+)
+print(compute_cost(user))
+```
+
+命名元组另一个用途就是替代字典，因为字典存储需要更多的内存空间。如果你需要构建一个非常大的包含字典的数据结构，那么使用命名元组会更加高效。但是需要注意的是，不像字典那样，一个命名元组是不可更改的。如果定义一个需要更新很多实例属性的高效数据结构，那么命名元组并不是最佳选择。这时候应该考虑定义一个包含 `__slots__` 方法的类。
+
 ***
 
 ## `defaultdict`
