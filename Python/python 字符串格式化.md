@@ -28,6 +28,29 @@ In [3]: text.center(15,'=')
 Out[3]: '===functools==='
 ```
 
+***
+
+## 和并字符串
+
+将几个小的字符串合并为一个大的字符串，可以使用 `+`、`format`、`join`.
+
+仅只是合并少数几个字符串，使用加号(+)通常已经足够了：
+
+```python
+In [16]: print(a + ' ' + b + ' ' + c)
+hi bob alice
+
+In [17]: print(' '.join([a, b, c]))
+hi bob alice
+
+In [18]: print(a, b, c, sep=' ')
+hi bob alice
+```
+
+使用加号(+)操作符去连接大量的字符串的时候是非常低效率的， 因为加号连接会引起内存复制以及垃圾回收操作。
+
+***
+
 ## 占位符
 
 ```python
