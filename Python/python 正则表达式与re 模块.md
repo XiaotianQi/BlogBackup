@@ -367,6 +367,31 @@ In [32]: re.sub(r'(\d+)/(\d+)/(\d+)', r'\3-\1-\2', text)
 Out[32]: 'Today is 2012-11-27. PyCon starts 2013-3-13.'
 ```
 
+忽略大小写的方式搜索与替换文本字符串，跟被匹配字符串的大小写保持一致：
+
+```python
+def matchcase(word):
+    def replace(m):
+        text = m.group()
+        if text.isupper():
+            return word.upper()
+        elif text.islower():
+            return word.lower()
+        elif text[0].isupper():
+            return word.capitalize()
+        else:
+            return word
+    return replace
+
+text = 'UPPER PYTHON, lower python, Mixed Python'
+text_sub = re.sub('python', matchcase('snake'), text, flags=re.IGNORECASE)
+print(text_sub)
+```
+
+```bash
+UPPER SNAKE, lower snake, Mixed Snake
+```
+
 * `re.subn(pattern, repl, string[, count=0, flags=0])`
 
 与 `re.sub()` 调用相同，但 `re.subn()` 返回的是一个 `tuple`，包含替换后的字符串和替换次数。
