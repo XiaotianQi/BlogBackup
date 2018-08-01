@@ -1,7 +1,3 @@
-字符串的格式化方法分为两种，分别为占位符 '%' 和 format 方式。
-
-***
-
 ### 占位符
 
 ```python
@@ -37,9 +33,9 @@
 a = 1
 b = 2
 print("test: %(test1)s, %(test2)d" % {"test1":a, "test2":b})
+```
 
-
-输出结果：
+```bash
 test: 1, 2
 ```
 
@@ -50,9 +46,9 @@ print("%#x" % 5)
 # 左、右对齐
 print("%+3d" % 5)
 print("%+3d" % -5)
+```
 
-
-输出结果：
+```bash
 5
 0x5
  +5
@@ -68,9 +64,9 @@ print("%07d" % 5)
 print("%7.3f" % 5.5)
 print("%7f" % 5.5)
 print("%-7.3f" % 5.5)
+```
 
-
-输出结果：
+```bash
   5
   5
 0000005
@@ -86,9 +82,9 @@ print("%-7.3f" % 5.5)
 print("%7.3f" % 5.5)
 print("%*.3f" % (7, 5.5))
 print("%7.*f" % (3, 5.5))
+```
 
-
-输出结果：
+```bash
   5.500
   5.500
   5.500
@@ -98,7 +94,7 @@ print("%7.*f" % (3, 5.5))
 
 ***
 
-### format
+### `format`
 
 基本语法是通过 {} 和 : 来代替以前的 % 。
 
@@ -142,9 +138,9 @@ print("{a}{b}".format(a="1",b="2"))
 l = ["b", "a"]
 print("{0[1]}{0[0]}".format(l))
 print("{l[1]}{l[0]}".format(l=["b", "a"]))
+```
 
-
-输出结果：
+```bash
 12
 ab
 ab
@@ -160,9 +156,9 @@ dict = {
 print("{host}{dot}{domain}".format(**dict))
 print("{dict[host]}{dict[dot]}{dict[domain]}".format
         (dict={"host":"www","domain":"xxx.cn","dot":"."}))
+```
 
-
-输出结果：
+```bash
 www.xxx.cn
 www.xxx.cn
 ```
@@ -170,36 +166,36 @@ www.xxx.cn
 ```python
 # fill、sign、width
 print("{a:w^3}".format(a="8"))
+```
 
-
-输出结果：
+```bash
 w8w
 ```
 
 ```python
 # 以逗号分隔的数字格式
 print("{:,}".format(123456789))
+```
 
-
-输出结果：
+```bash
 123,456,789
 ```
 
 ```python
 # 百分比格式
 print("{:.2%}".format(0.25))
+```
 
-
-输出结果：
+```bash
 25.00%
 ```
 
 ```python
 # 使用大括号 {} 来转义大括号
 print ("{l[0]} 对应的位置是 {{0}}".format(l=["b", "a"]))
+```
 
-
-输出结果：
+```bash
 b 对应的位置是 {0}
 ```
 
@@ -207,9 +203,9 @@ b 对应的位置是 {0}
 
 ```python
 print("{}:{}".format('127.0.0.1', 1080))
+```
 
-
-输出结果：
+```bash
 127.0.0.1:1080
 ```
 
@@ -217,9 +213,9 @@ print("{}:{}".format('127.0.0.1', 1080))
 
 ```python
 print("{server}{}:{}".format('127.0.0.1', 1080, server='Web Server Info :'))
+```
 
-
-输出结果：
+```bash
 Web Server Info :127.0.0.1:1080
 ```
 
@@ -227,9 +223,9 @@ Web Server Info :127.0.0.1:1080
 
 ```python
 print("{0[0]}.{1[0]}.{1[1]}".format(('a', 'b'), ('c', 'd')))
+```
 
-
-输出结果：
+```bash
 a.c.d
 ```
 
@@ -244,8 +240,8 @@ class Person:
 
 a = Person
 print(a('Bob', 18))
+```
 
-
-输出结果：
+```bash
 is guy is Bob,is 18 old.
 ```
