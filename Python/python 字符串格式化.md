@@ -1,4 +1,34 @@
-### 占位符
+## 基础对齐操作
+
+```python
+str.ljust(width[, fillchar])
+```
+
+`ljust()` 返回一个原字符串右对齐，默认使用空格填充至长度 `width` 的新字符串。如果指定的长度小于字符串的长度则返回原字符串。
+
+```python
+str.rjust(width[, fillchar])
+```
+
+`rjust()` 返回一个原字符串右对齐，默认使用空格填充至长度 `width` 的新字符串。如果指定的长度小于字符串的长度则返回原字符串。
+
+```python
+str.center()(width[, fillchar])
+```
+
+`center()` 方法返回一个指定的宽度 `width` 居中的字符串，`fillchar` 为填充的字符，默认为空格。
+
+```python
+In [1]: text = 'functools'
+
+In [2]: text.rjust(15,'=')
+Out[2]: '======functools'
+
+In [3]: text.center(15,'=')
+Out[3]: '===functools==='
+```
+
+## 占位符
 
 ```python
 %[(name)][flag][width][.][precision]type
@@ -94,13 +124,17 @@ print("%7.*f" % (3, 5.5))
 
 ***
 
-### `format`
+## `format`
 
-基本语法是通过 {} 和 : 来代替以前的 % 。
+函数 `format()` 同样可以用来很容易的对齐字符串。使用 `<`、`>` 或者 `^` 字符后面紧跟一个指定的宽度。
 
-先由各个参数功能展示各项功能，
+```bash
+In [4]: format(text, '=>15s')
+Out[4]: '======functools'
 
-再由 format 的3中映射方式说明如何使用。
+In [5]: format(text, '=^15s')
+Out[5]: '===functools==='
+```
 
 ```python
 {[name][:][[fill]align][sign][#][0][width][,][.precision][type]}
