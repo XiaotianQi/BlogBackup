@@ -56,6 +56,16 @@ Out[3]: True
 
 生成器都是 `Iterator` 对象。生成器可以用于 `for` 循环，也可以被 `next()` 函数不断调用并返回下一个值，直至无法继续返回下一个值抛出 `StopIteration` 错误。区别于迭代器是，生成器中的值的数量是有限的。
 
+比如实现 `range()`函数：
+
+```python
+def frange(start, stop, increment):
+    x = start
+    while x < stop:
+        yield x
+        x += increment
+```
+
 斐波那契数列的生成器。
 
 ```python
@@ -336,6 +346,7 @@ d
 e
 f
 ```
+
 ***
 
 参考：
