@@ -7,16 +7,9 @@ Python 与 MySQL 交互的基本流程如下图：
 
 ***
 
-#### **准备事项**
+## 相关函数说明
 
-* 安装 Python PyMySQL 包
-* 创建测试数据库 TESTDB
-
-***
-
-#### **相关函数说明**
-
-* pymysql.connect()
+### `pymysql.connect()`
 
 创建与数据库的连接。
 
@@ -38,29 +31,105 @@ connect = pymysql.connect("localhost", 3310, "root"，"xxx", "TESTDB", "utf8"
 )
 ```
 
-* connection 对象支持的方法
+### `connection` 对象支持的方法
 
-| 函数 | 作用 |
+| 方法 | 作用 |
 | ------ | :------- |
-| cursor() | 使用该连接，创建并返回游标 |
-| commit() | 提交当前事务 |
-| rollback() | 回滚当前事务 |
-| close() | 关闭连接 |
+| `cursor()` | 使用该连接，创建并返回游标 |
+| `.commit()` | 提交当前事务 |
+| `.rollback()` | 回滚当前事务 |
+| `.close()` | 关闭连接 |
 
-* cursor对象支持的方法
+### `cursor` 对象支持的方法和属性
 
-| 函数 | 作用 |
+| 方法 | 作用 |
 | ------ | :------- |
-| execute() | 执行数据库命令 |
-| fetchone() | 获取一个查询结果集 |
-| fetchmany(n) | 获取n个结果集 |
-| fetchall() | 获取全部查询结果集 |
-| rowcount() | 只读属性，并返回执行execute()方法后影响的行数 |
-| close() | 关闭游标对象 |
+| `.execute(operation, params=None, multi=False)` | 执行单条数据库命令 |
+|`.executemany(operation, seq_of_params)`|执行单条数据库命令，循环执行参数列表中的数据，直至结束|
+| `.fetchone()` | 获取 1 个查询结果集 |
+| `.fetchmany(size=1)` | 获取 n 个结果集 |
+| `.fetchall()` | 获取全部查询结果集，返回一个由元组构成的列表 |
+| `.close()` | 关闭游标对象 |
+
+| 属性 | 作用 |
+| ------ | :------- |
+|`.lastrowid`| 只读属性，获取所最后数据的主键 `id`，且 `id` 必须是 `AUTO_INCREMENT` |
+| `.rowcount` | 只读属性，并返回执行 `execute()` 方法后影响的行数 |
+
+#### `.execute()`
+
+```python
+cursor.execute(operation, params=None, multi=False)
+iterator = cursor.execute(operation, params=None, multi=True)
+```
+
+由其可以执行 MySQL 的命令。
+
+* `operation`：SQL 语句；
+* `params`：数据，tuple 或者 dict 类型；
+* `multi`：是否可以迭代。
+
+```python
+insert = (
+    'INSERT INTO student (name, birthday, age)'
+    'VALUES (%s %s %s)'
+)
+data = ('Alice', datetime.date(1995, 1, 5), 23)
+
+cursor.execute(insert, data)
+
+select = 'SELECT * FROM student WHERE age = %(age)s'
+cursor.execute(select, {'age': 23})
+```
+
+#### `.executemany()`
+
+```python
+cursor.executemany(operation, seq_of_params)
+```
+
+作用同 `.execute()`，不同之处在于，传入数据可以是列表，但类表中的元素仍是 `tuple`。
+
+```python
+data = [
+  ('Alice', datetime.date(1995, 1, 5), 23),
+  ('Bob', datetime.date(1995, 2, 15), 23),
+  ('Cur', datetime.date(1995, 3, 25), 23),
+]
+insert = 'INSERT INTO student (name, birthday, age) VALUES (%s %s %s)'
+cursor.executemany(insert, data)
+```
+
+写为 SQL 语句，则是：
+
+```sql
+INSERT INTO student (name, birthday, age)
+VALUES ('Alice', '1995-01-05', 23), ('Bob', '1995-02-15', 23), ('Cur', '1995-03-25', 23)
+```
+
+#### `.fetchone()`
+
+返回一个 `tuple`，一行查询结果。如果没有，则返回 `None`。
+
+还有以下拓展用法：
+
+```python
+# Using a while loop
+cursor.execute("SELECT * FROM student")
+row = cursor.fetchone()
+while row is not None:
+    print(row)
+    row = cursor.fetchone()
+
+# Using the cursor as iterator
+cursor.execute("SELECT * FROM student")
+for row in cursor:
+    print(row)
+```
 
 ***
 
-#### **创建数据库表**
+## 创建数据库表
 
 ```python
 # _*_coding:utf-8_*_
@@ -90,7 +159,7 @@ db.close()
 
 ***
 
-#### **添加数据**
+## 添加数据
 
 ```python
 # _*_coding:utf-8_*_
@@ -122,7 +191,7 @@ db.close()
 
 ***
 
-#### **查询数据**
+## 查询数据
 
 ```python
 # _*_coding:utf-8_*_
@@ -158,7 +227,7 @@ fname=Mac,lname=Mohan,age=20,sex=M,income=2000
 
 ***
 
-#### **更新数据**
+## 更新数据
 
 ```python
 # _*_coding:utf-8_*_
@@ -186,7 +255,7 @@ db.close()
 
 ***
 
-#### **删除数据**
+## 删除数据
 
 ```python
 # _*_coding:utf-8_*_
@@ -206,3 +275,9 @@ except:
 db.close()
 
 ```
+
+***
+
+参考：
+
+[cursor.MySQLCursor Class](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor.html)
