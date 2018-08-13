@@ -59,14 +59,14 @@ def openCsvFile(path):
 ```
 
 ```python
-header = ['Symbol','Price','Date','Time','Change','Volume']
+header = ['Symbol', 'Price', 'Date', 'Time', 'Change', 'Volume']
 data = [
-    ["AA", 39.48, "6/11/2007", "9:36am", -0.18,181800],
-    ["AIG", 71.38, "6/11/2007", "9:36am", -0.15,195500],
-    ["AXP", 62.58, "6/11/2007", "9:36am", -0.46,935000],
-    ["BA", 98.31, "6/11/2007", "9:36am", +0.12,104800],
-    ["C", 53.08, "6/11/2007", "9:36am", -0.25,360900],
-    ["CAT", 78.29, "6/11/2007", "9:36am", -0.23,225400]
+    ["AA", 39.48, "6/11/2007", "9:36am", -0.18, 181800],
+    ["AIG", 71.38, "6/11/2007", "9:36am", -0.15, 195500],
+    ["AXP", 62.58, "6/11/2007", "9:36am", -0.46, 935000],
+    ["BA", 98.31, "6/11/2007", "9:36am", +0.12, 104800],
+    ["C", 53.08, "6/11/2007", "9:36am", -0.25, 360900],
+    ["CAT", 78.29, "6/11/2007", "9:36am", -0.23, 225400]
 ]
 writeCsvFile('testCSV.csv', data, header)
 openCsvFile('testCSV.csv')
@@ -84,6 +84,80 @@ Successful! Path: testCSV.csv.
 ```
 
 ![csv文件](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fu60zqjnn8j20g006f74c.jpg)
+
+***
+
+## `csv.DictReader`
+
+```python
+class csv.DictReader(f, fieldnames=None, restkey=None, restval=None, dialect='excel', *args, **kwds)
+```
+
+`csv.DictReader` 会将 `CSV` 文件每一行转换成字典对象返回，而不是列表对象，并把字段列表保存在变量 `csv.DictReader` 里，字段列表同时作为字典对象的键。(Create an object that operates like a regular reader but **maps** the information in each row to an **OrderedDict** whose **keys are given by** the optional **fieldnames parameter**.)
+
+* `fieldnames`：The fieldnames parameter is a **sequence**. If fieldnames is omitted, the values in the first row of file f will be used as the fieldnames. Regardless of how the fieldnames are determined, the **ordered dictionary** preserves their original ordering.
+* `restkey`：If a row has more fields than fieldnames, the remaining data is **put in a list** and stored with the fieldname specified by restkey (which defaults to None). If a non-blank row has fewer fields than fieldnames, the missing values are filled-in with None.
+
+```python
+with open('testCSV.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    print(csv.DictReader)
+    for row in reader:
+        print(row['Symbol'], row['Price'], row['Change'])
+```
+
+其中，`reader` 是 `DictReader` 类型，`row` 是 `OrderedDict` 类型。
+
+```bash
+['Symbol', 'Price', 'Date', 'Time', 'Change', 'Volume']
+AA 39.48 -0.18
+AIG 71.38 -0.15
+AXP 62.58 -0.46
+BA 98.31 0.12
+C 53.08 -0.25
+CAT 78.29 -0.23
+```
+
+## `csv.DictWriter`
+
+```python
+class csv.DictWriter(f, fieldnames, restval='', extrasaction='raise', dialect='excel', *args, **kwds)
+```
+
+`csv.writer` 中的数据使用 `csv.DictWriter` 实现。字段名称不会被自动写入到文件，需要使用 `writeheader()` 方法写入。
+
+* `fieldnames`：The fieldnames parameter is **a sequence of keys** that **identify the order** in which values in the dictionary passed to the `writerow()` method are written to file `f`.
+
+```python
+import csv
+
+header = ['Symbol', 'Price', 'Date', 'Time', 'Change', 'Volume']
+data = [
+    ["AA", 39.48, "6/11/2007", "9:36am", -0.18, 181800],
+    ["AIG", 71.38, "6/11/2007", "9:36am", -0.15, 195500],
+    ["AXP", 62.58, "6/11/2007", "9:36am", -0.46, 935000],
+    ["BA", 98.31, "6/11/2007", "9:36am", +0.12, 104800],
+    ["C", 53.08, "6/11/2007", "9:36am", -0.25, 360900],
+    ["CAT", 78.29, "6/11/2007", "9:36am", -0.23, 225400]
+]
+
+with open('testCSV.csv', 'w', newline='') as csvfile:
+
+    writer = csv.DictWriter(csvfile, fieldnames=header)
+    writer.writeheader()
+
+    for row in data:
+        writer.writerow({
+            'Symbol': row[0],
+            'Price': row[1],
+            'Date': row[2],
+            'Time': row[3],
+            'Change': row[4],
+            'Volume': row[5],
+        })
+```
+
+输出结果与其相同。
 
 ***
 
