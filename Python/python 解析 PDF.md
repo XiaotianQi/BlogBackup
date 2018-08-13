@@ -25,6 +25,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LTTextBoxHorizontal, LAParams
 from pdfminer.pdfinterp import PDFTextExtractionNotAllowed
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 '''
 解析单个 pdf 中的文本内容，保存到 txt 文件中
@@ -41,6 +42,12 @@ def pdfParse(pdfPath, outPath='outfile.txt', password=''):
     doc.set_parser(praser)
     # 验证密码，如果没有密码，就使用空字符串
     doc.initialize(password)
+
+    # 使用 pypdf2 获取总页数，显示转换进度
+    pdfFile = PdfFileReader(fp)
+    pageCount = pdfFile.getNumPages()
+    count = 0
+    print('Begin: ', pdfPath)
 
     # 检测文档是否提供 txt 转换，不提供就忽略
     if not doc.is_extractable:
@@ -64,11 +71,15 @@ def pdfParse(pdfPath, outPath='outfile.txt', password=''):
             # 想要获取文本就获得对象的text属性，
             # 使用聚合器get_result()方法获取页面内容
             layout = device.get_result()
+            count += 1
+            print('Page:{}/{}'.format(count, pageCount))
             for x in layout:
                 if (isinstance(x, LTTextBoxHorizontal)):
                     with open(outPath, 'a') as f:
                         results = x.get_text()
                         f.write(results + '\n')
+    fp.close()
+    print('Well Done: ', outPath)
 
 '''
 解析多个 pdf 中的文本内容，保存到txt文件中
@@ -86,10 +97,23 @@ def pdfFolder(folder, password=''):
         pdfParse(pdfPath, outPath, password)
         print(outPath)
 
+def splitPdf(pdfPath):
+    pdfFile = PdfFileReader(open(pdfPath, 'rb'))
+    pageCount = pdfFile.getNumPages()
+    print(pageCount)
+    for page in range(pageCount):
+        pdfOut = PdfFileWriter()
+        pdfOut.addPage(pdfFile.getPage(page))
+        pdfOutPath = pdfPath.split(r'.')[0] + str(page) + '.pdf'
+        pdfOut.write(open(pdfOutPath, 'wb'))
+        outPath = pdfPath.split(r'.')[0] + str(page) + '.txt'
+        pdfParse(pdfPath=pdfOutPath, outPath=outPath)
+        os.remove(pdfOutPath)
+
 
 if __name__ == '__main__':
-    pdfFolder('test')
-    print('Well Done!')
+    pdfParse('wtest.pdf')
+
 ```
 
 以上代码功能缺陷：
