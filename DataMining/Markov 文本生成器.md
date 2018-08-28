@@ -41,6 +41,68 @@ U eat bananas.I eat aplles.
 
 ***
 
+### 代码实现
+
+```python
+from urllib.request import urlopen
+from random import randint
+import re
+
+def buildWordDict(text):
+    text = re.sub(r'\n', ' ', text)
+    text = re.sub(r'\"', '', text)
+
+    punctuation = [',', '.', ';', ':']
+    for symbol in punctuation:
+        text = text.replace(symbol, ' '+symbol+' ')
+    
+    words = text.split(' ')
+    words = [word for word in words if word !='']
+
+    wordDict = {}
+    for i in range(len(words)-1):
+        if words[i] not in wordDict:
+            wordDict[words[i]] = {}
+        if words[i+1] not in wordDict[words[i]]:
+            wordDict[words[i]][words[i+1]] = 0
+        wordDict[words[i]][words[i+1]] += 1
+    
+    return wordDict
+
+def wordListSum(wordList):
+    sum = 0
+    for value in wordList.values():
+        sum += value
+    return sum
+
+def retrieveRandomWord(wordList):
+    randIndex = randint(1, wordListSum(wordList))
+    for word, value in wordList.items():
+        randIndex -= value
+        if randIndex <= 0:
+            return word
+
+with open(r'C:\Users\bnwse\Desktop\inaugurationSpeech.txt') as f:
+    text = f.read()
+    wordDict = buildWordDict(text)
+
+    length = 100
+    chain = ""
+    currentWord = "I"
+    for i in range(0, length):
+        chain += currentWord+" "
+        currentWord = retrieveRandomWord(wordDict[currentWord])
+
+    print(chain)
+
+```
+
+```txt
+I possess a breath can conceive to be quite as well adapted as long as power : The broad foundation upon which they might be worthy representatives of its existence and to that instrument to you . When the others . Fellow-citizens , to prevent the careful culture of the lesser Asia would be , but by whom he is an argument as collisions of power : The sagacious mind of those of our ancestors derived from the support of our system . When the adoption of the complicated intrigues of any of its correction is harsh , placed in
+```
+
+***
+
 由马尔可夫链生成的文本和真实文本之间的差异在于语法规则和语义含义。马尔可夫链在生成文本时足够好，有时会提供语法和语义上正确的语句。 
 
 
