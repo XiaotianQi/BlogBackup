@@ -162,6 +162,24 @@ print(regEx.findall(test))
 ['boooooooob']
 ```
 
+可以改写为：
+
+```python
+import re
+
+test = 'a1boooooooobb123'
+
+regEx = re.compile(r'(b.*b)')
+print(regEx.findall(test))
+regEx = re.compile(r'(b.*?b)')
+print(regEx.findall(test))
+```
+
+```bash
+['boooooooobb']
+['boooooooob']
+```
+
 提取 '南京大学'：
 
 ```python
@@ -180,7 +198,7 @@ print(regEx.findall(test))
 ['南京大学']
 ```
 
-
+可以直接写为 `([\u4E00-\u9FA5]+大学)`
 
 ***
 
