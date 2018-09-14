@@ -162,7 +162,23 @@ print(regEx.findall(test))
 ['boooooooob']
 ```
 
+提取 '南京大学'：
 
+```python
+import re
+
+test = 'study in 南京大学'
+
+regEx = re.compile(r'.*([\u4E00-\u9FA5]+大学)')
+print(regEx.findall(test))
+regEx = re.compile(r'.*?([\u4E00-\u9FA5]+大学)')
+print(regEx.findall(test))
+```
+
+```bash
+['京大学']
+['南京大学']
+```
 
 
 
