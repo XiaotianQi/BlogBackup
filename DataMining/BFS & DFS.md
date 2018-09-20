@@ -1,5 +1,9 @@
 ![BFS&DFS](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fveqcshj2uj20vg0mzq40.jpg)
 
+`BFS` 核心在于 队列，取出队列中第一个元素。
+
+`DFS` 核心在于 堆栈，取出栈中最后被压入的元素。
+
 ```python
 # _*_coding:utf-8_*_
 
