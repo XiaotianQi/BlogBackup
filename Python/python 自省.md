@@ -1,12 +1,19 @@
 自省（introspection）也称为反射（reflection）。简而言之，自省使用一些机制实现自我检查，通过这些机制可以查看对象的类型、class、属性、方法等信息。
 
 * `dir`
+
 * `type`
+
 * `isinstance`、`issubclass`
+
 * `id`
+
 * `hasattr`
+
 * `callable`
-* `__name__`、`__doc__`、`__dir__`
+
+* Special Attributes
+
 * `help`
 
 ***
@@ -254,11 +261,39 @@ dog True
 
 ***
 
-### `__name__`、`__doc__`、`__dir__`
+### Special Attributes
 
-`__name__`、`__doc__`、`__dir__` 分别返回对象名称、描述该对象的作用、对象的所有属性。
-
-类似这种方法很多，例如 `__class__`。
+> - `object.__dict__`
+>
+>   A dictionary or other mapping object used to store an object’s (writable) attributes. 
+>
+> -  `instance.__class__`
+>
+>   The class to which a class instance belongs. 
+>
+> -  `class.__bases__`
+>
+>   The tuple of base classes of a class object. 
+>
+> -  `definition.__name__`
+>
+>   The name of the class, function, method, descriptor, or generator instance. 
+>
+> -  `definition.__qualname__`
+>
+>   The [qualified name](https://docs.python.org/3/glossary.html#term-qualified-name) of the class, function, method, descriptor, or generator instance.  New in version 3.3.  
+>
+> -  `class.``__mro__`
+>
+>   This attribute is a tuple of classes that are considered when looking for base classes during method resolution. 
+>
+> -  `class.``mro`()
+>
+>   This method can be overridden by a metaclass to customize the method resolution order for its instances.  It is called at class instantiation, and its result is stored in [`__mro__`](https://docs.python.org/3/library/stdtypes.html#class.__mro__). 
+>
+> -  `class.``__subclasses__`()
+>
+>   Each class keeps a list of weak references to its immediate subclasses.  This method returns a list of all those references still alive. Example:
 
 ***
 
