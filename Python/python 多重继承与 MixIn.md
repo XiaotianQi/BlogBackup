@@ -44,7 +44,7 @@ python 对于 mixin 命名方式一般以 MixIn, able, ible 为后缀。
 
 ## 多重继承排序
 
-mro 即 method resolution order (方法解释顺序)，主要用于在多继承时判断属性的路径(来自于哪个类)，决定基类中的函数到底应该以什么样的顺序调用父类中的函数。Python 采用的是 C3算法，简单理解就是取最左原则。
+mro 即 method resolution order (方法解释顺序)，主要用于在多继承时判断属性的路径(来自于哪个类)，决定基类中的函数到底应该以什么样的顺序调用父类中的函数。Python 采用的是 C3 算法，简单理解就是取最左原则。
 
 与拓扑排序(Topological Sorting)相似。拓扑排序是一个有向无环图(DAG,Directed Acyclic Graph)的所有顶点的线性序列。
 
