@@ -1,3 +1,5 @@
+## `Descriptor`
+
 `obj` 属性被访问时：
 
     `obj.__dict__` --> `type(obj).__dict` --> `type(type(obj)).__dict__`
@@ -84,8 +86,6 @@ In : a.__dict__
 Out: {'datades': 1, 'data_noget': 2}
 ```
 
-***
-
 PS:
 
 当使用 `obj.name` 或 `obj.name = value`时
@@ -95,3 +95,103 @@ object.__setattribute__(self,name,value)
 object.__getattribute__(self,name)
 ```
 
+***
+
+## `@property`、`property()`
+
+```python
+class Celsius:
+    def __init__(self, temperature = 0):
+        self.temperature = temperature
+
+    def to_fahrenheit(self):
+        return self.temperature*1.8 + 32
+
+    @property
+    def temperature(self):
+        """I'm the 'temperature' property."""
+        print("Getting value")
+        return self._temperature
+    
+    @temperature.setter
+    def temperature(self, value):
+        if value < -273:
+            raise ValueError("Temperature below -273 is not possible")
+        print("Setting value")
+        self._temperature = value
+```
+
+或者如下：
+
+```python
+class Celsius:
+    def __init__(self, temperature = 0):
+        self.temperature = temperature
+
+    def to_fahrenheit(self):
+        return self.temperature*1.8 + 32
+
+    def get_temperature(self):
+        print("Getting value")
+        return self._temperature
+
+    def set_temperature(self, value):
+        if value < -273:
+            raise ValueError("Temperature below -273 is not possible")
+        print("Setting value")
+        self._temperature = value
+
+    temperature = property(get_temperature,set_temperature, "I'm the 'temperature' property.")
+```
+
+```python
+In [107]: t = Celsius()
+Setting value
+
+In [108]: t.temperature = 20
+Setting value
+
+In [109]: t.temperature
+Getting value
+Out[109]: 20
+
+In [110]: t.to_fahrenheit()
+Getting value
+Out[110]: 68.0
+```
+
+
+
+
+
+其中：
+
+```python
+def to_fahrenheit(self):
+	return self.temperature*1.8 + 32
+
+def to_fahrenheit(self):
+	return self._temperature*1.8 + 32
+```
+
+这两种写法结果不同。
+
+```python
+Getting value     # self.temperature*1.8 + 32 
+Out[115]: 68.0
+
+Out[116]: 68.0    # self._temperature*1.8 + 32
+```
+
+`self.temperature` 会调用 `temperature()`函数。
+
+PS:
+
+```python
+class property([fget[, fset[, fdel[, doc]]]])
+```
+
+* `fget`  --  获取属性值的函数 
+* `fset`  -- 设置属性值的函数 
+* `fdel `  -- 删除属性值函数 
+* `doc`    -- 属性描述信息 

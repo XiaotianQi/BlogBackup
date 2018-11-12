@@ -333,9 +333,12 @@ mappingproxy({'__module__': '__main__',
               '__dict__': <attribute '__dict__' of 'A' objects>,
               '__weakref__': <attribute '__weakref__' of 'A' objects>,
               '__doc__': None})
+
+In [30]: A.__dict__['attr_a']
+Out[30]: 1
 ```
 
-
+而且，`A.attr_a` 也可以通过 `A.__dict__['attr_a']` 访问。
 
 ***
 
