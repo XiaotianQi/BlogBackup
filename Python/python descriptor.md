@@ -1,18 +1,16 @@
 `obj` 属性被访问时：
 
-	`obj.__dict__` --> `type(obj).__dict` --> `type(type(obj)).__dict__`
+    `obj.__dict__` --> `type(obj).__dict` --> `type(type(obj)).__dict__`
 
-	直至 `obj` 的基类，顺序符合 C3 算法。
+直至 `obj` 的基类，顺序符合 C3 算法。
 
 具体步骤：
 
-	查看当前是否是 descriptor；
+* 查看当前是否是 descriptor；
+* 若是，则调用 `__set__` 或 `__getattribute`，进行属性读写；
+* 若不是，则调用 `__setattr__` 或  `__getattribute__`，进行属性读写 。
 
-	若是，则调用 `__set__` 或 `__getattribute`，进行属性读写；
-
-	若不是，则调用 `__setattr__` 或  `__getattribute__`，进行属性读写 。
-
-	即，descriptor 会改变默认的属性读写方式。
+即，descriptor 会改变默认的属性读写方式。
 
 ```python
 class DataDes:
@@ -86,5 +84,14 @@ In : a.__dict__
 Out: {'datades': 1, 'data_noget': 2}
 ```
 
+***
 
+PS:
+
+当使用 `obj.name` 或 `obj.name = value`时
+
+```python
+object.__setattribute__(self,name,value)
+object.__getattribute__(self,name)
+```
 

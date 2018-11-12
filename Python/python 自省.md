@@ -18,7 +18,7 @@
 
 ***
 
-### `dir`
+## `dir`
 
 ```python
 dir([object])
@@ -51,7 +51,7 @@ print(dir(cat))
 
 ***
 
-### `type`
+## `type`
 
 返回对象的类型。
 
@@ -101,7 +101,7 @@ print(type(siamese))
 
 ***
 
-### `isinstance`
+## `isinstance`
 
 ```python
 isinstance(object, class-or-tuple)
@@ -153,7 +153,7 @@ True
   
 ***
 
-### `issubclass`
+## `issubclass`
 
 ```python
 isinstance(object, class-or-tuple)
@@ -175,7 +175,7 @@ True
 
 ***
 
-### `id`
+## `id`
 
 ```python
 id([object])
@@ -185,7 +185,7 @@ id([object])
 
 ***
 
-### `hasattr`
+## `hasattr`
 
 ```python
 hasattr(obj, attr)
@@ -220,7 +220,7 @@ Hi, siamese
 
 ***
 
-### `callable`
+## `callable`
 
 ```python
 callable(object)
@@ -261,7 +261,7 @@ dog True
 
 ***
 
-### Special Attributes
+## Special Attributes
 
 > - `object.__dict__`
 >
@@ -283,21 +283,63 @@ dog True
 >
 >   The [qualified name](https://docs.python.org/3/glossary.html#term-qualified-name) of the class, function, method, descriptor, or generator instance.  New in version 3.3.  
 >
-> -  `class.``__mro__`
+> -  `class.__mro__`
 >
 >   This attribute is a tuple of classes that are considered when looking for base classes during method resolution. 
 >
-> -  `class.``mro`()
+> -  `class.mro`()
 >
 >   This method can be overridden by a metaclass to customize the method resolution order for its instances.  It is called at class instantiation, and its result is stored in [`__mro__`](https://docs.python.org/3/library/stdtypes.html#class.__mro__). 
 >
-> -  `class.``__subclasses__`()
+> -  `class.__subclasses__`()
 >
 >   Each class keeps a list of weak references to its immediate subclasses.  This method returns a list of all those references still alive. Example:
 
+### `obj.__dict__`
+
+在 python 中，对象的属性和方法都统称为属性。无论类还是实例，它们的属性都是以字典的形式存储在`__dict__`中。
+
+```python
+class A:
+    attr_a = 1
+class B(A):
+    attr_b = 2
+    def __init__(self, c):
+        self.attr_c = c
+```
+
+类的属性只会存在本类的`__dict__`中，实例的属性只会存在实例的`__dict__`中。
+
+```python
+In [25]: a = B(3)
+
+In [26]: a.attr_a, a.attr_b, a.attr_c
+Out[26]: (1, 2, 3)
+
+In [27]: a.__dict__
+Out[27]: {'attr_c': 3}
+
+In [28]: B.__dict__
+Out[28]:
+mappingproxy({'__module__': '__main__',
+              'attr_b': 2,
+              '__init__': <function __main__.B.__init__(self, c)>,
+              '__doc__': None})
+
+In [29]: A.__dict__
+Out[29]:
+mappingproxy({'__module__': '__main__',
+              'attr_a': 1,
+              '__dict__': <attribute '__dict__' of 'A' objects>,
+              '__weakref__': <attribute '__weakref__' of 'A' objects>,
+              '__doc__': None})
+```
+
+
+
 ***
 
-### `help`
+## `help`
 
 ```python
 help([object])
