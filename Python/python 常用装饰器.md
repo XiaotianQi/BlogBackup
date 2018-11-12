@@ -134,3 +134,7 @@ class MonthEnum(Enum):
 ***
 
 ## `@classmethod`
+
+***
+
+## `@staticmethod`
