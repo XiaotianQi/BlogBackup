@@ -274,7 +274,7 @@ print(Test.prt)
 
 ------
 
-## 继承
+## 继承与多态
 
 在定义类的时候，可以在括号里写继承的类。
 
@@ -346,7 +346,7 @@ True
 
 ------
 
-## 多态
+### 多态
 
 有了继承，才有了多态。继承的另一个好处：多态。
 
@@ -383,6 +383,18 @@ print_twice(siamese)
 
 - 对扩展开放：允许新增子类；
 - 对修改封闭：不需要修改依赖 class 类型的方法等函数。
+
+### 多态和鸭子类型
+
+> **Is it same like Polymorphism???** 
+>
+> No.
+>
+>  **Polymorphism** means a method of a class can do different things in subclasses.  For example: a class Animal can have a method talk () and the subclasses.  Dog and Cat of Animal can let the method talk () make different sounds.  
+>
+>  **Duck typing** means code will simply accept any object that has a particular method.  For example: animal.quack(). If the given object animal has the method we  want to call then we're good (no additional type requirements needed).  It does not matter whether animal is actually a Duck.   
+>
+> Duck  Typing and Polymorphism are simply separate features that a programming  language may have. There are programming languages which have  polymorphism but that do not have duck typing (such as Java). There are  also languages that have polymorphism and duck typing (such as Python).
 
 ------
 
