@@ -154,6 +154,46 @@ E --> D1 --> D2 --> A --> B --> C --> Object
 
 ***
 
+## `super()`
+
+`super()` 查找循序亦是通过 C3 算法。
+
+```python
+class A:
+    def __init__(self):
+        print('A')
+
+class B(A):
+    def __init__(self):
+        print('B')
+        super().__init__()
+
+class C(A):
+    def __init__(self):
+        print('C')
+        super().__init__()
+
+class D(B, C):
+    def __init__(self):
+        print('D')
+        super().__init__()
+```
+
+```python
+print(D.__mro__)
+d = D()
+```
+
+```text
+(<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>)
+D
+B
+C
+A
+```
+
+***
+
 参考：
 
 [廖雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014318680104044a55f4a9dbf8452caf71e8dc68b75a18000)
