@@ -87,6 +87,39 @@ python 内置的  `hash()` 函数。
 
 定义当类的实例用于新式字符串格式化时的行为。python 内置的 `format()` 函数。
 
+### `__str__(self)`与`__repr__(self)`区别
+
+```python
+In [1]: x = 1
+
+In [2]: y = 'abc'
+
+In [3]: repr(x), repr(y)
+Out[3]: ('1', "'abc'")
+
+In [4]: str(x), str(y)
+Out[4]: ('1', 'abc')
+```
+
+由`repr(x)`, `str(y)`返回值很明显看出二者的不同之处。
+
+> * `__repr__` goal is to be unambiguous.
+> * `__str__` goal is to be readable.
+> * Container’s `__str__` uses contained objects’ `__repr__`
+
+```python
+In [5]: y == eval(repr(y))
+Out[5]: True
+```
+
+> It is important to realize the default implementation of `__repr__` for a `str` object can be called as an argument to `eval` and the return value would be a valid `str` object.While the return value of `__str__` is not even a valid statement that can be executed by eval.
+
+因此：
+
+> Implement `__repr__` for any class you implement. This should be second nature. Implement `__str__` if you think it would be useful to have a string version which errs on the side of more readability in favor of more ambiguity.
+
+	
+
 ***
 
 ## 访问控制
@@ -444,3 +477,5 @@ class FunctionalList:
 参考：
 
 [Python 魔法方法指南](http://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id2)
+
+[Difference between `__str__ `and `__repr__`?](https://stackoverflow.com/questions/1436703/difference-between-str-and-repr)
