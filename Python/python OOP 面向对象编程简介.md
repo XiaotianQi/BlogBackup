@@ -51,7 +51,7 @@ Class 是一种抽象概念，也具有模版的作用。实例（Instance）则
 - 实例化：创建一个类的实例，类的具体对象。
 - `self`：实例，其下属性是实例私有。
 
-### Duck Type
+## Duck Typing
 
 > In duck typing, an object's suitability is determined by **the *presence of certain* *methods and properties*** (with appropriate meaning), rather than the actual type of the object. 
 >
@@ -384,7 +384,7 @@ print_twice(siamese)
 - 对扩展开放：允许新增子类；
 - 对修改封闭：不需要修改依赖 class 类型的方法等函数。
 
-### 多态和鸭子类型
+## 多态和鸭子类型
 
 > **Is it same like Polymorphism???** 
 >
