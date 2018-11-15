@@ -30,19 +30,7 @@ I can swim...
 
 ***
 
-## MixIn
-
-一般编程语言都不允许多重继承，主要是为了避免 diamond problem，即两个父类如果有共同的祖父类，但对祖父类相同部分做了不同的修改，则这个类再继承两个父类就会产生冲突。类似于 git 版本控制中，如果两个人对同一段代码做了不同的修改，则合并时 就需要手动解决冲突。
-
-Mixin 本意是混入，程序中用来将不同功能(functionality)组合起来，从而为类提供多种特性。虽然继承(inheritance)也可以实现多种功能，但继承一般有从属关系，即子类通常是父类更加具体的类。不过，mixin 则更多的是功能上的组合，因而相当于是接口（带实现的接口）。
-
-由于 mixin 是组合，因而是做加法，为已有的类添加新功能，而不像继承一样一级会覆盖上一级相同的属性或方法，但在某些方面仍然表现得与继承一样，例如类的实例也是每个 mixin 的实例。
-
-python 对于 mixin 命名方式一般以 MixIn, able, ible 为后缀。
-
-***
-
-## 多重继承排序
+## MRO
 
 mro 即 method resolution order (方法解释顺序)，主要用于在多继承时判断属性的路径(来自于哪个类)，决定基类中的函数到底应该以什么样的顺序调用父类中的函数。Python 采用的是 C3 算法，简单理解就是取最左原则。
 
@@ -156,7 +144,7 @@ E --> D1 --> D2 --> A --> B --> C --> Object
 
 ## `super()`
 
-`super()` 查找循序亦是通过 C3 算法。
+`super()` 查找循序亦是通过 C3 算法，遵循 MRO顺序。
 
 ```python
 class A:
@@ -194,8 +182,87 @@ A
 
 ***
 
+## MixIn
+
+一般编程语言都不允许多重继承，主要是为了避免 diamond problem，即两个父类如果有共同的祖父类，但对祖父类相同部分做了不同的修改，则这个类再继承两个父类就会产生冲突。类似于 git 版本控制中，如果两个人对同一段代码做了不同的修改，则合并时 就需要手动解决冲突。
+
+Mixin 本意是混入，程序中用来将不同功能(functionality)组合起来，从而为类提供多种特性。虽然继承(inheritance)也可以实现多种功能，但继承一般有从属关系，即子类通常是父类更加具体的类。不过，mixin 则更多的是功能上的组合，因而相当于是接口（带实现的接口）。
+
+由于 mixin 是组合，因而是做加法，为已有的类添加新功能，而不像继承一样一级会覆盖上一级相同的属性或方法，但在某些方面仍然表现得与继承一样，例如类的实例也是每个 mixin 的实例。
+
+python 对于 mixin 命名方式一般以 MixIn, able, ible 为后缀。
+
+一般在一下两种情况下使用 MixIn 类：
+
+> 1. You want to provide a lot of optional features for a class.
+> 2. You want to use one particular feature in a lot of different classes.
+
+### 多重继承和MixIn的区别
+
+MixIn 是多重继承的一种特殊方式。
+
+从某种程度上来说，继承强调 I am，Mixin 强调 I can，符合 `Duck Typing`。
+
+优先考虑通过多重继承来组合多个Mixin的功能，而不是设计多层次的复杂的继承关系，从而降低多重继承的复杂关系。
+
+### MixIn 类
+
+mixin 类的特点：
+
+* 功能单一，代码简洁，易于理解；
+* 不能继承其他类(只能继承 `object`)，可以和任何类组合；
+* 没有实例属性(可以有类常量)，只有 method。即：不存在实例属性(没有`__init`)，不应该被实例化，从而在被宿主类中调用 `super` 也就不涉及到调用混乱的情况。
+
+创建 MixIn 类时，应遵循：
+
+*  不具有实例属性
+*  不能继承普通类
+*  仅提供 接口和功能
+*  命名方式一般以 MixIn, able, ible 为后缀
+
+按照以上的原则，类在层次上具有单一继承一样的树结构，同时又可以实现功能的共享（方法是：把共享的功能放在 Mix-in 类中，再把 Mix-in 类插入到树结构里）。
+
+```python
+class TagMixin(object):
+ 
+    def add_tag(self, tag_id):
+        sql = ('insert into target_tagged'
+               ' (target_id, target_kind, tag_id, creation_time) '
+               'values (?, ?, ?, CURRENT_TIMESTAMP)')
+        params = (self.ident, self.kind, tag_id)
+        storage.execute(sql, params)
+        storage.commit()
+ 
+    def get_tags(self):
+        sql = ('select tag_id, creation_time from target_tagged '
+               'where target_id = ? and target_kind = ?')
+        params = (self.ident, self.kind)
+        cursor = storage.execute(sql, params)
+        return cursor.fetchall()
+ 
+ 
+class Post(Model, TagMixin):
+
+    kind = 1001
+ 
+    def __init__(self, ident, title):
+        self.ident = ident
+        self.title = title
+ 
+    def __repr__(self):
+        return 'Post(%r, %r)' % (self.ident, self.title)
+```
+
+以上代码来自[松鼠奥利奥](https://www.zhihu.com/question/20778853/answer/42943272)。
+
+***
+
 参考：
 
 [廖雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014318680104044a55f4a9dbf8452caf71e8dc68b75a18000)
 
 [python 多重继承之拓扑排序](https://kevinguo.me/2018/01/19/python-topological-sorting/)
+
+[Mixin是什么概念?](https://www.zhihu.com/question/20778853)
+
+[What is a mixin, and why are they useful?](https://stackoverflow.com/questions/533631/what-is-a-mixin-and-why-are-they-useful)
