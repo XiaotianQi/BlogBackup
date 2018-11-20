@@ -135,6 +135,16 @@ class MonthEnum(Enum):
 
 ## `@classmethod`
 
+类方法
+
 ***
 
 ## `@staticmethod`
+
+静态方法
+
+***
+
+## `@contextmanager`
+
+上下文管理器
