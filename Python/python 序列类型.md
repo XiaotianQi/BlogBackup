@@ -1,15 +1,50 @@
-### 函数
+## 序列的分类
 
-* len(list):返回列表元素个数；
-* max(list):返回列表元素最大值；
-* min(list):返回列表元素最小值；
-* list(seqq):将 tuple 转化为list，返回 list。
+------
+
+Python 中的序列主要有下几种类型：
+
+- 基本序列类型(Basic Sequence Types)：list、tuple、range
+- 专门处理文本的附加序列类型(Text Sequence Types)：str
+- 专门处理二进制数据的附加序列类型(Binary Sequence Types): bytes、bytearray、memoryview
+
+按照序列是否可被改变分类：
+
+- 可变序列: list
+- 不可变序列：tuple、str
 
 ***
 
-### 有返回值的方法
+## 序列类支持的型操作
 
-* list.count(obj)
+
+
+***
+
+## `list`
+
+### 创建方式
+
+- 使用方括号，用逗号分隔各条目：`[]`,`['a']`, `[a, b, c]`
+- 使用类型构造函数：`list(iterable)`
+- 使用列表生成式：`[x for x in iterable]`
+
+***
+
+### 函数
+
+* `len(list)`:返回列表元素个数；
+* `max(list)`:返回列表元素最大值；
+* `min(list)`:返回列表元素最小值；
+* `list(seqq)`:将 tuple 转化为list，返回 list。
+
+***
+
+### 方法
+
+#### 有返回值的方法
+
+* `list.count(obj)`
 
 统计某个元素在列表中出现的次数。
 
@@ -27,7 +62,7 @@ print(l.count('a'))
 
 ***
 
-* list.index(obj)
+* `list.index(obj)`
 
 从列表中找出某个值第一个匹配项的索引位置。
 
@@ -42,7 +77,7 @@ print(l.index('b'))
 1
 ```
 
-* **list.pop([index=-1]])**
+* `list.pop([index=-1]])`
 
 移除列表中的一个元素（默认最后一个元素），并且返回该元素的值。
 
@@ -63,37 +98,31 @@ print(a, l)
 a ['b']
 ```
 
-* **list.copy()**
+* `list.copy()`
 
 返回复制后的新列表。
 
-list.copy() 和直接 = 赋值的区别：
-
 ```python
 a = [0, 1, 2]
-b = a
-c = a.copy()
-d = a[:]
-print(a, b, c, d)
+b = a.copy()
+print(a, b)
 a.pop()
-print(a, b, c, d)
+print(a, b)
 b.pop()
-print(a, b, c, d)
+print(a, b)
 
 
 输出结果：
-[0, 1, 2] [0, 1, 2] [0, 1, 2] [0, 1, 2]
-[0, 1] [0, 1] [0, 1, 2] [0, 1, 2]
-[0] [0] [0, 1, 2] [0, 1, 2]
+[0, 1, 2] [0, 1, 2]
+[0, 1] [0, 1, 2]
+[0, 1] [0, 1]
 ```
 
-由此可见，使用 = 直接赋值，是引用赋值，更改一个，另一个同样跟着改变。
 
-copy() 则复制一个副本给予新的变量，原变量和新变量互不影响。
 
 ***
 
-### 无返回值的方法
+#### 无返回值的方法
 
 * list.append(obj)
 
@@ -211,7 +240,7 @@ print(l)
 
 当同时存在 int 和 str 时，二者无法直接比较。
 
-* list.clear()
+* `list.clear()`
 
 清空列表，类似于 del list[:]。
 
@@ -228,3 +257,41 @@ print(l)
 []
 []
 ```
+
+***
+
+## 扩展
+
+### `list.copy()` 和 `=` 的区别
+
+```python
+a = [0, 1, 2]
+b = a
+c = a.copy()
+d = a[:]
+print(a, b, c, d)
+a.pop()
+print(a, b, c, d)
+b.pop()
+print(a, b, c, d)
+
+
+输出结果：
+[0, 1, 2] [0, 1, 2] [0, 1, 2] [0, 1, 2]
+[0, 1] [0, 1] [0, 1, 2] [0, 1, 2]
+[0] [0] [0, 1, 2] [0, 1, 2]
+```
+
+由此可见，使用 = 直接赋值，是引用赋值，更改一个，另一个同样跟着改变。
+
+copy() 则复制一个副本给予新的变量，原变量和新变量互不影响。
+
+***
+
+### `.append()`  与 `.extend()` 区别
+
+
+
+***
+
+### `+` 与 `+=` 区别
