@@ -41,6 +41,8 @@ Out[94]: tuple
 
 元组封装的逆操作就是序列拆封。
 
+> *Sequence unpacking* and works for any sequence on the right-hand side.  Sequence unpacking requires that there are as many variables on the left side of the equals sign as there are elements in the sequence.  Note that multiple assignment is really just a combination of tuple packing and sequence unpacking.
+
 任何的序列(或者是可迭代对象)可以通过一个简单的赋值语句拆封并赋值给多个变量。唯一的前提就是变量的数量必须跟序列元素的数量是一样的。如果一个可迭代对象的元素个数超过变量个数时，会抛出一个 `ValueError`。下面采用 `*args`，拆封出的 `others` 变量永远都是列表类型，无论拆封出的数量是多少。`*args` 语法是专门为拆封不确定个数或任意个数元素的可迭代对象而设计。
 
 ```cmd
