@@ -23,7 +23,7 @@ Python 中的序列主要有下几种类型：
 
 ## `list`
 
-### 创建方式
+### 1.创建方式
 
 - 使用方括号，用逗号分隔各条目：`[]`,`['a']`, `[a, b, c]`
 - 使用类型构造函数：`list(iterable)`
@@ -31,7 +31,7 @@ Python 中的序列主要有下几种类型：
 
 ***
 
-### 函数
+### 2.函数
 
 * `len(list)`:返回列表元素个数；
 * `max(list)`:返回列表元素最大值；
@@ -40,11 +40,11 @@ Python 中的序列主要有下几种类型：
 
 ***
 
-### 方法
+### 3.方法
 
 #### 有返回值的方法
 
-* `list.count(obj)`
+* `list.count(x)`
 
 统计某个元素在列表中出现的次数。
 
@@ -62,7 +62,7 @@ print(l.count('a'))
 
 ***
 
-* `list.index(obj)`
+* `list.index(x[, start[, end]])`
 
 从列表中找出某个值第一个匹配项的索引位置。
 
@@ -100,7 +100,7 @@ a ['b']
 
 * `list.copy()`
 
-返回复制后的新列表。
+返回复制后的新列表。等价于 `a[:]`。
 
 ```python
 a = [0, 1, 2]
@@ -124,9 +124,9 @@ print(a, b)
 
 #### 无返回值的方法
 
-* list.append(obj)
+* `list.append(x)`
 
-在列表末尾添加新的对象。
+在列表末尾添加新的对象。等价于 `a[len(a):] = [x]`。
 
 ```python
 l = ['a', 'b', 'c']
@@ -138,9 +138,9 @@ print(l)
 ['a', 'b', 'c', 'd']
 ```
 
-* list.extend(seq)
+* `list.extend(iterable)`
 
-在列表中添加新的列表内容。
+在列表中添加新的列表内容。等价于 `a[len(a):] = iterable`。
 
 ```python
 l = ['a', 'b', 'c']
@@ -153,9 +153,11 @@ print(l)
 ['a', 'b', 'c', 0, 1, 2]
 ```
 
-* list.insert(index, obj)
+* `list.insert(index, x)`
 
-将指定对象插入列表的指定位置。
+在指定位置插入对象。
+
+> The first argument is the index of the element before which to insert, so `a.insert(0, x)` inserts at the front of the list, and `a.insert(len(a), x)` is equivalent to `a.append(x)`.
 
 ```python
 l = ['a', 'b', 'c']
@@ -167,9 +169,9 @@ print(l)
 ['a', 'A', 'b', 'c']
 ```
 
-* list.remove(obj)
+* `list.remove(x)`
 
-移除列表中某个值的第一个匹配项。
+移除列表中某个值的**第一个**匹配项。
 
 ```python
 l = ['a', 'b', 'c' ,'a', 'b', 'c']
@@ -181,7 +183,7 @@ print(l)
 ['b', 'c', 'a', 'b', 'c']
 ```
 
-* list.reverse()
+* `list.reverse()`
 
 反向列表中元素。
 
@@ -195,15 +197,13 @@ print(l)
 ['c', 'b', 'a']
 ```
 
-* **list.sort(cmp=None, key=None, reverse=False)**
+* `list.sort(key=None, reverse=False)`
 
 对原列表进行排序，如果指定参数，则使用比较函数指定的比较函数。
 
-cmp -- 可选参数, 如果指定了该参数会使用该参数的方法进行排序。
+`key` -- 主要是用来进行比较的元素，只有一个参数，具体的函数的参数就是取自于可迭代对象中，指定可迭代对象中的一个元素来进行排序。
 
-key -- 主要是用来进行比较的元素，只有一个参数，具体的函数的参数就是取自于可迭代对象中，指定可迭代对象中的一个元素来进行排序。
-
-reverse -- 排序规则，reverse = True 降序， reverse = False 升序（默认）。
+`reverse` -- 排序规则，`reverse = True` 降序， `reverse = False` 升序（默认）。
 
 ```python
 l = ['bc', 'a', 'def']
@@ -242,7 +242,7 @@ print(l)
 
 * `list.clear()`
 
-清空列表，类似于 del list[:]。
+清空列表，等价于 `del list[:]`。
 
 ```python
 l = ['a', 'b', 'c']
@@ -260,9 +260,82 @@ print(l)
 
 ***
 
-## 扩展
+### 4.Using Lists as Stacks
 
-### `list.copy()` 和 `=` 的区别
+> The list methods make it very easy to use a list as a stack, where the last element added is the first element retrieved (“**last-in, first-out**”).  To add an item to the top of the stack, use `append()`.  To retrieve an item from the top of the stack, use `pop()` without an explicit index.  For example:
+
+```python
+In [37]: stack = [0, 1, 2]
+
+In [38]: stack.append(3)
+
+In [39]: stack.append(4)
+
+In [40]: stack
+Out[40]: [0, 1, 2, 3, 4]
+
+In [41]: stack.pop()
+Out[41]: 4
+
+In [42]: stack.pop()
+Out[42]: 3
+
+In [43]: stack.pop()
+Out[43]: 2
+
+In [44]: stack
+Out[44]: [0, 1]
+```
+
+***
+
+### 5.Using Lists as Queues
+
+> It is also possible to use a list as a queue, where the first element added is the first element retrieved (“**first-in, first-out**”); however, lists are not efficient for this purpose.  While appends and pops from the end of list are fast, doing inserts or pops from the beginning of a list is slow (because all of the other elements have to be shifted by one).
+
+```python
+In [44]: stack
+Out[44]: [0, 1]
+
+In [45]: queue = [0, 1, 2]
+
+In [46]: queue.append(3)
+
+In [47]: queue.pop(0)
+Out[47]: 0
+```
+
+> To implement a queue, use `collections.deque` which was designed to have fast appends and pops from both ends.  For example:
+
+```python
+In [48]: from collections import deque
+
+In [49]: queue = deque([0, 1, 2])
+
+In [50]: queue.append(3)
+
+In [51]: queue.popleft()
+Out[51]: 0
+
+In [52]: queue
+Out[52]: deque([1, 2, 3])
+```
+
+***
+
+### 6.嵌套列表
+
+嵌套列表就是列表推导式相关内容。
+
+```python
+list_variable = [out_exp for out_exp in input_list if exp]
+```
+
+***
+
+### 7.扩展
+
+#### `list.copy()` 和 `=` 的区别
 
 ```python
 a = [0, 1, 2]
@@ -288,10 +361,91 @@ copy() 则复制一个副本给予新的变量，原变量和新变量互不影�
 
 ***
 
-### `.append()`  与 `.extend()` 区别
+#### `.append()`  与 `.extend()` 区别
+
+```python
+In [1]: l1 = [i for i in range(5)]
+
+In [2]: l2 = [i for i in range(5)]
+
+In [3]: l1, l2
+Out[3]: ([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
+
+In [4]: l1.append([5, 6, 7])
+
+In [5]: l2.extend([5, 6, 7])
+
+In [6]: l1, l2
+Out[6]: ([0, 1, 2, 3, 4, [5, 6, 7]], [0, 1, 2, 3, 4, 5, 6, 7])
+```
+
+`list.extend(iterable)`中传入的可迭代对象
+
+***
+
+#### `+` 与 `+=` 区别
+
+```python
+In [16]: l = [1 , 2, 3]
+
+In [17]: l = l + (4, 5)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-17-c70fae2ee178> in <module>
+----> 1 l = l + (4, 5)
+
+TypeError: can only concatenate list (not "tuple") to list
+
+In [18]: l += (4, 5)
+
+In [19]: l
+Out[19]: [1, 2, 3, 4, 5]
+```
+
+`+` 需要两侧必须是相同类型的对象，而 `+=` 则没有要求。
+
+除此之外，`+` 会改变对象标识。
+
+```python
+In [20]: l = [1, 2]
+
+In [21]: id(l)
+Out[21]: 1612094081352
+
+In [22]: l += [3, 4]
+
+In [23]: id(l)
+Out[23]: 1612094081352
+
+In [24]: l = l + [5, 6]
+
+In [25]: id(l)
+Out[25]: 1612093971528
+```
+
+***
+
+#### `x * n`
+
+ 对于 `x * n`操作，x 序列中的元素没有被复制，他们只是被引用了多次。
+
+```python
+In [34]: l = [[0]] * 3
+
+In [35]: l[0] += [1]
+
+In [36]: l
+Out[36]: [[0, 1], [0, 1], [0, 1]]
+```
+
+***
+
+## `tuple`
 
 
 
 ***
 
-### `+` 与 `+=` 区别
+参考：
+
+[Data Structures](https://docs.python.org/3/tutorial/datastructures.html)
