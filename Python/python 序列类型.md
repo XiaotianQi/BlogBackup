@@ -4,7 +4,7 @@
 
 Python 中的序列主要有下几种类型：
 
-- 基本序列类型(Basic Sequence Types)：list、tuple、range
+- 基本序列类型(Basic Sequence Types)：list、tuple、range objects
 - 专门处理文本的附加序列类型(Text Sequence Types)：str
 - 专门处理二进制数据的附加序列类型(Binary Sequence Types): bytes、bytearray、memoryview
 
@@ -12,6 +12,20 @@ Python 中的序列主要有下几种类型：
 
 - 可变序列: list
 - 不可变序列：tuple、str
+
+> The only operation that immutable sequence types generally implement that is not also implemented by mutable sequence types is support for the `hash()` built-in.
+>
+> This support allows immutable sequences, such as `tuple` instances, to be used as `dict` keys and stored in `set` and `frozenset` instances.
+>
+> Attempting to hash an immutable sequence that contains unhashable values will result in `TypeError`.
+
+相关 ABC：
+
+* `collections.abc.Sequence`
+* `collections.abc.MutableSequence`
+* `collections.abc.ByteString`
+
+通过这些抽象基类，可以便捷的自定义序列。
 
 ***
 
@@ -23,11 +37,14 @@ Python 中的序列主要有下几种类型：
 
 ## `list`
 
+> Lists are **mutable sequences**, typically used to store collections of **homogeneous items** (where the precise degree of similarity will vary by application).
+
 ### 1.创建方式
 
-- 使用方括号，用逗号分隔各条目：`[]`,`['a']`, `[a, b, c]`
-- 使用类型构造函数：`list(iterable)`
-- 使用列表生成式：`[x for x in iterable]`
+> - Using a pair of square brackets to denote the empty list: `[]`
+> - Using square brackets, separating items with commas: `[a]`, `[a, b, c]`
+> - Using a list comprehension: `[x for x in iterable]`
+> - Using the type constructor: `list()` or `list(iterable)`
 
 ***
 
@@ -442,6 +459,31 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 
 ## `tuple`
 
+> Tuples are **immutable sequences**, typically used to store collections of **heterogeneous data** (such as the 2-tuples produced by the `enumerate()` built-in). 
+>
+> Tuples are also used for cases where an immutable sequence of **homogeneous data is needed** (such as allowing storage in a `set` or `dict` instance).
+
+### 1.创建方式
+
+> - Using a pair of parentheses to denote the empty tuple: `()`
+> - Using a trailing comma for a singleton tuple: `a,` or `(a,)`
+> - Separating items with commas: `a, b, c` or `(a, b, c)`
+> - Using the `tuple()` built-in: `tuple()` or `tuple(iterable)`
+
+> **Note that** it is actually the comma which makes a tuple, not the parentheses.
+> The parentheses are optional, except in the empty tuple case, or when they are needed to avoid syntactic ambiguity. 
+
+> For heterogeneous collections of data where **access by name** is clearer than access by index, [`collections.namedtuple()` may be a more appropriate choice than a simple tuple object.
+
+### 2. `tuple` 和 `list` 区别
+
+> Tuples are immutable, and usually contain a heterogeneous sequence of elements that are accessed via unpacking (see later in this section) or indexing (or even by attribute in the case of `namedtuples`.
+> Lists are mutable, and their elements are usually homogeneous and are accessed by iterating over the list.
+
+***
+
+## `range`
+
 
 
 ***
@@ -449,3 +491,5 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 参考：
 
 [Data Structures](https://docs.python.org/3/tutorial/datastructures.html)
+
+[Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)
