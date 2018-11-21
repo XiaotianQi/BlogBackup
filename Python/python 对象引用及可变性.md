@@ -74,6 +74,16 @@ def add_to(element, target=None):
     return target
 ```
 
+官方文档对二者的解释：
+
+* Immutable
+
+> An object with a fixed value.  Immutable objects include numbers, strings and tuples.  Such an object cannot be altered.  A new object has to be created if a different value has to be stored.  They play an important role in places where a constant hash value is needed, for example as a key in a dictionary.
+
+* Mutable
+
+> Mutable objects can change their value but keep their `id()`.
+
 ***
 
 ## 元组的相对不可变性
