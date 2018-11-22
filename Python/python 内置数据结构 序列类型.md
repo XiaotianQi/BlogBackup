@@ -37,6 +37,8 @@ Python 中的序列主要有下几种类型：
 
 ## `list`
 
+列表具有有序、可索引、可修改、可迭代的特点。
+
 > Lists are **mutable sequences**, typically used to store collections of **homogeneous items** (where the precise degree of similarity will vary by application).
 
 ### 1.创建方式
@@ -459,6 +461,8 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 
 ## `tuple`
 
+元组具有有序、不可修改、可索引、可迭代的特点。
+
 > Tuples are **immutable sequences**, typically used to store collections of **heterogeneous data** (such as the 2-tuples produced by the `enumerate()` built-in). 
 >
 > Tuples are also used for cases where an immutable sequence of **homogeneous data is needed** (such as allowing storage in a `set` or `dict` instance).
@@ -484,7 +488,27 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 
 ## `range`
 
+`range`类型表示一个不可变的数字序列，通常用于在 `for`循环。 
 
+```python
+range(start, stop[, step])
+```
+
+> The **advantage** of the `range` type over a regular `list` or `tuple` is that a `range` object will always take the same (small) amount of memory, no matter the size of the range it represents (as it only stores the `start`, `stop` and `step` values, calculating individual items and subranges as needed).
+
+***
+
+## `str`
+
+字符串具有有序、可索引、不可修改、可迭代的特点。
+
+***
+
+## `bytes`
+
+bytes：具有有序、不可修改、可迭代的特点
+
+bytearray：具有有序、可修改、可迭代的特点
 
 ***
 
