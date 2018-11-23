@@ -2,6 +2,8 @@
 
 ------
 
+序列表示索引为非负数的有序对象集合，支持迭代。
+
 Python 中的序列主要有下几种类型：
 
 - 基本序列类型(Basic Sequence Types)：list、tuple、range objects
@@ -26,12 +28,6 @@ Python 中的序列主要有下几种类型：
 * `collections.abc.ByteString`
 
 通过这些抽象基类，可以便捷的自定义序列。
-
-***
-
-## 序列类支持的型操作
-
-
 
 ***
 
@@ -501,6 +497,421 @@ range(start, stop[, step])
 ## `str`
 
 字符串具有有序、可索引、不可修改、可迭代的特点。
+| |                                                 |
+| -------------------------------- | ----------------------------------|
+|                         |                                                 |
+|         |                                                 |
+| `upper()`                        | 返回大写形式|
+| `lower()`                        | 返回小写形式|
+| `split(sep[,maxsplit])`          | 以sep为分隔符分割字符串，maxsplit为最大分割次数|
+| `join(t)`                        | 使用当前字符串为分隔符连接t中的字符串|
+|                         |                                                 |
+
+### 常用方法
+
+列出常用的方法，英文部分引用自官方文档：[Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)。
+
+#### 1.大小写
+
+* `str.lower()`
+
+  Return a copy of the string with all the cased characters converted to lowercase.
+
+* `str.upper()`
+
+  Return a copy of the string with all the cased characters converted to uppercase.
+
+* `str.capitalize()`
+
+  Return a copy of the string with its first character capitalized and the rest lowercased.
+
+* `str.swapcase()`
+
+  Return a copy of the string with uppercase characters converted to lowercase and vice versa. Note that it is not necessarily true that `s.swapcase().swapcase() == s`.
+
+  ```python
+  In [1]: str = 'abcABC'
+  
+  In [2]: str.lower()
+  Out[2]: 'abcabc'
+  
+  In [3]: str.upper()
+  Out[3]: 'ABCABC'
+  
+  In [4]: str.capitalize()
+  Out[4]: 'Abcabc'
+      
+  In [5]: str.swapcase()
+  Out[5]: 'ABCabc'
+  ```
+
+* `str.title()`
+
+  Return a titlecased version of the string where words start with an uppercase character and the remaining characters are lowercase.
+
+  ```python
+  In [42]: str = 'a string example: 3g 5g e.g.'
+  
+  In [43]: str.title()
+  Out[43]: 'A String Example: 3G 5G E.G.'
+  
+  In [44]: str.capitalize()
+  Out[44]: 'A string example: 3g 5g e.g.'
+  ```
+
+#### 2.连接&分隔
+
+* `str.join(iterable)`
+
+  Return a string which is the concatenation of the strings in iterable.
+
+  ```python
+  In [33]: str = ['a', 'b', 'c']
+  
+  In [34]: ('-').join(str)
+  Out[34]: 'a-b-c'
+  
+  In [35]: str = 'abc'
+  
+  In [36]: ('-').join(str)
+  Out[36]: 'a-b-c'
+  ```
+
+* `str.split(sep=None, maxsplit=-1)`
+
+  Return a list of the words in the string, using *sep* as the delimiter string.
+
+  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
+
+* `str.rsplit(sep=None, maxsplit=-1)`
+
+  Splitting from the right.
+
+  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
+
+* `str.splitlines([keepends])`
+
+  Return a list of the lines in the string, breaking at line boundaries.  Line breaks are not included in the resulting list unless keepends is given and true.
+
+  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
+
+* `str.partition(sep)`
+
+  Split the string at the first occurrence of sep, and return a 3-tuple containing the part before the separator, the separator itself, and the part after the separator.  If the separator is not found, return a 3-tuple containing the string itself, followed by two empty strings.
+
+* `str.partition(sep)`
+
+  Split the string at the last occurrence of *sep*, and return a 3-tuple containing the part before the separator, the separator itself, and the part after the separator.  If the separator is not found, return a 3-tuple containing two empty strings, followed by the string itself.
+
+  ```python
+  In [32]: str = 'www.python.com'
+  
+  In [33]: str.partition('.')
+  Out[33]: ('www', '.', 'python.com')
+  
+  In [34]: str.rpartition('.')
+  Out[34]: ('www.python', '.', 'com')
+  ```
+
+#### 3.格式化
+
+* `str.format(args, kwargs)`
+
+  字符串格式化，关于 `format` 的使用有很多技巧，可以查看已写的《python 字符串格式化》了解更多。
+
+* `str.center(width[, fillchar])`
+
+  Return centered in a string of length *width*. Padding is done using the specified fillchar (default is an ASCII space). The original string is returned if width is less than or equal to `len(s)`.
+
+
+
+* `str.ljust(width[, fillchar])`
+
+  Return the string left justified in a string of length *width*. Padding is done using the specified fillchar (default is an ASCII space). The original string is returned if width is less than or equal to `len(s)`.
+
+* `str.rjust(width[, fillchar])`
+
+  Return the string right justified in a string of length *width*. Padding is done using the specified *fillchar* (default is an ASCII space). The original string is returned if *width* is less than or equal to `len(s)`.
+
+  ```python
+  In [4]: str = 'abcABC'
+  
+  In [5]: str.center(10,'-')
+  Out[5]: '--abcABC--'
+      
+  In [6]: str.ljust(10, '-')
+  Out[6]: 'abcABC----'
+  
+  In [7]: str.rjust(10, '-')
+  Out[7]: '----abcABC'
+  ```
+
+* `str.zfill(width)`
+
+  Return a copy of the string left filled with ASCII `'0'` digits to make a string of length *width*. A leading sign prefix (`'+'`/`'-'`) is handled by inserting the padding *after* the sign character rather than before. The original string is returned if *width* is less than or equal to `len(s)`.
+
+  ```python
+  In [45]: str = 'abc'
+  
+  In [46]: str.zfill(5)
+  Out[46]: '00abc'
+  ```
+
+#### 4.查找
+
+- `str.find(sub[,start[,end]])`
+
+  Return the lowest index in the string where substring *sub* is found within the slice `s[start:end]`.  Optional arguments *start* and *end* are interpreted as in slice notation.  Return `-1` if *sub* is not found.
+
+- `str.index(sub[,start[,end]])`
+
+  Like `find()`, but raise `ValueError` when the substring is not found.
+
+  ```python
+  In [16]: str
+  Out[16]: 'a string example'
+  
+  In [17]: str.find('str')
+  Out[17]: 2
+  
+  In [18]: str.find('exam')
+  Out[18]: 9
+  
+  In [19]: str.find('abc')
+  Out[19]: -1
+  
+  In [20]: str.index('abc')
+  ---------------------------------------------------------------------------
+  ValueError                                Traceback (most recent call last)
+  <ipython-input-20-daba474a0c9f> in <module>
+  ----> 1 str.index('abc')
+  
+  ValueError: substring not found
+  ```
+
+- `str.rfind(sub[, start[, end]])`
+
+  Return the highest index in the string where substring *sub* is found, such that *sub* is contained within `s[start:end]`.  Optional arguments *start* and *end* are interpreted as in slice notation.  Return `-1` on failure.
+
+- `str.index(sub[,start[,end]])`
+
+  Like `rfind()` but raises `ValueError` when the substring *sub* is not found.
+
+  ```python
+  In [26]: str = 'abcabc'
+  
+  In [27]: str.rfind('a')
+  Out[27]: 3
+  
+  In [28]: str.rfind('d')
+  Out[28]: -1
+  
+  In [29]: str.rindex('d')
+  ---------------------------------------------------------------------------
+  ValueError                                Traceback (most recent call last)
+  <ipython-input-29-2cb78aee13b2> in <module>
+  ----> 1 str.rindex('d')
+  
+  ValueError: substring not found
+  ```
+
+#### 5.判断
+
+
+* `str.startwith(prefix[, start[, end]])`
+
+  Return `True` if string starts with the *prefix*, otherwise return `False`.prefix can also be a tuple of prefixes to look for.  With optional *start*,test string beginning at that position.  With optional *end*, stop comparing string at that position.
+
+  ```python
+  In [11]: str = 'a string example'
+  
+  In [12]: str.startswith('e')
+  Out[12]: False
+  
+  In [13]: str.startswith(('e', 'a'))
+  Out[13]: True
+  ```
+
+* `str.endswith(suffix[, start[, end]])`
+
+  Return `True` if the string ends with the specified suffix, otherwise return`False`.  *suffix* can also be a tuple of suffixes to look for.  With optional  start, test beginning at that position.  With optional *end*, stop comparing at that position.
+
+  ```python
+  In [14]: str.endswith('e')
+  Out[14]: True
+  
+  In [15]: str.endswith(('e', 'a'))
+  Out[15]: True
+  ```
+
+* `str.count(sub[, start[, end]])`
+
+  Return the number of non-overlapping occurrences of substring *sub* in the range [*start*, *end*].  Optional arguments *start* and *end* are interpreted as in slice notation.
+
+  ```python
+  In [6]: str = 'a string example'
+  
+  In [7]: str.count('a')
+  Out[7]: 2
+  ```
+
+* `str.isalpha()`
+
+  Return true if all characters in the string are alphabetic and there is at least one character, false otherwise.  
+
+  ```python
+  In [21]: str = 'abc'
+  
+  In [22]: str.isalpha()
+  Out[22]: True
+  
+  In [23]: str = 'a b c'
+  
+  In [24]: str.isalpha()
+  Out[24]: False
+  ```
+
+* `str.isdigit()`
+
+  Return true if all characters in the string are digits and there is at least one character, false otherwise.  Digits include decimal characters and digits that need special handling, such as the compatibility uperscript digits.
+
+* `str.isalnum()`
+
+  Return true if all characters in the string are alphanumeric and there is at least one character, false otherwise.  A character `c` is alphanumeric if one of the following returns `True`: `c.isalpha()`, `c.isdecimal()`,`c.isdigit()`, or `c.isnumeric()`.
+
+  ```python
+  In [25]: str = 'abc123'
+  
+  In [26]: str.isalnum()
+  Out[26]: True
+  
+  In [27]: str = 'abc 123'
+  
+  In [28]: str.isalnum()
+  Out[28]: False
+  ```
+
+* `str.isspace()`
+
+  Return true if there are only whitespace characters in the string and there is at least one character, false otherwise. 
+
+* `str.islower()`
+
+  Return true if all cased characters in the string are lowercase and there is at least one cased character, false otherwise.
+
+* `str.isupper()`
+
+  Return true if all cased characters in the string are uppercase and there is at least one cased character, false otherwise.
+
+* `str.istitle()`
+
+  Return true if the string is a titlecased string and there is at least one character, for example uppercase characters may only follow uncased characters and lowercase characters only cased ones.  Return false otherwise.
+
+  ```python
+  In [29]: str = 'A String Example'
+  
+  In [30]: str.istitle()
+  Out[30]: True
+  
+  In [31]: str = 'A string example'
+  
+  In [32]: str.istitle()
+  Out[32]: False
+  ```
+
+
+#### 6. 替换
+
+* `str.replace(old, new[, count])`
+
+  Return a copy of the string with all occurrences of substring *old* replaced by new.  If the optional argument count is given, only the first count occurrences are replaced.
+
+  ```python
+  In [23]: str = 'abcabc'
+  
+  In [24]: str.replace('a', '1')
+  Out[24]: '1bc1bc'
+  
+  In [25]: str.replace('a', '1', 1)
+  Out[25]: '1bcabc'
+  ```
+
+* `str.strip([chars])`
+
+  Return a copy of the string with the **leading and trailing** characters removed.The *chars* argument is a string specifying the set of characters to be removed.If omitted or `None`, the *chars* argument defaults to removing whitespace.The *chars* argument is not a prefix or suffix; rather, all combinations of its
+  values are stripped.
+
+  The outermost leading and trailing *chars* argument values are stripped from the string. Characters are removed from the leading end until reaching a string character that is not contained in the set of characters in *chars*. A similar action takes place on the trailing end.
+
+  ```python
+  In [35]: str = '#....... Section ## 3.2.1 ## Issue #32 .......'
+  
+  In [38]: str.strip('.#')
+  Out[38]: ' Section ## 3.2.1 ## Issue #32 '
+  
+  In [39]: str.rstrip('.#')
+  Out[39]: '#....... Section ## 3.2.1 ## Issue #32 '
+  ```
+
+* `str.strip([chars])`
+
+  删除 string 字符串末尾的指定字符。
+
+- `static str.maketrans(x[, y[, z]])`
+
+  This static method returns a translation table usable for `str.translate()`.
+
+  If there is only one argument, it must be a dictionary mapping Unicode ordinals (integers) or characters (strings of length 1) to Unicode ordinals, strings (of arbitrary lengths) or `None`.  Character keys will then be converted to ordinals.
+
+  If there are two arguments, they must be strings of equal length, and in the resulting dictionary, each character in x will be mapped to the character at the same position in y.  If there is a third argument, it must be a string, whose characters will be mapped to `None` in the result.
+
+
+
+* `str.translate(table)`
+
+  Return a copy of the string in which each character has been mapped through the given translation table.  The table must be an object that implements indexing via `__getitem__()`, typically a mapping or sequence.  When indexed by a Unicode ordinal (an integer), the table object can do any of the following: return a Unicode ordinal or a string, to map the character to one or more other characters; return `None`, to delete the character from the return string; or raise a `LookupError` exception, to map the character to itself.
+
+  ```python
+  In [9]: intab = 'abcde'
+  
+  In [10]: outab = '12345'
+  
+  In [11]: trantab = str.maketrans(intab, outab)
+  
+  In [12]: text = 'a string example'
+      
+  In [13]: text.translate(trantab)
+  Out[13]: '1 str3ng 2x1mpl2'
+  
+  In [14]: trantab
+  Out[14]: {97: 49, 101: 50, 105: 51, 111: 52, 117: 53}
+  ```
+
+- `str.lstrip([chars])`
+
+  Return a copy of the string with leading characters removed.  The chars argument is a string specifying the set of characters to be removed.  If omitted or `None`, the *chars* argument defaults to removing whitespace.  The chars argument is not a prefix; rather, all combinations of its values are stripped.
+
+  ```python
+  In [17]: '   spacious   '.lstrip()
+  Out[17]: 'spacious   '
+  
+  In [18]:  'www.example.com'.lstrip('cmowz.')
+  Out[18]: 'example.com'
+  ```
+
+#### 7.编码
+
+- `str.encode(encoding="utf-8", errors="strict")`
+
+  Return an encoded version of the string as a bytes object. 
+
+  ```python
+  In [10]: str.encode()
+  Out[10]: b'a string example'
+      
+  In [11]: b'a string example'.decode()
+  Out[11]: 'a string example'
+  ```
 
 ***
 
