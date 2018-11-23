@@ -6,7 +6,7 @@
 
 ***
 
-### str.split()
+## str.split()
 
 ```python
 str.split(str="", maxsplit=string.count(str))
@@ -109,7 +109,7 @@ a
 
 ***
 
-### str.splitlines()
+## str.splitlines()
 
 ```python
 str.splitlines([keepends])
@@ -119,7 +119,7 @@ str.splitlines([keepends])
 
 ***
 
-### re.split()
+## re.split()
 
 re.split() 按照能够匹配的子串将字符串分割后返回列表。
 
@@ -159,3 +159,13 @@ test_str = "Words, words, words."
 regEx = re.compile(r'\W+')
 print(regEx.split(test_str))
 ```
+
+***
+
+## str.rsplit()
+
+```python
+str.rsplit(sep=None, maxsplit=-1)
+```
+
+Return a list of the words in the string, using *sep* as the delimiter string. If maxsplit is given, at most *maxsplit* splits are done, the *rightmost* ones.  If *sep* is not specified or `None`, any whitespace string is a separator.  Except for splitting from the right, `rsplit()` behaves like `split()`.
