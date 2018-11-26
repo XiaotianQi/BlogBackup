@@ -1,3 +1,5 @@
+## 概览
+
 Python 中常见的内置数据结构可以统称为容器（container）。
 
 * 数字类型：`int`、`float`、`complex`、`bool`
@@ -39,3 +41,54 @@ Python 中常见的内置数据结构可以统称为容器（container）。
 在`list`中随着`list`数据的增大 查找时间会增大
 
 在`dict`中查找元素不会随着`dict`的增大而增大
+
+***
+
+## Special Attributes
+
+The implementation adds a few special read-only attributes to several object types, where they are relevant.  Some of these are not reported by the `dir()` built-in function.
+
+-  `object.__dict__`
+
+  A dictionary or other mapping object used to store an object’s (writable) attributes. 
+
+-  `instance.__class__`
+
+  The class to which a class instance belongs. 
+
+-  `class.__bases__`
+
+  The tuple of base classes of a class object. 
+
+-  `definition.__name__`
+
+  The name of the class, function, method, descriptor, or generator instance. 
+
+-  `definition.__qualname__`
+
+  The qualified name of the class, function, method, descriptor, or generator instance.  
+
+-  `class.__mro__`
+
+  This attribute is a tuple of classes that are considered when looking for base classes during method resolution. 
+
+-  `class.mro`()
+
+  This method can be overridden by a metaclass to customize the method resolution order for its instances.  It is called at class instantiation, and its result is stored in `__mro__`. 
+
+-  `class.``__subclasses__`()
+
+  Each class keeps a list of weak references to its immediate subclasses.  This method returns a list of all those references still alive. 
+
+***
+
+## 其他类型
+
+除了以上常用内置数据类型，还有上下文管理类型、模块、函数等。
+
+***
+
+参考：
+
+(Built-in Types)[https://docs.python.org/3/library/stdtypes.html#special-attributes]
+
