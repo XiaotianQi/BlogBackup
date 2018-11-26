@@ -134,7 +134,111 @@ Out[63]: 1885692320
 
 ## 可变参数传递
 
+在传递可变参数会产生意想不到的错误，以两个例子说明：
 
+### 传入可变对象，并参与`+=`操作
+
+```python
+def func(a, b):
+    a += b
+    return a
+
+if __name__ == "__main__":
+    a = 1
+    b = 1
+    print(func(a, b))		# 2
+    print(a, b)				# 1 1
+
+    a = [1,]
+    b = [2,]
+    print(func(a, b))		# [1, 2]
+    print(a, b)				# [1, 2] [2]
+```
+
+```python
+def func(a, b):
+    a = a + b
+    return a
+
+if __name__ == "__main__":
+    a = 1
+    b = 1
+    print(func(a, b))		# 2
+    print(a, b)				# 1 1
+
+    a = [1,]
+    b = [2,]
+    print(func(a, b))		# [1, 2]
+    print(a, b)				# [1] [2]
+```
+
+造成 `a` 变化的原因是:
+
+* `+=` 不会改变变量引用，不会创建新的对象
+* `a = [1,]` 是可变对象，可变对象发生变化时，其引用不会发生变化
+
+### 可变对象作为默认参数
+
+声明 `Company` 类：
+
+```python
+class Company:
+    def __init__(self, name, staffs=[]):
+        self.name = name
+        self.staffs = staffs
+    
+    def add(self, staff_name):
+        self.staffs.append(staff_name)
+
+    def remove(self, staff_name):
+        self.staffs.remove(staff_name)
+```
+
+实例 `com1`、`com2`：
+
+```python
+if __name__ == "__main__":
+    com1 = Company('com1', ['a', 'b'])
+    com1.add('c')
+    com1.remove('a')
+    print(com1.staffs)			# [b', 'c']
+
+    com2 = Company('com2')
+    com2.add('a')
+    print(com2.staffs)			# ['a']
+```
+
+实例 `com2`、`com3`：
+
+```python
+if __name__ == "__main__":
+    com2 = Company('com2')
+    com2.add('a')
+    print(com2.staffs)			# ['a']
+
+    com3 = Company('com3')
+    com3.add('b')
+    print(com3.staffs)			# ['a', 'b']
+    print(com2.staffs)			# ['a', 'b']
+```
+
+在实例 `com2`、`com3`后，`com2.staffs`发生变化的原因是：
+
+* 声明 `Company` 时，使用了 `staffs=[]`，变量`staffs`将默认使用 `list`类型
+* `com1` 传入了新列表对象，`com2` 和  `com3` 均使用默认的列表对象
+
+由此可见， `staffs=[]` 中的默认列表产生的问题，证实一下：
+
+```python
+if __name__ == "__main__":
+    com2 = Company('com2')
+    com2.add('a')
+    print(Company.__init__.__defaults__)	# (['a'],)
+
+    com3 = Company('com3')
+    com3.add('b')
+    print(Company.__init__.__defaults__)	# (['a', 'b'],)
+```
 
 ***
 
@@ -379,7 +483,7 @@ Out[5]: (1889956815560, 1889956951240)
 
 ***
 
-### 4.`+` 与 `+=` 区别
+### 4.`..=..+..` 与 `..+=..` 区别
 
 ```python
 In [16]: l = [1 , 2, 3]
