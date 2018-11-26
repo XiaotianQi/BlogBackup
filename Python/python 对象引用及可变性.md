@@ -347,3 +347,15 @@ Out[15]: False
 一个对象的哈希值在对象的生命周期里不变，那么这个对象就是可哈希的。这个对象可以与其它对象进行比较, 相等的对象哈希值一定相等。这些数据结构内置了哈希值，每个可哈希的对象都内置了`__hash__`、`__eq__`、`__ne__` 方法，可哈希的对象可以通过哈希值进行对比，也可以作为字典的键值和作为 set 函数的参数。
 
 在 Python 中，对于内置不可变对象，都是可哈希的，而字典和列表等可变对象不是可哈希的。自定义的类的实例默认是可哈希的，但是哈希值不等于 `id()` 值。
+
+> An object is *hashable* if it has a hash value which never changes during its lifetime (it needs a `__hash__()` method), and can be compared to other objects (it needs an `__eq__()` method).  Hashable objects which compare equal must have the same hash value.
+>
+> Hashability makes an object usable as a dictionary key and a set member, because these data structures use the hash value internally.
+>
+> All of Python’s immutable built-in objects are hashable; mutable containers (such as lists or dictionaries) are not.  Objects which are instances of user-defined classes are hashable by default.  They all compare unequal (except with themselves), and their hash value is derived from their `id()`.
+
+***
+
+参考：
+
+[glossary](https://docs.python.org/3/glossary.html#term-hashable)
