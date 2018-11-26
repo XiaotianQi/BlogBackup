@@ -1,6 +1,6 @@
 每个变量都有标识、类型和值。标识可以理解为对象在内存中的地址。
 
-对引用式变量来说，把变量分配给对象更合适。但是，如果说把对象赋值给变量，那么就有点问题。理解 Python 中的赋值语句时，应始终先读右边。对象在右边创建或者获取，然后，左边的变量才会绑定在对象上。一个对象可以绑定多个变量。
+对引用式变量来说，把变量分配给对象更合适。但是，如果说把对象赋值给变量，那么就有点问题。理解 Python 中的赋值语句时，应始终先读右边。对象在右边创建或者获取，然后，左边的变量才会绑定在对象上。一个对象可以绑定多个变量。先生成对象，然后变量获得对象的引用。
 
 ***
 
@@ -353,6 +353,23 @@ Out[15]: False
 > Hashability makes an object usable as a dictionary key and a set member, because these data structures use the hash value internally.
 >
 > All of Python’s immutable built-in objects are hashable; mutable containers (such as lists or dictionaries) are not.  Objects which are instances of user-defined classes are hashable by default.  They all compare unequal (except with themselves), and their hash value is derived from their `id()`.
+
+***
+
+### `is` 和 `==` 的区别
+
+`is` will return `True` if two variables point to the same object, `==` if the objects referred to by the variables are equal.
+
+```python
+In [3]: a == b
+Out[3]: True
+
+In [4]: a is b
+Out[4]: False
+
+In [5]: id(a), id(b)
+Out[5]: (1889956815560, 1889956951240)
+```
 
 ***
 
