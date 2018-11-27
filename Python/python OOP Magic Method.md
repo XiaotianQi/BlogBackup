@@ -1,6 +1,8 @@
-形如 `__xxx__` 的变量或者函数名就要注意，这些在 Python 中是有特殊用途的，都统称为"魔术方法"。比如我们接触最多的__init__。
+形如 `__xxx__` 的变量或者函数名，在 Python 中是有特殊用途，统称为"魔术方法"。比如接触最多的`__init__`。
 
 特殊方法也称为魔法方法（Magic method）
+
+> Python methods (including `staticmethod()` and `classmethod()`) are implemented as non-data descriptors.  Accordingly, instances can redefine and override methods.  This allows individual instances to acquire behaviors that differ from other instances of the same class.
 
 ## 常见的特殊属性
 
@@ -28,32 +30,65 @@
 
 * `__slots__(self,[...])`
 
-限制该 `class` 实例能添加的属性。告诉 Python 不要使用字典，而且只给一个固定集合的属性分配空间，为内存减轻负担。
+  限制该 `class` 实例能添加的属性。告诉 Python 不要使用字典，而且只给一个固定集合的属性分配空间，为内存减轻负担。
 
 * `__new__(cls,[...)`
 
-`__new__` 是对象实例化时第一个调用的方法，它只取下 `cls` 参数，并把其他参数传给 `__init__`。`__new__` 很少使用，但是也有它适合的场景，尤其是当类继承自一个像元组或者字符串这样不经常改变的类型的时候。
+  `__new__` 是对象实例化时第一个调用的方法，它只取下 `cls` 参数，并把其他参数传给 `__init__`。`__new__` 很少使用，但是也有它适合的场景，尤其是当类继承自一个像元组或者字符串这样不经常改变的类型的时候。
 
 * `__init__(self,[...])`
 
-类的初始化方法。它获取任何传给构造器的参数。比如调用 `x = SomeClass(10, ‘foo’)`，`__init__` 就会接到参数 `10` 和 `foo`。`__init__` 在 Python 的类定义中用的最多。
+  类的初始化方法。它获取任何传给构造器的参数。比如调用 `x = SomeClass(10, ‘foo’)`，`__init__` 就会接到参数 `10` 和 `foo`。`__init__` 在 Python 的类定义中用的最多。
+
+  Note:
+
+  ```python
+  In [1]: class Movie(object):
+     ...:     def __init__(self, budget):
+     ...:         if budget < 0:
+     ...:             raise ValueError("Negative value not allowed: %s" % budget)
+     ...:         self.budget = budget
+     ...:
+  
+  In [2]: a = Movie(-1)
+  ---------------------------------------------------------------------------
+  ValueError                                Traceback (most recent call last)
+  <ipython-input-2-70e67b61f884> in <module>
+  ----> 1 a = Movie(-1)
+  
+  <ipython-input-1-84298c96c6b2> in __init__(self, budget)
+        2     def __init__(self, budget):
+        3         if budget < 0:
+  ----> 4             raise ValueError("Negative value not allowed: %s" % budget)
+        5         self.budget = budget
+        6
+  
+  ValueError: Negative value not allowed: -1
+  
+  In [3]: Movie.budget = -1
+  
+  In [4]: Movie.budget
+  Out[4]: -1
+  ```
+
+  如果直接通过 `Movie.budget` 来赋值，那么不会提示输入错误，因为在这个类只会在`__init__` 方法中捕获错误的数据。
 
 * `__del__(self)`
 
-`__new__` 和 `__init__` 是对象的构造器， `__del__` 是对象的销毁器。它并非实现了语句 `del x` ，因此该语句不等同于 `x.__del__()`。而是定义了当对象被垃圾回收时的行为。当对象需要在销毁时做一些处理的时候这个方法很有用，比如 `socket` 对象、文件对象。但是需要注意的是，当 Python 解释器退出但对象仍然存活的时候，`__del__` 并不会执行。所以养成一个手工清理的好习惯是很重要的，比如及时关闭连接。
+  `__new__` 和 `__init__` 是对象的构造器， `__del__` 是对象的销毁器。它并非实现了语句 `del x` ，因此该语句不等同于 `x.__del__()`。而是定义了当对象被垃圾回收时的行为。当对象需要在销毁时做一些处理的时候这个方法很有用，比如 `socket` 对象、文件对象。但是需要注意的是，当 Python 解释器退出但对象仍然存活的时候，`__del__` 并不会执行。所以养成一个手工清理的好习惯是很重要的，比如及时关闭连接。
 
-```python
-# 文件对象的装饰类，用来保证文件被删除时能够正确关闭
-class FileObject(object):
-    __slots__ = ('filepath', 'filename')
-    def __init__(self, filepath='~', filename='sample.txt'):
-        # 使用读写模式打开 filepath 中的 filename 文件
-        self.file = open(join(filepath, filename), 'r+')
-
-    def __del__(self):
-        self.file.close()
-        del self.file
-```
+  ```python
+  # 文件对象的装饰类，用来保证文件被删除时能够正确关闭
+  class FileObject(object):
+      __slots__ = ('filepath', 'filename')
+      def __init__(self, filepath='~', filename='sample.txt'):
+          # 使用读写模式打开 filepath 中的 filename 文件
+          self.file = open(join(filepath, filename), 'r+')
+  
+      def __del__(self):
+          self.file.close()
+          del self.file
+  ```
 
 ***
 
@@ -139,6 +174,24 @@ Out[5]: True
 * `__getattribute__(self, name)`
 
 如果存在 `__getattribute__()` 方法，将在每次查找属性和方法时，无条件地调用它，哪怕在创建实例之后已经显式地设置了属性。这一点区别于 `__getattr__(self, name)`。
+
+***
+
+## 属性描述符
+
+>  In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol.  Those methods are `__get__`, `__set__`, and `__delete__`.  If any of those methods are defined for an object, it is said to be a descriptor.
+
+* `__get__(self, instance, owner)`
+
+  > Called to get the attribute of the owner class (class attribute access) or of an instance of that class (instance attribute access). *owner* is always the owner class, while *instance* is the instance that the attribute was accessed through, or `None` when the attribute is accessed through the *owner*.  This method should return the (computed) attribute value or raise an `AttributeError` exception.
+
+* `__set__(self, instance, value)`
+
+  > Called to set the attribute on an instance *instance* of the owner class to a new value, *value*.
+
+* `__delete__(self, instance)`
+
+  >  Called to delete the attribute on an instance *instance* of the owner class.
 
 ***
 
