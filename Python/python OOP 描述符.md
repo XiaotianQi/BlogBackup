@@ -381,6 +381,7 @@ class CallbackProperty(object):
         self.callbacks = WeakKeyDictionary()
  
     def __get__(self, instance, owner):
+        # 通过类访问描述器的时候，instance为None
         if instance is None:
             return self        
         return self.data.get(instance, self.default)
@@ -415,7 +416,12 @@ print("Balance is %s" % ba.balance)
 
 声明一个回调函数，用来响应类中某个属性的状态变化，而且无需修改这个类的代码。现在，要做的就是调用 `ba.balance.add_callback(ba, low_balance_warning)`，以使得每次 `balance` 变化时，`low_balance_warning` 都会被调用。
 
-代码运行时，描述符总是会先调用 `__get__` 方法。那么，当从**类的层次**访问时，`__get__`方法的参数`instance`是`None`。此时，即可通过 `add_callback` 方法，给 `__set__` 方法添加属性判断。
+代码运行时，描述符总是会先调用 `__get__` 方法。那么，当从**类层级**访问时，`__get__`方法的参数`instance`是`None`。此时，即可通过 `add_callback` 方法，给 `__set__` 方法添加属性判断。
+
+当一个类(BankAccount)中存在一个描述符属性(balance)，当这个属性被访问时，会自动调用描述符的`__get__`和`__set__`方法：
+
+* 当使用类名访问描述符时(BankAccount.balance，类层级) , `__get__`方法返回描述器本身
+* 当使用对象访问描述符时(ba.name，实例层级), `__get__`方法会返回自定义的值（data[instance]）
 
 ***
 
@@ -546,6 +552,110 @@ class property([fget[, fset[, fdel[, doc]]]])
 
 > The object returned by `super()` also has a custom `__getattribute__` method for invoking descriptors.  The call `super(B, obj).m()` searches `obj.__class__.__mro__` for the base class `A` immediately following `B` and then returns `A.__dict__['m'].__get__(obj, B)`.  If not a descriptor, `m` is returned unchanged.  If not in the dictionary, `m` reverts to a search using `object.__getattribute__`.
 
+### 4. function
+
+函数也是描述符，从中可以看到 function 中存在 `__get__`方法。
+
+```python
+In [1]: def func():				# 声明 func 函数
+   ...:     pass
+   ...:
+
+In [2]: func					# func 函数亦是对象
+Out[2]: <function __main__.func()>
+
+In [3]: type(func)				# func 函数的类型是 function
+Out[3]: function
+
+In [5]: type(func).__dict__		# function 类包含 __get__、__call__ 方法
+Out[5]:
+mappingproxy({'__repr__': <slot wrapper '__repr__' of 'function' objects>,
+              '__call__': <slot wrapper '__call__' of 'function' objects>,
+              '__get__': <slot wrapper '__get__' of 'function' objects>,
+              '__new__': <function function.__new__(*args, **kwargs)>,
+              '__closure__': <member '__closure__' of 'function' objects>,
+              '__doc__': <member '__doc__' of 'function' objects>,
+              '__globals__': <member '__globals__' of 'function' objects>,
+              '__module__': <member '__module__' of 'function' objects>,
+              '__code__': <attribute '__code__' of 'function' objects>,
+              '__defaults__': <attribute '__defaults__' of 'function' objects>,
+              '__kwdefaults__': <attribute '__kwdefaults__' of 'function' objects>,
+              '__annotations__': <attribute '__annotations__' of 'function' objects>,
+              '__dict__': <attribute '__dict__' of 'function' objects>,
+              '__name__': <attribute '__name__' of 'function' objects>,
+              '__qualname__': <attribute '__qualname__' of 'function' objects>})
+```
+
+不仅如此，类中定义的函数亦是描述符。
+
+```python
+In [1]: class A:
+   ...:     def func(self):
+   ...:         print('---do something ---')
+   ...:
+
+In [7]: A.func
+Out[7]: <function __main__.A.func(self)>
+
+In [8]: type(A.func)
+Out[6]: function
+```
+
+在类中定义函数，相当于定义一个描述器。那么以下二者某种意义上等价：
+
+```python
+class A:
+    def func(self):
+        pass
+```
+
+```python
+class A:
+    func = function()
+```
+
+当通过两种不同方式访问 `func`时：
+
+```python
+In [7]: a = A()
+
+In [8]: A.func		# A.test.__get__(None, A)
+Out[8]: <function __main__.A.func(self)>
+
+In [9]: a.func		# A.test.__get__(a, A)
+Out[9]: <bound method A.func of <__main__.A object at 0x000001AAF4143F60>>
+```
+
+说明了绑定(bound)和非绑定(unbound)的不同之处。
+
+```python
+In [14]: a.func()
+---do something ---
+
+In [15]: A.func(a)
+---do something ---
+
+In [16]: A.func()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-16-21f556f4a136> in <module>
+----> 1 A.func()
+
+TypeError: func() missing 1 required positional argument: 'self'
+```
+
+由此可以发现，在定义A的时候，`func`方法是有一个参数`self`。
+
+* `A.func`返回一个function对象，是一个未绑定函数，所以调用的时候要传对象(`A.func(a)`)
+* `a.func`返回一个bound method对象，是一个绑定函数，所以调用的时候不需要再传入对象(`a.func()`)
+
+可以看出，所谓绑定，就是把调用函数的对象，绑定到函数的第一个参数上。
+
+做一个总结，function是一个可以被调用(实现了`__call__`方法)的描述器(实现了`__get__`方法)对象。
+
+* 通过类获取函数对象的时候，`__get__`方法会返回function本身，
+* 通过实例获取函数对象的时候，`__get__`方法会返回一个bound method，也就是将实例绑定到这个function上。
+
 ***
 
 ## 补充
@@ -598,3 +708,5 @@ ABC
 [Difference between `__getattr__` vs `__getattribute__`](https://stackoverflow.com/questions/3278077/difference-between-getattr-vs-getattribute)
 
 [Python Descriptors Demystified](http://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb)
+
+[深度解析并实现python中的super](https://blog.csdn.net/zhangjg_blog/article/details/83033210)
