@@ -8,19 +8,21 @@
 
 * `__name__`
 
-返回系统内置或自定义类的名称字符串，实例没有属性 `__name__`。
+  返回系统内置或自定义类的名称字符串，实例没有属性 `__name__`。
 
 * `__bases__`
 
-返回一个元组，包含的全部基类，实例没有属性 `__bases__`。
+  返回一个元组，包含的全部基类，实例没有属性 `__bases__`。
 
 * `__class__`
 
-返回实例或类型的类型，类似等于 `type()`。
+  返回实例或类型的类型，类似等于 `type()`。
 
 * `__dict__`
 
-返回一个字典，包含实例或类的所有属性。
+  返回一个字典，包含实例或类的所有属性。
+
+Python中对象的属性具有 **层次性**，属性在哪个对象上定义，便会出现在哪个对象的`__dict__`中。
 
 ***
 
@@ -159,21 +161,46 @@ Out[5]: True
 
 ## 访问控制
 
+* `__getattribute__(self, name)`
+
+  `__getattribute__` 是属性查找的入口。实例对象访问属性时都会调用 `__getattribute__`，之后才会根据一定的规则在对应 `__dict__` 中查找相应的属性。若没有找到或遇到异常，则会调用 `__getattr__`。
+
 * `__getattr__(self, name)`
 
-当常规的属性访问无法找到目标属性时，会调用 `__getattr__()` 方法。通过这个方法来定义反馈信息。可以用于捕捉错误的拼写并且给出指引，使用废弃属性时给出警告，以及灵活地处理 `AttributeError`。只有当试图访问不存在的属性时它才会被调用，所以这不能算是一个真正的封装的办法。
+  当常规的属性访问无法找到目标属性时，会调用 `__getattr__()` 方法。通过这个方法来定义反馈信息。可以用于捕捉错误的拼写并且给出指引，使用废弃属性时给出警告，以及灵活地处理 `AttributeError`。只有当试图访问不存在的属性时它才会被调用。
 
 * `__setattr__(self, name, value)`
 
-绑定实例的某个属性（赋值）时，会自动调用 `__setattr__()`方法。无视返回值。
+  绑定实例的某个属性（赋值）时，会自动调用 `__setattr__()`方法。
+
+  需要注意的是，重载时，如果其中包含 `self.x = x`或者 `setattr(self, name, value)`，会造成递归调用。为避免这种情况，可以采用以下两种方法：
+
+  * 调用父类方法：
+
+    ```python
+    class MyTest:
+        def __init__(self, x):
+            self.x = x
+    
+        def __setattr__(self, name, value):
+    		super().__setattr__(name, value)
+    ```
+
+  * 使用`__dict__`：
+
+    ```python
+    class MyTest:
+        def __init__(self, x):
+            self.x = x
+    
+        def __setattr__(self, name, value):
+            print(name, value)
+            self.__dict__[name] = value
+    ```
 
 * `__delattr__(self, name)`
 
-当解绑定一个对象的某个属性时，会调用 `__delattr__()` 方法。无视返回值。
-
-* `__getattribute__(self, name)`
-
-如果存在 `__getattribute__()` 方法，将在每次查找属性和方法时，无条件地调用它，哪怕在创建实例之后已经显式地设置了属性。这一点区别于 `__getattr__(self, name)`。
+  当解绑定一个对象的某个属性时，会调用 `__delattr__()` 方法。无视返回值。
 
 ***
 
@@ -399,39 +426,39 @@ other + some_object
 
 * `__len__(self)`
 
-返回容器的长度，可变和不可变类型都需要实现。
+  返回容器的长度，可变和不可变类型都需要实现。
 
 * `__getitem__(self, key)`
 
-定义通过键来获取值 `self[key]`。这也是可变和不可变容器类型都需要实现的一个方法。它应该在键的类型错误式产生 `TypeError` 异常，同时在没有与键值相匹配的内容时产生 `KeyError` 异常。
+  定义通过键来获取值 `self[key]`。这也是可变和不可变容器类型都需要实现的一个方法。它应该在键的类型错误式产生 `TypeError` 异常，同时在没有与键值相匹配的内容时产生 `KeyError` 异常。
 
 * `__setitem__(self, key)`
 
-定义通过键来设置值 `self[key] = value`。它是可变容器类型必须实现的一个方法，同样应该在合适的时候产生 `KeyError` 和 `TypeError` 异常。
+  定义通过键来设置值 `self[key] = value`。它是可变容器类型必须实现的一个方法，同样应该在合适的时候产生 `KeyError` 和 `TypeError` 异常。
 
 * `__delitem__(self, key)`
 
-删除一个键值对。
+  删除一个键值对。
 
 * `__contains__(self, item)`
 
-某序列是否包含特定的值。定义了使用 `in` 和 `not in` 进行成员测试时类的行为。这个方法不是序列协议的一部分，原因是，如果 `__contains__` 没有定义，`Python` 就会迭代整个序列，如果找到了需要的一项就返回 `True`。
+  某序列是否包含特定的值。定义了使用 `in` 和 `not in` 进行成员测试时类的行为。这个方法不是序列协议的一部分，原因是，如果 `__contains__` 没有定义，`Python` 就会迭代整个序列，如果找到了需要的一项就返回 `True`。
 
 * `__missing__(self ,key)`
 
-为缺失键提供默认值。
+  为缺失键提供默认值。
 
 * `__iter__(self, key)`
 
-遍历某个序列。返回当前容器的一个迭代器。无论何时创建迭代器都将调用 `__iter__` 方法。
+  遍历某个序列。返回当前容器的一个迭代器。无论何时创建迭代器都将调用 `__iter__` 方法。
 
 * `__next__(self)`
 
-从迭代器中获取下一个值。无论何时从迭代器中获取下一个值都将调用 `__next__` 方法。
+  从迭代器中获取下一个值。无论何时从迭代器中获取下一个值都将调用 `__next__` 方法。
 
 * `__reversed__(self)`
 
-按逆序创建一个迭代器。返回一个反转之后的序列。它以一个现有序列为参数，并将该序列中所有元素从尾到头以逆序排列生成一个新的迭代器。
+  按逆序创建一个迭代器。返回一个反转之后的序列。它以一个现有序列为参数，并将该序列中所有元素从尾到头以逆序排列生成一个新的迭代器。
 
 ```python
 class FunctionalList:
@@ -497,11 +524,11 @@ class FunctionalList:
 
 * `__instancecheck__(self, instance)`
 
-检查某个对象是否是该对象的实例（例如 isinstance(instance, class) ）。
+  检查某个对象是否是该对象的实例（例如 isinstance(instance, class) ）。
 
 * `__subclasscheck__(self, subclass)`
 
-检查某个类是否是该类的子类（例如 issubclass(subclass, class) ）。
+  检查某个类是否是该类的子类（例如 issubclass(subclass, class) ）。
 
 ***
 
@@ -519,11 +546,11 @@ class FunctionalList:
 
 * `__enter__(self)`
 
-在进入 with 语块时进行一些特别操作。
+  在进入 with 语块时进行一些特别操作。
 
 * `__exit__(self, exception_type, exception_value, traceback)`
 
-在退出 with 语块时进行一些特别操作。`__exit__` 方法将总是被调用，哪怕是在 `with` 语块中引发了例外。实际上，如果引发了例外，该例外信息将会被传递给 `__exit__` 方法。
+  在退出 with 语块时进行一些特别操作。`__exit__` 方法将总是被调用，哪怕是在 `with` 语块中引发了例外。实际上，如果引发了例外，该例外信息将会被传递给 `__exit__` 方法。
 
 ***
 
@@ -532,3 +559,5 @@ class FunctionalList:
 [Python 魔法方法指南](http://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id2)
 
 [Difference between `__str__ `and `__repr__`?](https://stackoverflow.com/questions/1436703/difference-between-str-and-repr)
+
+[How to use __setattr__ correctly, avoiding infinite recursion](https://stackoverflow.com/questions/17020115/how-to-use-setattr-correctly-avoiding-infinite-recursion)
