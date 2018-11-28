@@ -399,16 +399,15 @@ class CallbackProperty(object):
         self.callbacks[instance].append(callback)
  
 class BankAccount(object):
-    balance = CallbackProperty(0)
+    balance = CallbackProperty(0)			# 仅访问 __init__
  
 def low_balance_warning(value):
     if value < 100:
         print("You are now poor")
  
 ba = BankAccount()
-BankAccount.balance.add_callback(ba, low_balance_warning)
- 
-ba.balance = 5000
+BankAccount.balance.add_callback(ba, low_balance_warning) # 仅访问 __get__、add_callback
+ba.balance = 5000		# 第一次访问__set__
 print("Balance is %s" % ba.balance)
 ba.balance = 99
 print("Balance is %s" % ba.balance)
@@ -416,7 +415,7 @@ print("Balance is %s" % ba.balance)
 
 声明一个回调函数，用来响应类中某个属性的状态变化，而且无需修改这个类的代码。现在，要做的就是调用 `ba.balance.add_callback(ba, low_balance_warning)`，以使得每次 `balance` 变化时，`low_balance_warning` 都会被调用。
 
-代码运行时，描述符总是会先调用 `__set__` 和 `__get__` 方法。那么，当从**类的层次**访问时，`__get__`方法的参数`instance`是`None`。此时，即可通过 `add_callback` 方法，给 `__set__` 方法添加属性判断。
+代码运行时，描述符总是会先调用 `__get__` 方法。那么，当从**类的层次**访问时，`__get__`方法的参数`instance`是`None`。此时，即可通过 `add_callback` 方法，给 `__set__` 方法添加属性判断。
 
 ***
 
