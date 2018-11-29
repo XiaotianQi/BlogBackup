@@ -144,7 +144,7 @@ E --> D1 --> D2 --> A --> B --> C --> Object
 
 ## `super()`
 
-`super()` 查找循序亦是通过 C3 算法，遵循 MRO顺序。
+`super()` 查找循序亦是通过 C3 算法，遵循 MRO顺序。调用的方法准确来说不是父类的方法，而是继承顺序中下一个类的方法。
 
 ```python
 class A:
@@ -178,6 +178,22 @@ D
 B
 C
 A
+```
+
+除此之外，`super()`也经常用于防止递归调用：
+
+```python
+class A:
+    def __setattr__(self, value):
+        do something
+        super().__setattr__(name, value)
+```
+
+```python
+class TestMetaClass(type):
+    def __new__(cls, name, bases, attrs):
+		do somthing
+        return super().__new__(cls, name, bases, attrs)
 ```
 
 ***
