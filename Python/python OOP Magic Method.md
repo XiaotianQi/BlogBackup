@@ -165,7 +165,29 @@ Out[5]: True
 
 * `__getattribute__(self, name)`
 
-  `__getattribute__` 是属性查找的入口。实例对象访问属性时都会调用 `__getattribute__`，之后才会根据一定的规则在对应 `__dict__` 中查找相应的属性。若没有找到或遇到异常，则会调用 `__getattr__`。
+  `__getattribute__` 是属性查找的入口。实例对象访问属性时都会调用 `__getattribute__`，之后才会根据一定的规则在对应 `__dict__` 中查找相应的属性。若没有找到属性或遇到异常，则会调用 `__getattr__`。
+
+  重载过程中，可能会出现递归调用，如下：
+
+  ```python
+  class MyTest:
+      def __init__(self, name):
+          self.name = name
+  
+      def __getattribute__(self, name): 
+          return self.name
+  ```
+
+  使用 `super()`，调用父类的 `__getattribute__` 方法，进行属性查找。
+
+  ```python
+  class MyTest:
+      def __init__(self, name):
+          self.name = name
+  
+      def __getattribute__(self, item):
+          return super().__getattribute__(item)
+  ```
 
 * `__getattr__(self, name)`
 
@@ -181,8 +203,8 @@ Out[5]: True
 
     ```python
     class MyTest:
-        def __init__(self, x):
-            self.x = x
+        def __init__(self, name):
+            self.name = name
     
         def __setattr__(self, name, value):
     		super().__setattr__(name, value)
@@ -192,8 +214,8 @@ Out[5]: True
 
     ```python
     class MyTest:
-        def __init__(self, x):
-            self.x = x
+        def __init__(self, name):
+            self.name = name
     
         def __setattr__(self, name, value):
             print(name, value)
@@ -203,6 +225,8 @@ Out[5]: True
 * `__delattr__(self, name)`
 
   当解绑定一个对象的某个属性时，会调用 `__delattr__()` 方法。无视返回值。
+
+在使用 `__getattr__`、`__setattr__`、`__getattribute__` 这三个特殊方式时，经常会遇到递归调用。解决办法就是：通过 `super()` 来触发父类的特殊访，问以避免当前类的属性的无限调用。
 
 ***
 
