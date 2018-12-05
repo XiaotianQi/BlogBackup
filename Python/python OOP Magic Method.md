@@ -26,7 +26,7 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
 ***
 
-## 构造方法
+## 构造方法（实例的创建与销毁）
 
 当我们调用 `x = SomeClass()` 的时候，`__init__` 并不是第一个被调用的方法。事实上，第一个被调用的是 `__new__`，这个方法才真正地创建了实例。当这个对象的生命周期结束的时候， `__del__` 会被调用。
 
@@ -114,18 +114,6 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
   返回对象的字节序列表。python 内置的 `bin()` 函数。
 
-* `__bool__(self)`
-
-  返回 `True` 或 `False`，python 内置的 `bool()` 函数。
-
-* `__hash__(self)`
-
-  python 内置的  `hash()` 函数。
-
-* `__dir__(self)`
-
-  返回一个属性列表，python 内置的 `dir()` 函数。
-
 * `__format__(self)`
 
   定义当类的实例用于新式字符串格式化时的行为。python 内置的 `format()` 函数。
@@ -161,11 +149,26 @@ Out[5]: True
 
 > Implement `__repr__` for any class you implement. This should be second nature. Implement `__str__` if you think it would be useful to have a string version which errs on the side of more readability in favor of more ambiguity.
 
-​	
+***
+
+## 数值转换
+
+| 方法                | 作用                                                         |
+| :------------------ | :----------------------------------------------------------- |
+| `__int__(self)`     | 类型转化为int                                                |
+| `__long__(self)`    | 类型转化为long                                               |
+| `__float__(self)`   | 类型转化为float                                              |
+| `__complex__(self)` | 类型转化为complex                                            |
+| `__bool__(self)`    | 返回 `True` 或 `False`，python 内置的 `bool()` 函数。        |
+| `__hash__(self)`    | python 内置的  `hash()` 函数。                               |
+| `__oct__(self)`     | 类型转化为八进制数                                           |
+| `__hex__(self)`     | 类型转化为十六进制数                                         |
+| `__index__(self)`   | 类型转化索引位置，切片操作使用                               |
+| `__trunc__(self)`   | 当调用 `math.trunc(self)` 时调用该方法，返回 `self` 截取到一个整数类型（通常是long类型）的值。 |
 
 ***
 
-## 访问控制
+## 属性管理
 
 * `__getattribute__(self, name)`
 
@@ -230,6 +233,10 @@ Out[5]: True
 
   当解绑定一个对象的某个属性时，会调用 `__delattr__()` 方法。无视返回值。
 
+* `__dir__(self)`
+
+  返回一个属性列表，python 内置的 `dir()` 函数。
+
 在使用 `__getattr__`、`__setattr__`、`__getattribute__` 这三个特殊方式时，经常会遇到递归调用。解决办法就是：通过 `super()` 来触发父类的特殊访，问以避免当前类的属性的无限调用。
 
 ***
@@ -252,7 +259,150 @@ Out[5]: True
 
 ***
 
-## 运算符重载
+## 自定义序列
+
+想实现一个**不可变**容器，需要定义 `__len__` 和 `__getitem__`。
+
+**可变**容器的协议除了上面的两个方法之外，还需要定义 `__setitem__` 和 `__delitem__`。最后，如果想让对象可以迭代，需要定义 `__iter__`，这个方法返回一个迭代器。迭代器必须遵守迭代器协议，需要定义 `__iter__` （返回它自己）和 `next` 方法。
+
+* `__len__(self)`
+
+  返回容器的长度，可变和不可变类型都需要实现。
+
+* `__getitem__(self, key)`
+
+  定义通过键来获取值 `self[key]`。这也是可变和不可变容器类型都需要实现的一个方法。它应该在键的类型错误式产生 `TypeError` 异常，同时在没有与键值相匹配的内容时产生 `KeyError` 异常。
+
+  通过重载此方法，便可以实现索引、迭代、切片操作。
+
+* `__setitem__(self, key)`
+
+  定义通过键来设置值 `self[key] = value`。它是可变容器类型必须实现的一个方法，同样应该在合适的时候产生 `KeyError` 和 `TypeError` 异常。
+
+* `__delitem__(self, key)`
+
+  删除一个键值对。
+
+* `__contains__(self, item)`
+
+  某序列是否包含特定的值。定义了使用 `in` 和 `not in` 进行成员测试时类的行为。这个方法不是序列协议的一部分，原因是，如果 `__contains__` 没有定义，`Python` 就会迭代整个序列，如果找到了需要的一项就返回 `True`。
+
+* `__missing__(self ,key)`
+
+  为缺失键提供默认值。
+
+
+```python
+class FunctionalList:
+    '''一个列表的封装类，实现了一些额外的函数式
+    方法，例如head, tail, init, last, drop和take。'''
+
+    def __init__(self, values=None):
+        if values is None:
+            self.values = []
+        else:
+            self.values = values
+
+    def __len__(self):
+        return len(self.values)
+
+    def __getitem__(self, key):
+        # 如果键的类型或值不合法，列表会返回异常
+        return self.values[key]
+
+    def __setitem__(self, key, value):
+        self.values[key] = value
+
+    def __delitem__(self, key):
+        del self.values[key]
+
+    def __iter__(self):
+        return iter(self.values)
+
+    def __reversed__(self):
+        return reversed(self.values)
+
+    def append(self, value):
+        self.values.append(value)
+
+    def head(self):
+        # 取得第一个元素
+        return self.values[0]
+
+    def tail(self):
+        # 取得除第一个元素外的所有元素
+        return self.valuse[1:]
+
+    def init(self):
+        # 取得除最后一个元素外的所有元素
+        return self.values[:-1]
+
+    def last(self):
+        # 取得最后一个元素
+        return self.values[-1]
+
+    def drop(self, n):
+        # 取得除前n个元素外的所有元素
+        return self.values[n:]
+
+    def take(self, n):
+        # 取得前n个元素
+        return self.values[:n]
+```
+
+***
+
+## 迭代枚举
+
+- `__iter__(self, key)`
+
+  遍历某个序列。返回当前容器的一个迭代器。无论何时创建迭代器都将调用 `__iter__` 方法。
+
+- `__next__(self)`
+
+  从迭代器中获取下一个值。无论何时从迭代器中获取下一个值都将调用 `__next__` 方法。
+
+- `__reversed__(self)`
+
+  按逆序创建一个迭代器。返回一个反转之后的序列。它以一个现有序列为参数，并将该序列中所有元素从尾到头以逆序排列生成一个新的迭代器。
+
+***
+
+## 类型判断
+
+* `__instancecheck__(self, instance)`
+
+  检查某个对象是否是该对象的实例（例如 isinstance(instance, class) ）。
+
+* `__subclasscheck__(self, subclass)`
+
+  检查某个类是否是该类的子类（例如 issubclass(subclass, class) ）。
+
+***
+
+## 可调用
+
+`__call__(self, [args...])`
+
+像调用函数一样“调用”一个实例。本质上这代表了 `x()` 和 `x.__call__()` 是相同的。
+
+***
+
+## 上下文管理
+
+定义当 `with` 声明语句块执行完毕（或终止）时上下文管理器的行为。它可以用来处理异常，进行清理，或者做其他应该在语句块结束之后立刻执行的工作。如果语句块顺利执行， `exception_type`、`exception_value` 和 `traceback` 会是 `None`。否则，你可以选择处理这个异常或者让用户来处理。如果你想处理异常，确保 `__exit__` 在完成工作之后返回 `True`。
+
+* `__enter__(self)`
+
+  在进入 with 语块时进行一些特别操作。
+
+* `__exit__(self, exception_type, exception_value, traceback)`
+
+  在退出 with 语块时进行一些特别操作。`__exit__` 方法将总是被调用，哪怕是在 `with` 语块中引发了例外。实际上，如果引发了例外，该例外信息将会被传递给 `__exit__` 方法。
+
+***
+
+## 运算符
 
 使用 Python 魔法方法的一个巨大优势就是可以构建一个拥有 Python 内置类型行为的对象。这意味着你可以避免使用非标准的、丑陋的方式来表达简单的操作。这样做让代码变得冗长而混乱。不同的类库可能对同一种比较操作采用不同的方法名称，这让使用者需要做很多没有必要的工作。
 
@@ -260,7 +410,7 @@ Out[5]: True
 
 方法的返回值不是布尔，返回的是数值。
 
-|||
+|方法|作用|
 |:-|:-|
 |`__eq__(self, other)`|==|
 |`__ne__(self, other)`|!=|
@@ -305,7 +455,7 @@ True
 
 ### 一元运算符
 
-|||
+|方法|作用|
 |:-|:-|
 |`__pos__(self)`|取正|
 |`__neg__(self)`|取负|
@@ -318,7 +468,7 @@ True
 
 ### 算数运算符
 
-|||
+|方法|作用|
 |:-|:-|
 |`__add__(self, other)`|加法，`+`|
 |`__sub__(self, other)`|减法，`-`|
@@ -328,11 +478,6 @@ True
 |`__mod__(self, other)`|取余，`%`|
 |`__divmod__(self, other)`|实现 `divmod()` 内建函数，`/` 和 `%`|
 |`__pow__(self, other)`|幂，`**`|
-|`__lshift__(self, other)`|位运算，`<<`|
-|`__rshift__(self, other)`|位运算，`>>`|
-|`__and__(self, other)`|按位与，`&`|
-|`__or__(self, other)`|按位或，`|`|
-|`__xor__(self, other)`|按位异或，`^`|
 
 不能重载 `and`和`or` 的逻辑运算。
 
@@ -396,21 +541,16 @@ some_object + other
 other + some_object
 ```
 
-||
-|:-|
-|`__radd__(self, other)`|
-|`__rsub__(self, other)`|
-|`__rmul__(self, other)`|
-|`__rtruediv__(self, other)`|
-|`__rfloordiv__(self, other)`|
-|`__rmod__(self, other)`|
-|`__rdivmod__(self, other)`|
-|`__rpow__(self, other)`|
-|`__rlshift__(self, other)`|
-|`__rrshift__(self, other)`|
-|`__rand__(self, other)`|
-|`__ror__(self, other)`|
-|`__rxor__(self, other)`|
+|方法|作用|
+|:-|:-|
+|`__radd__(self, other)`||
+|`__rsub__(self, other)`||
+|`__rmul__(self, other)`||
+|`__rtruediv__(self, other)`||
+|`__rfloordiv__(self, other)`||
+|`__rmod__(self, other)`||
+|`__rdivmod__(self, other)`||
+|`__rpow__(self, other)`||
 
 ***
 
@@ -418,171 +558,51 @@ other + some_object
 
 `+=` 就是增量赋值。
 
-||
-|:-|
-|`__iadd__(self, other)`|
-|`__isub__(self, other)`|
-|`__imul__(self, other)`|
-|`__ifloordiv__(self, other)`|
-|`__itruediv__(self, other)`|
-|`__imod__(self, other)`|
-|`__ipow__(self, other)`|
-|`__ilshift__(self, other)`|
-|`__irshift__(self, other)`|
-|`__iand__(self, other)`|
-|`__ior__(self, other)`|
-|`__ixor__(self, other)`|
-
-***
-
-### 类型转换操作符
-
-|||
+|方法|作用|
 |:-|:-|
-|`__int__(self)`|类型转化为int|
-|`__long__(self)`|类型转化为long|
-|`__float__(self)`|类型转化为float|
-|`__complex__(self)`|类型转化为complex|
-|`__oct__(self)`|类型转化为八进制数|
-|`__hex__(self)`|类型转化为十六进制数|
-|`__index__(self)`|类型转化索引位置，切片操作使用|
-|`__trunc__(self)`|当调用 `math.trunc(self)` 时调用该方法，返回 `self` 截取到一个整数类型（通常是long类型）的值。|
+|`__iadd__(self, other)`||
+|`__isub__(self, other)`||
+|`__imul__(self, other)`||
+|`__ifloordiv__(self, other)`||
+|`__itruediv__(self, other)`||
+|`__imod__(self, other)`||
+|`__ipow__(self, other)`||
 
 ***
 
-## 自定义序列
+### 位运算符
 
-想实现一个不可变容器，需要定义 `__len__` 和 `__getitem__`。可变容器的协议除了上面的两个方法之外，还需要定义 `__setitem__` 和 `__delitem__`。最后，如果想让对象可以迭代，需要定义 `__iter__`，这个方法返回一个迭代器。迭代器必须遵守迭代器协议，需要定义 `__iter__` （返回它自己）和 `next` 方法。
-
-* `__len__(self)`
-
-  返回容器的长度，可变和不可变类型都需要实现。
-
-* `__getitem__(self, key)`
-
-  定义通过键来获取值 `self[key]`。这也是可变和不可变容器类型都需要实现的一个方法。它应该在键的类型错误式产生 `TypeError` 异常，同时在没有与键值相匹配的内容时产生 `KeyError` 异常。
-
-  通过重载此方法，便可以实现索引、迭代、切片操作。
-
-* `__setitem__(self, key)`
-
-  定义通过键来设置值 `self[key] = value`。它是可变容器类型必须实现的一个方法，同样应该在合适的时候产生 `KeyError` 和 `TypeError` 异常。
-
-* `__delitem__(self, key)`
-
-  删除一个键值对。
-
-* `__contains__(self, item)`
-
-  某序列是否包含特定的值。定义了使用 `in` 和 `not in` 进行成员测试时类的行为。这个方法不是序列协议的一部分，原因是，如果 `__contains__` 没有定义，`Python` 就会迭代整个序列，如果找到了需要的一项就返回 `True`。
-
-* `__missing__(self ,key)`
-
-  为缺失键提供默认值。
-
-* `__iter__(self, key)`
-
-  遍历某个序列。返回当前容器的一个迭代器。无论何时创建迭代器都将调用 `__iter__` 方法。
-
-* `__next__(self)`
-
-  从迭代器中获取下一个值。无论何时从迭代器中获取下一个值都将调用 `__next__` 方法。
-
-* `__reversed__(self)`
-
-  按逆序创建一个迭代器。返回一个反转之后的序列。它以一个现有序列为参数，并将该序列中所有元素从尾到头以逆序排列生成一个新的迭代器。
-
-```python
-class FunctionalList:
-    '''一个列表的封装类，实现了一些额外的函数式
-    方法，例如head, tail, init, last, drop和take。'''
-
-    def __init__(self, values=None):
-        if values is None:
-            self.values = []
-        else:
-            self.values = values
-
-    def __len__(self):
-        return len(self.values)
-
-    def __getitem__(self, key):
-        # 如果键的类型或值不合法，列表会返回异常
-        return self.values[key]
-
-    def __setitem__(self, key, value):
-        self.values[key] = value
-
-    def __delitem__(self, key):
-        del self.values[key]
-
-    def __iter__(self):
-        return iter(self.values)
-
-    def __reversed__(self):
-        return reversed(self.values)
-
-    def append(self, value):
-        self.values.append(value)
-
-    def head(self):
-        # 取得第一个元素
-        return self.values[0]
-
-    def tail(self):
-        # 取得除第一个元素外的所有元素
-        return self.valuse[1:]
-
-    def init(self):
-        # 取得除最后一个元素外的所有元素
-        return self.values[:-1]
-
-    def last(self):
-        # 取得最后一个元素
-        return self.values[-1]
-
-    def drop(self, n):
-        # 取得除前n个元素外的所有元素
-        return self.values[n:]
-
-    def take(self, n):
-        # 取得前n个元素
-        return self.values[:n]
-```
+|方法|作用|
+|:--|:-|
+|`__lshift__(self, other)`|位运算，`<<`|
+|`__rshift__(self, other)`|位运算，`>>`|
+|`__and__(self, other)`|按位与，`&`|
+|`__or__(self, other)`|按位或，`|`|
+|`__xor__(self, other)`|按位异或，`^`|
 
 ***
 
-## 类型判断
+### 反向位运算符
 
-* `__instancecheck__(self, instance)`
-
-  检查某个对象是否是该对象的实例（例如 isinstance(instance, class) ）。
-
-* `__subclasscheck__(self, subclass)`
-
-  检查某个类是否是该类的子类（例如 issubclass(subclass, class) ）。
-
-***
-
-## 可调用
-
-`__call__(self, [args...])`
-
-像调用函数一样“调用”一个实例。本质上这代表了 `x()` 和 `x.__call__()` 是相同的。
+|方法|作用|
+|:--|:-|
+|`__rlshift__(self, other)`||
+|`__rrshift__(self, other)`||
+|`__rand__(self, other)`||
+|`__ror__(self, other)`||
+|`__rxor__(self, other)`||
 
 ***
 
-## 上下文管理
+### 增量赋值位运算符
 
-定义当 `with` 声明语句块执行完毕（或终止）时上下文管理器的行为。它可以用来处理异常，进行清理，或者做其他应该在语句块结束之后立刻执行的工作。如果语句块顺利执行， `exception_type`、`exception_value` 和 `traceback` 会是 `None`。否则，你可以选择处理这个异常或者让用户来处理。如果你想处理异常，确保 `__exit__` 在完成工作之后返回 `True`。
-
-* `__enter__(self)`
-
-  在进入 with 语块时进行一些特别操作。
-
-* `__exit__(self, exception_type, exception_value, traceback)`
-
-  在退出 with 语块时进行一些特别操作。`__exit__` 方法将总是被调用，哪怕是在 `with` 语块中引发了例外。实际上，如果引发了例外，该例外信息将会被传递给 `__exit__` 方法。
+|方法|作用|
+|:--|:-|
+|`__ilshift__(self, other)`||
+|`__irshift__(self, other)`||
+|`__iand__(self, other)`||
+|`__ior__(self, other)`||
+|`__ixor__(self, other)`||
 
 ***
 
