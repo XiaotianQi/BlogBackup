@@ -1,4 +1,4 @@
-装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。他们有助于让我们的代码更简短，也更Pythonic。
+装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。在被装饰函数自身代码不变的情况下，增添一些**具有普适性的功能**。
 
 装饰器是可调用对象，其参数是被装饰的函数/类。装饰器处理并返回被装饰的函数，或者替换成另一个可调用对象，以某种方式增强函数。
 
@@ -9,7 +9,7 @@
 每次函数调用，都会在屏幕中打印日志信息。
 
 ```python
-import functools
+import functools, logging
 
 def logit(func):
     @functools.wraps(func)
@@ -20,7 +20,7 @@ def logit(func):
 ```
 
 ```python
-@decorator
+@logit
 def foo(x):
     print('its foo')
     return x+x

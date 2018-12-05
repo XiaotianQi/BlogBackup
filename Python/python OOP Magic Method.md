@@ -94,6 +94,10 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
           del self.file
   ```
 
+`__new__` 和 `__init__` 的区别：
+
+`__new__`方法创建实例，`__init__`负责初始化一个实例。
+
 ***
 
 ## 对象表示形式
@@ -126,7 +130,7 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
   定义当类的实例用于新式字符串格式化时的行为。python 内置的 `format()` 函数。
 
-### `__str__(self)`与`__repr__(self)`区别
+`__str__`与`__repr__`区别：
 
 ```python
 In [1]: x = 1
@@ -157,7 +161,7 @@ Out[5]: True
 
 > Implement `__repr__` for any class you implement. This should be second nature. Implement `__str__` if you think it would be useful to have a string version which errs on the side of more readability in favor of more ambiguity.
 
-	
+​	
 
 ***
 
@@ -457,6 +461,8 @@ other + some_object
 * `__getitem__(self, key)`
 
   定义通过键来获取值 `self[key]`。这也是可变和不可变容器类型都需要实现的一个方法。它应该在键的类型错误式产生 `TypeError` 异常，同时在没有与键值相匹配的内容时产生 `KeyError` 异常。
+
+  通过重载此方法，便可以实现索引、迭代、切片操作。
 
 * `__setitem__(self, key)`
 

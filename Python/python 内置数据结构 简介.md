@@ -42,6 +42,12 @@ Python 中常见的内置数据结构可以统称为容器（container）。
 
 在`dict`中查找元素不会随着`dict`的增大而增大
 
+PS：
+
+各个数据结构的抽象基类可以在官方文档查看：
+
+[`collections.abc` — Abstract Base Classes for Containers](https://docs.python.org/3/library/collections.abc.html)
+
 ***
 
 ## Special Attributes

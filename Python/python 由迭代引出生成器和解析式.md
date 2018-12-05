@@ -1,32 +1,60 @@
 在解释生成器(Generators)之前，需要解释一些前置概念。
 
-## 可迭代对象(Iterable)
+## 迭代(Iteration)
+
+重复执行一系列运算步骤，从前面的量依次求出后面的量的过程。此过程的每一次结果，都是由对前一次所得结果施行相同的运算步骤得到的。
+
+每一次迭代得到的结果会作为下一次迭代的初始值。
+
+当使用一个循环来遍历时，这个过程本身就叫迭代。
+
+```text
+有魔法函数__iter__则为可迭代
+有魔法函数__iter__、__next__则为迭代器
+```
+
+### iter函数
+
+`iter(object[, sentinel])`
+
+- 返回一个迭代器对象。
+- `object` 参数必须是可调用的对象，用于不断调用（没有参数），产出各个值
+- `sentinel` 是哨符，当可调用的对象返回这个值时，触发迭代器抛出 `StopIteration` 异常，但不输出哨符。
+
+官方文档提供的实例，逐行读取文件，直至遇到空行或者文件末尾为止：
+
+```python
+with open('mydata.txt') as fp:
+    for line in iter(fp.readline, '\n'):
+        process_line(line)
+```
+
+解释器迭代对象 `x` 时，会自动调用 `iter(x)` , `iter函数`将做如下检查:
+
+- 检查对象是否实现了 `__iter__` 方法，如果实现了就调用它，获取一个迭代器。
+- 如果没有实现 `__iter__` 方法，但是实现了 `__getitem__` 方法，Python 会创建一个迭代器，尝试按顺序（从索引 `0` 开始）获取元素。
+- 如果尝试失败，Python 抛出 `TypeError` 异常，通常会提示“`C object is not iterable`”其中 `C` 是 `x`所属的类。
+
+### 可迭代(Iterable)
 
 Python 中任意的对象，只要它定义了可以返回一个迭代器的 `__iter__` 方法，或者定义了可以支持下标索引的 `__getitem__`方法，那么它就是一个可迭代对象。
 
-可直接用于 `for` 循环的数据类型大致一下两类：
+可迭代的数据类型大致一下两类：
 
-* 集合数据类型：`list`、`tuple`、`dict`、`set`、`str`等；
+* 内置数据类型：`list`、`tuple`、`dict`、`set`、`str`；
 * `generator`：包括生成器和带 `yield` 的 `generator function`。
-
-这些对象统称为可迭代对象：`Iterable`。也可以理解为：凡是可以 `for` 循环的对象都是 `Iterable`。
 
 ***
 
-## 迭代器(Iterator)
+### 迭代器(Iterator)
 
-任意对象，只要定义了 `__next__` 方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
+同时定义了 `__next__` 和 `__iter__` 两个方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
 
-`Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。而 `list` 是永远不可能存储全体自然数。
+`Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。
+
+**可迭代的对象和迭代器之间的关系：** Python 从可迭代的对象中获取迭代器。
 
 `list`、`dict`、`str` 虽然是 `Iterable`，却不是 `Iterator`。不过可以通过 `iter()` 函数获得一个 `Iterator` 对象。
-
-```python
-iter(iterable)
-```
-
-* `iterable` 参数是一个容器，则返回这个容器的迭代器对象；
-* `iterable` 参数本身就是一个迭代器，则返回其自身。
 
 ```python
 In [1]: from collections import Iterator
@@ -40,21 +68,11 @@ Out[3]: True
 
 ***
 
-## 迭代(Iteration)
-
-重复执行一系列运算步骤，从前面的量依次求出后面的量的过程。此过程的每一次结果，都是由对前一次所得结果施行相同的运算步骤得到的。
-
-每一次迭代得到的结果会作为下一次迭代的初始值。
-
-当使用一个循环来遍历时，这个过程本身就叫迭代。
-
-***
-
 ## 生成器(Generators)
 
 生成器也是一种迭代器对象。只可以读取它一次，因为没有把所有的值存在内存中，而是在运行时生成值。通过遍历来使用它们，要么用一个 `for` 循环，要么将它们传递给任意可以进行迭代的函数和结构。
 
-生成器都是 `Iterator` 对象。生成器可以用于 `for` 循环，也可以被 `next()` 函数不断调用并返回下一个值，直至无法继续返回下一个值抛出 `StopIteration` 错误。区别于迭代器是，生成器中的值的数量是有限的。
+生成器都是 `Iterator` 。生成器可以用于 `for` 循环，也可以被 `next()` 函数不断调用并返回下一个值，直至无法继续返回下一个值抛出 `StopIteration` 错误。区别于迭代器是，生成器中的值的数量是有限的。
 
 比如实现 `range()`函数：
 
@@ -105,15 +123,15 @@ d = dict(map(key_value_gen, range(26)))
 
 ***
 
-## 解析式(comprehensions)
+## 推导式(comprehensions)
 
-解析式（又称推导式）是Python的一种独有特性。解析式是可以从一个数据序列构建另一个新的数据序列的结构体。 共有三种推导：
+推导式（又称推导式）是Python的一种独有特性。推导式是可以从一个数据序列构建另一个新的数据序列的结构体。 共有三种推导：
 
-* 列表(list)解析式
-* 集合(set)解析式
-* 字典(dict)解析式
+* 列表(list)推导式
+* 集合(set)推导式
+* 字典(dict)推导式
 
-### 列表(list)解析式
+### 列表推导式
 
 ```python
 list_variable = [out_exp for out_exp in input_list if exp]
@@ -307,9 +325,9 @@ In [39]: [i(1) for i in lst]
 Out[39]: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-### 集合(set)解析式
+### 集合推导式
 
-集合解析式跟列表解析式类似。唯一的区别在于集合解析式使用大括号 `{}`。
+集合推导式跟列表推导式类似。唯一的区别在于集合推导式使用大括号 `{}`。
 
 ```python
 In [3]: s = {i for i in range(20) if i%2 != 0}
@@ -318,7 +336,7 @@ In [4]: s
 Out[4]: {1, 3, 5, 7, 9, 11, 13, 15, 17, 19}
 ```
 
-### 字典(dict)解析式
+### 字典推导式
 
 ```python
 d = {key: value for (key, value) in iterable}
@@ -356,13 +374,19 @@ mcase_frequency = {
 mcase_frequency == {'a': 17, 'z': 3, 'b': 34}
 ```
 
+### 元组推导式
+
+```python
+tuple(t for t in range(11))
+```
+
 ***
 
 ## 生成器表达式
 
-将解析式外围括号改为圆括号 `(` `)`，便是生成器表达式。
+将推导式外围括号改为圆括号 `(` `)`，便是生成器表达式。
 
-生成器表达式的语法与解析式相似，但它返回的是生成器对象。解析式自创建之后便存在，会占用所有必要内存来存储其值。生成器表达式不会使用这么多的存储空间，而是处于暂挂状态，当对其进行迭代时才恢复，就像生成器函数的主体一样。
+生成器表达式的语法与推导式相似，但它返回的是生成器对象。推导式自创建之后便存在，会占用所有必要内存来存储其值。生成器表达式不会使用这么多的存储空间，而是处于暂挂状态，当对其进行迭代时才恢复，就像生成器函数的主体一样。
 
 ```python
 In [52]: lst = (i for i in 'abcdef')
@@ -380,6 +404,40 @@ d
 e
 f
 ```
+
+***
+
+## 等差数列生成器
+
+```python
+class ArithmeticProgression:
+
+    def __init__(self, begin, step, end=None):  # end 可选,默认生成无穷数列
+        self.begin = begin
+        self.step = step
+        self.end = end  # None -> 无穷数列
+
+    def __iter__(self):
+        result = type(self.begin + self.step)(self.begin)  # 强制转换成加法算式得到的类型
+        forever = self.end is None
+        index = 0
+        while forever or result < self.end:
+            yield result  # 生成值
+            index += 1
+            result = self.begin + self.step * index  # 终止时，该值不会产出.
+
+# 生成器函数形式：
+def aritprog_gen(begin, step, end=None):
+    result = type(begin + step)(begin)
+    forever = end is None
+    index = 0
+    while forever or result < end:
+        yield result
+        index += 1
+        result = begin + step * index
+```
+
+
 
 ***
 
