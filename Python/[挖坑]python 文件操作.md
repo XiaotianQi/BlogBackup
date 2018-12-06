@@ -7,34 +7,38 @@ open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, clo
 
 在使用该函数的时候，除了 `file` 参数必填外，其他参数可以选用。
 
-`file`：文件名称。
+* `file`：文件名称。
 
-`mode`：制定了文件打开的方式，函数提供了如下方式，其中，`rt`为默认方式。
+* `mode`：制定了文件打开的方式，函数提供了如下方式，其中，`r`为默认方式，同 `'rt'` ，意味着它以文本模式打开并读取。在文本模式，如果 *encoding* 没有指定，则根据平台来决定使用的编码：使用 `locale.getpreferredencoding(False)` 来获取本地编码。（要读取和写入原始字节，请使用二进制模式并不要指定 *encoding*。）
 
-| `mode` | 说明 |
-|:--| :--|
-|`r`|open for reading (default)——只读，默认方式|
-|`w`|open for writing, truncating the file first——写入，会覆盖源文件内容|
-|`x`|create a new file and open it for writing——创建新文件，并写入内容，如果文件已存在，将会报错：FileExistsError|
-|`a`|open for writing, appending to the end of the file if it exists——写入，如果文件有内容，则在末尾追加写入|
-|`b`|binary mode——二进制模式|
-|`t`|text mode (default)——文本模式|
-|`+`|open a disk file for updating (reading and writing)——更新磁盘文件，读写|
-|`U`|universal newline mode (deprecated)——在paython3中已经弃用|
+  | `mode` | 说明                                                         |
+  | ------ | ------------------------------------------------------------ |
+  | `r`    | open for reading (default)——只读，默认方式                   |
+  | `w`    | open for writing, truncating the file first——写入，会覆盖源文件内容 |
+  | `x`    | create a new file and open it for writing——创建新文件，并写入内容，如果文件已存在，将会报错：FileExistsError |
+  | `a`    | open for writing, appending to the end of the file if it exists——写入，如果文件有内容，则在末尾追加写入 |
+  | `b`    | binary mode——二进制模式                                      |
+  | `t`    | text mode (default)——文本模式                                |
+  | `+`    | open a disk file for updating (reading and writing)——更新磁盘文件，读写 |
+  | `U`    | universal newline mode (deprecated)——在paython3中已经弃用    |
 
-`buffering`：用于设置缓存策略。在二进制模式下，使用0来切换缓冲；在文本模式下，通过1表示行缓冲（固定大小的缓冲区）。
-在不给参数的时候，二进制文件的缓冲区大小由底层设备决定，可以通过 `io.DEFAULT_BUFFER_SIZE` 获取，通常为 4096 或 8192 字节。文本文件则采用行缓冲。
+  Python区分二进制和文本I/O。
 
-`encoding`：编码或者解码方式。默认编码方式依赖平台。
+  * 以二进制模式打开的文件（包括 *mode* 参数中的 `'b'` ）返回的内容为 `bytes`对象，不进行任何解码。
+  * 在文本模式下（默认情况下，或者在 *mode* 参数中包含 ``’t’` ）时，文件内容返回为 `str` ，首先使用指定的 *encoding* （如果给定）或者使用平台默认的的字节编码解码。
 
-`errors`：可选，并且不能用于二进制模式，指定了编码错误的处理方式，可以通过 `codecs.Codec` 获得编码错误字符串
+* `buffering`：用于设置缓存策略。
+* `encoding`：编码或者解码方式。只在文本模式下使用，默认编码方式依赖平台（`locale.getpreferredencoding()`）。
+* `errors`：可选的字符串参数，，用于指定如何处理编码和解码错误，并且不能用于二进制模式，可以通过 `codecs.Codec` 获得编码错误字符串。
+* `newline`：换行控制。参数有：`None`，`\n`，`\r`，`\r\n` , `' '`。
+  输入时，如果参数为 `None`，那么行结束的标志可以是：`\n`，`\r`，`\r\n`任意一个，并且三个控制符都首先会被转化为：`\n`，然后才会被调用；如果参数为''，所有的通用的换行结束标志都可以用，但是行结束标识符返回调用不会被编码。输出时，如果参数为 `None`，那么行结束的标志可以是：`\n`被转换为系统默认的分隔符；如果是''，`\n`则不会被编码。
+* `closefd`：文件关闭时，底层文件描述符仍然为打开状态，这是不被允许的，所以，需要设置为 `Ture`。
+* `opener`：可以通过调用 `opener` 方式，使用自定义的开启器。底层文件描述符是通过调用 `opener` 或者 `file`,  `flags` 获得的。`opener` 必须返回一个打开的文件描述。将 `os.open` 作为 `opener` 的结果，在功能上，类似于通过 `None`。
 
-`newline`：换行控制。参数有：`None`，`\n`，`\r`，`\r\n`。
-输入时，如果参数为 `None`，那么行结束的标志可以是：`\n`，`\r`，`\r\n`任意一个，并且三个控制符都首先会被转化为：`\n`，然后才会被调用；如果参数为''，所有的通用的换行结束标志都可以用，但是行结束标识符返回调用不会被编码。输出时，如果参数为 `None`，那么行结束的标志可以是：`\n`被转换为系统默认的分隔符；如果是''，`\n`则不会被编码。
+The type of file object returned by the `open()` function depends on the mode. 
 
-`closefd`：`False`：文件关闭时，底层文件描述符仍然为打开状态，这是不被允许的，所以，需要设置为 `Ture`。
-
-`opener`：可以通过调用 `opener` 方式，使用自定义的开启器。底层文件描述符是通过调用 `opener` 或者 `file`,  `flags` 获得的。`opener` 必须返回一个打开的文件描述。将 `os.open` 作为 `opener` 的结果，在功能上，类似于通过 `None`。
+* When `open()` is used to open a file in a text mode (`'w'`, `'r'`, `'wt'`, `'rt'`, etc.), it returns a subclass of `io.TextIOBase` (specifically `io.TextIOWrapper`). 
+* When used to open a file in a binary mode with buffering, the returned class is a subclass of `io.BufferedIOBase`. The exact class varies: in read binary mode, it returns an `io.BufferedReader`; in write binary and append binary modes, it returns an `io.BufferedWriter`, and in read/write mode, it returns an `io.BufferedRandom`. When buffering is disabled, the raw stream, a subclass of `io.RawIOBase`,`io.FileIO`, is returned.
 
 ***
 
