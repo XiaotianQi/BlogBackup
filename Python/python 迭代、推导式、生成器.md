@@ -68,61 +68,6 @@ Out[3]: True
 
 ***
 
-## 生成器(Generators)
-
-生成器也是一种迭代器对象。只可以读取它一次，因为没有把所有的值存在内存中，而是在运行时生成值。通过遍历来使用它们，要么用一个 `for` 循环，要么将它们传递给任意可以进行迭代的函数和结构。
-
-生成器都是 `Iterator` 。生成器可以用于 `for` 循环，也可以被 `next()` 函数不断调用并返回下一个值，直至无法继续返回下一个值抛出 `StopIteration` 错误。区别于迭代器是，生成器中的值的数量是有限的。
-
-比如实现 `range()`函数：
-
-```python
-def frange(start, stop, increment):
-    x = start
-    while x < stop:
-        yield x
-        x += increment
-```
-
-斐波那契数列的生成器。
-
-```python
-def fib(num):
-    a = b = 1
-    for i in range(num):
-        yield a
-        a, b = b, a+b
-
-for i in fib(100):
-    print(i)
-```
-
-杨辉三角生成器。
-
-```python
-def triangles(num):
-    lst = [1]
-    for i in range(num):
-        yield lst
-        lst = [sum(i) for i in zip([0] + lst, lst + [0])]
-
-
-for i in triangles(10):
-    print(i)
-```
-
-字母加密：
-
-```python
-def key_value_gen(k):
-    yield chr(k+65)
-    yield chr((k+13)%26+65)
-
-d = dict(map(key_value_gen, range(26)))
-```
-
-***
-
 ## 推导式(comprehensions)
 
 推导式（又称推导式）是Python的一种独有特性。推导式是可以从一个数据序列构建另一个新的数据序列的结构体。 共有三种推导：
@@ -382,6 +327,61 @@ tuple(t for t in range(11))
 
 ***
 
+## 生成器(Generators)
+
+生成器也是一种迭代器对象。只可以读取它一次，因为没有把所有的值存在内存中，而是在运行时生成值。通过遍历来使用它们，要么用一个 `for` 循环，要么将它们传递给任意可以进行迭代的函数和结构。
+
+生成器都是 `Iterator` 。生成器可以用于 `for` 循环，也可以被 `next()` 函数不断调用并返回下一个值，直至无法继续返回下一个值抛出 `StopIteration` 错误。区别于迭代器是，生成器中的值的数量是有限的。
+
+比如实现 `range()`函数：
+
+```python
+def frange(start, stop, increment):
+    x = start
+    while x < stop:
+        yield x
+        x += increment
+```
+
+斐波那契数列的生成器。
+
+```python
+def fib(num):
+    a = b = 1
+    for i in range(num):
+        yield a
+        a, b = b, a+b
+
+for i in fib(100):
+    print(i)
+```
+
+杨辉三角生成器。
+
+```python
+def triangles(num):
+    lst = [1]
+    for i in range(num):
+        yield lst
+        lst = [sum(i) for i in zip([0] + lst, lst + [0])]
+
+
+for i in triangles(10):
+    print(i)
+```
+
+字母加密：
+
+```python
+def key_value_gen(k):
+    yield chr(k+65)
+    yield chr((k+13)%26+65)
+
+d = dict(map(key_value_gen, range(26)))
+```
+
+------
+
 ## 生成器表达式
 
 将推导式外围括号改为圆括号 `(` `)`，便是生成器表达式。
@@ -436,8 +436,6 @@ def aritprog_gen(begin, step, end=None):
         index += 1
         result = begin + step * index
 ```
-
-
 
 ***
 
