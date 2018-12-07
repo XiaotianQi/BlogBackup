@@ -20,8 +20,8 @@ text = I_method()
 print(text.get_data)
 print(I_method.get_data)
 
-text.get_data('test')
-I_method.get_data(text, 'test')
+text.get_data('test')			# 绑定
+I_method.get_data(text, 'test')	# 未绑定，需要显性传入实例
 ```
 
 ```text
@@ -31,13 +31,19 @@ test
 test
 ```
 
-`text.get_data` 绑定了实例的方法，python 隐式的把对象传递给了 `self`参数，所以不再手动传递参数，这是调用实例方法的过程。
+`text.get_data` **绑定**了实例的方法，python 隐式的把对象传递给了 `self`参数，所以不再手动传递参数，这是调用实例方法的过程。
 
-`I_method.get_data` 是没有绑定实例的方法。对于未绑定方法，调用时，需要显性的传入实例对象。即：`I_method.get_data(text, 'test')` 等价于 `text.get_data('test')`。
+`I_method.get_data` 是**没有绑定**实例的方法。对于未绑定方法，调用时，需要**显性的传入实例对象**。即：`I_method.get_data(text, 'test')` 等价于 `text.get_data('test')`。
 
 ***
 
 ## class method
+
+`@classmethod`:
+
+返回函数的类方法。
+
+对应的函数不需要实例化，不需要 `self` 参数，但第一个参数需要是表示自身类的 `cls` 参数，可以来调用类的属性，类的方法，实例化对象等。
 
 ```python
 class C_method:
@@ -65,9 +71,11 @@ DATA test
 DATA test
 ```
 
-`text.get_data`、`C_method.get_data` 都自动绑定了类对象`C_method`的`get_data`方法。
+`text.get_data`、`C_method.get_data` 都**自动绑定**了类对象`C_method`的`get_data`方法。
 
-对于`text.get_data`，因为 python 通过实例对象`text`找到它所属的类是`C_method`，找到`C_method`之后自动绑定到 `cls`。关于这个查找逻辑，可以了解 python 描述符。
+对于`text.get_data`，因为 python 通过实例对象`text`找到它所属的类是`C_method`，找到`C_method`之后自动绑定到 `cls`。关于这个属性查找逻辑，可以了解 python 描述符。
+
+如果一个类方法在子类上调用，子类会作为第一个实参传入。
 
 适用于：
 
@@ -76,6 +84,12 @@ DATA test
 ***
 
 ## static method
+
+`@staticmethod`:
+
+返回函数的静态方法。
+
+该方法不强制要求传递参数。
 
 ```python
 class S_method:
@@ -103,7 +117,7 @@ test
 test
 ```
 
-`S_method` 中的`get_data`方法和普通函数没什么区别，与类和实例都没有绑定关系。
+`S_method` 中的`get_data`方法和普通函数没什么区别，与类和实例都**没有绑定关系**。
 
 与`@classmethod`相同，`@staticmethod`也是描述符。
 
