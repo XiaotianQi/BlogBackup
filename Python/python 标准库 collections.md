@@ -7,6 +7,22 @@ Python `collections` 模块包含许多容器数据类型。
 * `OrderedDict`：有序字典，是 `dict` 的子类；
 * `ChainMap`：合并多个 `map(dict)`，但保持原数据结构。
 
+
+
+| 数据类型       | 含义                                                         |
+| -------------- | ------------------------------------------------------------ |
+| `namedtuple()` | factory function for creating tuple subclasses with named fields |
+| `deque`        | list-like container with fast appends and pops on either end |
+| `ChainMap`     | dict-like class for creating a single view of multiple mappings |
+| `Counter`      | dict subclass for counting hashable objects                  |
+| `OrderedDict`  | dict subclass that remembers the order entries were added    |
+| `defaultdict`  | dict subclass that calls a factory function to supply missing values |
+| `UserDict`     | wrapper around dictionary objects for easier dict subclassing |
+| `UserList`     | wrapper around list objects for easier list subclassing      |
+| `UserString`   | wrapper around string objects for easier string subclassing  |
+
+***
+
 ## `namedtuple`
 
 ```python
@@ -297,7 +313,11 @@ Counter({'Yasoob': 2, 'Ali': 2, 'Arham': 1, 'Ahmed': 1})
 collections.deque([iterable[, maxlen]])
 ```
 
-`deque` 是 double-ended queue 的缩写，即双端队列。除了包含 `list` 的方法外，还新增了`appendleft`、`popleft`、`extendleft` 等方法允许我们高效的在元素的开头来插入/删除元素。
+`deque` 是 double-ended queue 的缩写，即双端队列。
+
+Note:Deques support **thread-safe**, memory efficient appends and pops from either side of the deque with approximately the same O(1) performance in either direction.
+
+除了包含 `list` 的方法外，还新增了`appendleft`、`popleft`、`extendleft` 等方法允许我们高效的在元素的开头来插入/删除元素。
 
 ```python
 d1 = deque(range(5))
@@ -313,7 +333,7 @@ print(d1)
 deque([9, 8, 7, 6, 5, 0, 1, 2, 3, 4])
 ```
 
-以及，限制列表的大小，当超出设定的限制时，数据会从对队列另一端被挤出去(pop)。
+以及，限制列表的大小，当超出设定的限制时，数据会从对队列另一端被挤出去(pop)。如果没有指定 maxlen 参数，那么 deque 可以是任意宽度。
 
 ```python
 d3.extend(d1)
