@@ -125,6 +125,97 @@ Python的多线程在多核CPU上，只对于IO密集型计算产生正面效果
 
 ***
 
+## 新旧 GIL
+
+在 python32 版本，对 GIL 进行重写，多线程得到了改善。
+
+可参考：[Python 3.2 - GIL - good/bad?](https://stackoverflow.com/questions/3384385/python-3-2-gil-good-bad)
+
+* Past versions of Python kept track of interpreter instructions and "ticks".Once a certain number of ticks had executed, a thread-switch signal was sent
+* New GIL is time-based (more in a second)
+
+### python27
+
+```python
+# coding=utf-8
+import time
+from threading import Thread
+
+def profile(func):
+    def wrapper(*args, **kwargs):
+        import time
+        start = time.time()
+        func(*args, **kwargs)
+        end   = time.time()
+        print('COST: {}'.format(end - start))
+    return wrapper
+
+
+def count(n):
+    while n > 0:
+        n -= 1
+
+@profile
+def no_thread():
+    count(100000000)
+    count(100000000)
+
+@profile
+def two_thread():
+    t1 = Thread(target=count,args=(100000000,))
+    t1.start()
+    t2 = Thread(target=count,args=(100000000,))
+    t2.start()
+    t1.join()
+    t2.join()
+
+if __name__ == '__main__':
+    one_thread()	# 9.68400001526
+    two_thread()	# 26.8359999657
+```
+
+### python37
+
+```python
+# coding=utf-8
+import time
+from threading import Thread
+
+def profile(func):
+    def wrapper(*args, **kwargs):
+        import time
+        start = time.time()
+        func(*args, **kwargs)
+        end   = time.time()
+        print('COST: {}'.format(end - start))
+    return wrapper
+
+
+def count(n):
+    while n > 0:
+        n -= 1
+
+@profile
+def no_thread():
+    count(100000000)
+    count(100000000)
+
+@profile
+def two_thread():
+    t1 = Thread(target=count,args=(100000000,))
+    t1.start()
+    t2 = Thread(target=count,args=(100000000,))
+    t2.start()
+    t1.join()
+    t2.join()
+
+if __name__ == '__main__':
+    one_thread()	# 12.299971580505371
+    two_thread()	# 12.311794757843018
+```
+
+***
+
 参考：
 
 wiki
