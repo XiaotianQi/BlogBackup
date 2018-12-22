@@ -311,8 +311,9 @@ from queue import Queue
 #Producer thread
 class Producer(threading.Thread):
     def __init__(self, t_name, queue):
-        threading.Thread.__init__(self,name=t_name)
+        super().__init__()
         self.data = queue
+
     def run(self):
         for i in range(10):    # Randomly generte 10 numbers
             randomnum = random.randint(1, 99)
@@ -326,8 +327,10 @@ class Producer(threading.Thread):
 #Consumer thread
 class Consumer_even(threading.Thread):
     def __init__(self,t_name,queue):
-        threading.Thread.__init__(self,name=t_name)
+        super().__init__()
         self.data = queue
+
+
     def run(self):
         while True:
             try:
@@ -348,8 +351,9 @@ class Consumer_even(threading.Thread):
 
 class Consumer_odd(threading.Thread):
     def __init__(self,t_name,queue):
-        threading.Thread.__init__(self, name=t_name)
+        super().__init__()
         self.data = queue
+
     def run(self):
         while True:
             try:
