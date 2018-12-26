@@ -319,62 +319,50 @@ class Producer(threading.Thread):
     def __init__(self, t_name, queue):
         super().__init__()
         self.data = queue
-
-    def run(self):
-        for i in range(10):    # Randomly generte 10 numbers
-            randomnum = random.randint(1, 99)
-            print("%s: %s is producing %d to the queue!" % (time.ctime(), self.getName(), randomnum)) 
-            self.data.put(randomnum)  # Put the generated number into queue
-            time.sleep(1)
-        for i in range(2):
-            self.data.put(None)
-        print("%s: %s finished!" %(time.ctime(), self.getName()))
-
-#Consumer thread
-class Consumer_even(threading.Thread):
-    def __init__(self,t_name,queue):
-        super().__init__()
-        self.data = queue
-
+        self.name = t_name
 
     def run(self):
         while True:
-            try:
-                val_even = self.data.get(True, 5)  # get(self, block=True, timeout=None), Block at most 5 seconds
-                if val_even%2==0:
-                    print("%s: %s is consuming. %d in the queue is consumed!" % (time.ctime(),self.getName(),val_even))
-                    time.sleep(2)
-                elif val_even == None:
-                    break
-                else:
-                    self.data.put(val_even)
-                    time.sleep(2)
-            except:     # Wait for input and throw excetion when timeout
-                print("%s: %s finished!" %(time.ctime(),self.getName()))
-                break
+            randomnum = random.randint(1, 99)
+            print("{}: {} is producing {} to the queue!".format(time.ctime(), self.getName(), randomnum)) 
+            self.data.put(randomnum)  # Put the generated number into queue
+            time.sleep(1)
+
+
+#Consumer thread
+class Consumer_even(threading.Thread):
+    def __init__(self, t_name, queue):
+        super().__init__()
+        self.data = queue
+        self.name = t_name
+
+    def run(self):
+        while True:
+            val_even = self.data.get(True, 5)  # get(self, block=True, timeout=None), Block at most 5 seconds
+            if val_even%2==0:
+                print("{}: {} is consuming. {} in the queue is consumed!".format(time.ctime(), self.getName(), val_even))
+                time.sleep(2)
+            else:
+                self.data.put(val_even)
+                time.sleep(2)
 
 
 
 class Consumer_odd(threading.Thread):
-    def __init__(self,t_name,queue):
+    def __init__(self, t_name, queue):
         super().__init__()
         self.data = queue
+        self.name = t_name
 
     def run(self):
         while True:
-            try:
-                val_odd = self.data.get(1,5)
-                if val_odd%2!=0:
-                    print("%s: %s is consuming. %d in the queue is consumed!" % (time.ctime(), self.getName(), val_odd))
-                    time.sleep(2)
-                elif val_odd == None:
-                    break
-                else:
-                    self.data.put(val_odd)
-                    time.sleep(2)
-            except:
-                print("%s: %s finished!" % (time.ctime(), self.getName()))
-                break
+            val_odd = self.data.get(1,5)
+            if val_odd%2!=0:
+                print("{}: {} is consuming. {} in the queue is consumed!".format(time.ctime(), self.getName(), val_odd))
+                time.sleep(2)
+            else:
+                self.data.put(val_odd)
+                time.sleep(2)
 
 
 #Main thread  
@@ -389,7 +377,6 @@ def main():
     producer.join()
     consumer_even.join()
     consumer_odd.join()
-    print('All threads terminate!')
 
 
 if __name__ == '__main__':
