@@ -42,7 +42,7 @@ The type of file object returned by the `open()` function depends on the mode.
 
 ***
 
-### 测试文件：
+测试文件：
 
 ```txt
 title
