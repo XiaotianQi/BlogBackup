@@ -131,6 +131,32 @@ GIL 的存在使程序无法充分利用CPU进行运算。
 
 Python的多线程在多核CPU上，只对于IO密集型计算产生正面效果；而当有至少有一个CPU密集型线程存在，那么多线程效率会由于GIL而大幅下降。
 
+```python
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
+
+
+def fib(n):
+    if n<=2:
+        return 1
+    return fib(n-1)+fib(n-2)
+
+def test(pool):
+    with pool as executor:
+        all_tast = [executor.submit(fib, (num)) for num in range(30, 35)]
+        start = time.time()
+        for future in as_completed(all_tast):
+            data = future.result()
+            print('Result:', data)
+        end = time.time()
+        print('{} cost:{}'.format(str(pool).split('.')[2], end-start))
+
+if __name__ == "__main__":
+    test(ThreadPoolExecutor(3))		# thread cost:3.8875913619995117
+    test(ProcessPoolExecutor(3))	# process cost:2.77000093460083
+```
+
 ***
 
 ## 新旧 GIL
