@@ -277,6 +277,11 @@ print(l)
 
 ### 4.Using Lists as Stacks
 
+堆栈是一种特定的数据结构，遵循先进先出。将列表的表头作为栈底，表尾作为栈顶，就形成了一个堆栈。
+
+* append()方法可以把一个元素添加到堆栈顶部（实际上就是在列表的尾部添加一个元素）。
+* pop()方法可以把一个元素从堆栈顶释放出来（也就是从列表尾部弹出一个元素）。
+
 > The list methods make it very easy to use a list as a stack, where the last element added is the first element retrieved (“**last-in, first-out**”).  To add an item to the top of the stack, use `append()`.  To retrieve an item from the top of the stack, use `pop()` without an explicit index.  For example:
 
 ```python
@@ -335,6 +340,8 @@ Out[51]: 0
 In [52]: queue
 Out[52]: deque([1, 2, 3])
 ```
+
+但是用Python的列表做队列的效率并不高。因为，虽然在列表的最后添加或者弹出元素速度很快，但在列头部弹出第一个元素的速度却不快（因为所有其他的元素都得跟着一个一个地往左移动一位）。通常我们使用queue.Queue作为单向队列，使用collections.deque作为双向队列。
 
 ***
 
@@ -438,6 +445,20 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 > Tuples are immutable, and usually contain a heterogeneous sequence of elements that are accessed via unpacking (see later in this section) or indexing (or even by attribute in the case of `namedtuples`.
 > Lists are mutable, and their elements are usually homogeneous and are accessed by iterating over the list.
 
+元组与列表相同的操作：
+
+    使用方括号加下标访问元素
+    切片（形成新元组对象）
+    count()/index()
+    len()/max()/min()/tuple()
+
+元组中不允许的操作，确切的说是元组没有的功能：
+
+    修改、新增元素
+    删除某个元素（但可以删除整个元组）
+    所有会对元组内部元素发生修改动作的方法。例如，元组没有remove，append，pop等方法。
+Note：元组只保证它的一级子元素不可变，对于嵌套的元素内部，不保证不可变！
+
 ***
 
 ## `range`
@@ -455,16 +476,6 @@ range(start, stop[, step])
 ## `str`
 
 字符串具有有序、可索引、不可修改、可迭代的特点。
-| |                                                 |
-| -------------------------------- | ----------------------------------|
-|                         |                                                 |
-|         |                                                 |
-| `upper()`                        | 返回大写形式|
-| `lower()`                        | 返回小写形式|
-| `split(sep[,maxsplit])`          | 以sep为分隔符分割字符串，maxsplit为最大分割次数|
-| `join(t)`                        | 使用当前字符串为分隔符连接t中的字符串|
-|                         |                                                 |
-
 ### 常用方法
 
 列出常用的方法，英文部分引用自官方文档：[Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)。
@@ -875,6 +886,10 @@ range(start, stop[, step])
 
 ## `bytes`
 
+字符串是以字符为单位进行处理的，bytes类型是以字节为单位处理的。
+
+bytes对象只负责以二进制字节序列的形式记录所需记录的对象，至于该对象到底表示什么（比如到底是什么字符）则由相应的编码格式解码所决定。
+
 bytes：具有有序、不可修改、可迭代的特点
 
 bytearray：具有有序、可修改、可迭代的特点
@@ -886,3 +901,5 @@ bytearray：具有有序、可修改、可迭代的特点
 [Data Structures](https://docs.python.org/3/tutorial/datastructures.html)
 
 [Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)
+
+http://www.liujiangblog.com/course/python/1

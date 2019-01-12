@@ -9,6 +9,10 @@
 
 > A dictionary’s keys are *almost* arbitrary values.  Values that are not hashable, that is, values containing lists, dictionaries or other mutable types (that are compared by value rather than by object identity) may not be used as keys.  Numeric types used for keys obey the normal rules for numeric comparison: if two numbers compare equal (such as `1` and `1.0`) then they can be used interchangeably to index the same dictionary entry.  (Note however, that since computers store floating-point numbers as approximations it is usually unwise to use them as dictionary keys.)
 
+字典可精确描述为不定长、可变、无序、散列的集合类型。遍历字典获得的键值对是随机无序的！
+
+Python的字典数据类型是基于hash散列算法实现的，采用键值对(key:value)的形式，根据key的值计算value的地址，具有非常快的查取和插入速度。但它是无序的，包含的元素个数不限，值的类型也可以是其它任何数据类型！
+
 ***
 
 ## 创建方式
