@@ -70,6 +70,93 @@ break只能用于循环体内。其效果是直接结束并退出**当前**循�
 
 与break不同，continue语句用于跳过当前循环的剩余部分代码，直接开始下一轮循环。它不会退出和终止循环，只是提前结束当前轮次的循环。同样的，continue语句只能用在循环内。
 
+跳出本次循环，进行下一次循环。其后语句不再执行。
+
+```python
+i = 0
+while i < 10 :
+    i += 1
+    if i == 4:
+        pass
+    if i == 6:
+        continue
+    if i == 8:
+        break
+    print(i)
+else:
+    print('It is over.')
+```
+
+```bash
+1
+2
+3
+4
+5
+7
+```
+
+循环至6时，符合条件，执行 `continue`，所以6并未输出。
+
+循环至8时，符合条件，执行 `break`，跳出循环。
+
+```python
+for x in range(3):
+    for y in range(3):
+        for z in range(3):
+            print(x,y,z)
+            if x*y*z == 2:
+                break
+        else:
+            continue
+        break
+    else:
+        continue
+    break
+```
+
+```bash
+0 0 0
+0 0 1
+0 0 2
+0 1 0
+0 1 1
+0 1 2
+0 2 0
+0 2 1
+0 2 2
+1 0 0
+1 0 1
+1 0 2
+1 1 0
+1 1 1
+1 1 2
+```
+
+循环体的 `else` 分支触发条件是循环正常结束。如果循环内被 `break` 跳出，就不执行 `else`。
+
+循环至 1 1 2时，符合条件，执行 `break`，跳出 z 的循环。
+
+因 z 循环跳出，`else` 不会执行，`break` 执行，跳出 y 的循环。
+
+同上，x 循环亦被 `break` 跳出。
+
+- `for/else`
+
+`else` 会在循环正常结束时执行。这意味着，循环没有遇到任何 `break`。根据这个特点，可以清楚掌握循环结束的原因，或者获取与 `break` 相左的信息。
+
+找出2到10之间的数字的因子和质数：
+
+```python
+for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            print(n, 'equals', x, '*', n / x)
+            break
+    else:
+        print(n, 'is a prime number')
+```
+
 ***
 
 摘抄自：
