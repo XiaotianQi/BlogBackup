@@ -1,10 +1,238 @@
-装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。在被装饰函数自身代码不变的情况下，增添一些**具有普适性的功能**。
+装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。在被装饰函数自身代码不变的情况下，增添一些**具有普适性的功能**。装饰器有很多种，有函数的装饰器，也有类的装饰器。装饰器在很多语言中的名字也不尽相同，它体现的是设计模式中的装饰模式，强调的是开放封闭原则。
 
 装饰器是可调用对象，其参数是被装饰的函数/类。装饰器处理并返回被装饰的函数，或者替换成另一个可调用对象，以某种方式增强函数。
 
 ## 函数装饰器
 
-### 简单的日志
+### 装饰器调用顺序
+
+函数装饰器再导入模块时立即执行，而被装饰的函数只有在调用时运行。
+
+#### 装饰器函数未封装时
+
+```python
+registry = []
+
+def register(func):
+    print('running register(%s)' % func.__name__)
+    registry.append(func.__name__)
+    result = func()
+    return result
+
+@register
+def f1():
+    print('running f1')
+
+@register
+def f2():
+    print('running f2')
+
+def f3():
+    print('running f3')
+
+
+if __name__ == '__main__':
+    print('running main')
+    print('registry --> ', registry)
+```
+
+```python
+if __name__ == '__main__':
+    print('running main')
+    print('registry --> ', registry)
+```
+
+```bash
+running register(f1)
+running register(f2)
+running main
+registry -->  ['f1', 'f2']
+```
+
+显而易见，当使用装饰器 `register` 时，`register`已经执行。
+
+#### 装饰器函数封装时
+
+```python
+registry = []
+
+def register(func):
+    def inner():
+        print('running register(%s)' % func.__name__)
+        registry.append(func.__name__)
+        result = func()
+        return result
+    return inner
+
+@register
+def f1():
+    print('running f1')
+
+@register
+def f2():
+    print('running f2')
+```
+
+```python
+if __name__ == '__main__':
+    print('running main')
+    print('registry --> ', registry)
+    f1()
+    f2()
+    print('registry --> ', registry)
+```
+
+```text
+running main
+registry -->  []
+running register(f1)
+running f1
+running register(f2)
+running f2
+registry -->  ['f1', 'f2']
+```
+
+封装之后，只有调用`f1`、`f2`时，才会执行。
+
+这是因为，装饰器函数`registry`返回的是`inner`函数名。`registry`函数仍然执行了，但是没执行`inner`函数。不过，这也有个缺点：
+
+```python
+if __name__ == '__main__':
+    print(f1.__name__)		# 输出inner
+```
+
+这是装饰器本身规则导致的。
+
+当 python 解释器读到`@registry`的时候，别到到这是一个装饰器，开始运行`registry`函数。开始执行装饰器的语法规则，规则是：被装饰的函数的名字会被当作参数传递给装饰函数。装饰函数执行它自己内部的代码后，会将它的返回值赋值给被装饰的函数。
+
+`registry`函数return的是`inner`这个函数名，而不是`inner()`这样被调用后的返回值。这个函数名会被赋值给f1这个被装饰的函数，也就是`f1 = inner`。
+
+此时`f1`函数被新的函数`inner`覆盖了（实际上是`f1`这个函数名更改成指向`inner`这个函数名指向的函数体内存地址，`f1`不再指向它原来的函数体的内存地址），再往后调用`f1`的时候将执行`inner`函数内的代码，而不是先前的函数体。那么先前的函数体去哪了？还记得我们将f1当做参数传递给`func`这个形参么？`func`这个变量保存了老的函数在内存中的地址，通过它就可以执行老的函数体，在`inner`函数里看到`result = func()`这句代码，它就是这么干的！
+
+因此，原来的`f1`函数被当做参数传递给了`func`，而`f1`这个函数名之后会指向`inner`函数。当调用`f1()`时，执行的就不再是旧的`f1`函数的代码，而是`inner`函数的代码。这也体现了，解释器的机制。
+
+使用`@functools.wraps(func)`，就可以保持被装饰函数的函数名不会发生改变：
+
+```pytho
+def register(func):
+	@functools.wraps(func)
+    def inner():
+        print('running register(%s)' % func.__name__)
+        registry.append(func.__name__)
+        result = func()
+        return result
+    return inner
+```
+
+***
+
+### 给被装饰函数传入参数
+
+当需要给被装饰参数传入参数时：
+
+```python
+def register(func):
+    def inner(*args, **kwargs):
+        print('running register(%s)' % func.__name__)
+        registry.append(func.__name__)
+        result = func(*args, **kwargs)
+        return result
+    return inner
+```
+
+***
+
+### 使用多个装饰器
+
+```python
+def outer1(func):
+    def inner(*args, **kwargs):
+        print("认证成功！")
+        result = func(*args, **kwargs)
+        print("日志添加成功")
+        return result
+    return inner
+
+
+def outer2(func):
+    def inner(*args, **kwargs):
+        print("一条欢迎信息。。。")
+        result = func(*args, **kwargs)
+        print("一条欢送信息。。。")
+        return result
+    return inner
+
+
+@outer1
+@outer2
+def f1(name,age):
+    print('f1')
+    
+f1()
+```
+
+```text
+认证成功！
+一条欢迎信息。。。
+f1
+一条欢送信息。。。
+日志添加成功
+```
+
+### 给装饰器函数传入参数
+
+```python
+# 认证函数
+def  auth(request, kargs):
+    print("{}-{}认证成功！".format(request, kargs))
+# 日志函数
+def log(request, kargs):
+    print("{}-{}日志添加成功".format(request, kargs))
+# 装饰器函数。接收两个参数，这两个参数应该是某个函数的名字。
+def Filter(auth_func,log_func):
+    # 第一层封装，f1函数实际上被传递给了main_fuc这个参数
+    def outer(main_func):
+        # 第二层封装，auth和log函数的参数值被传递到了这里
+        def wrapper(*args, **kwargs):
+            # 下面代码的判断逻辑不重要，重要的是参数的引用和返回值
+            before_result = auth(*args, **kwargs)
+            if before_result != None:
+                return before_result
+
+            main_result = main_func(*args, **kwargs)
+            if main_result != None :
+                return main_result
+
+            after_result = log(*args, **kwargs)
+            if after_result != None:
+                return after_result
+
+        return wrapper
+    return outer
+# 注意了，这里的装饰器函数有参数哦，它的意思是先执行filter函数
+# 然后将filter函数的返回值作为装饰器函数的名字返回到这里，所以，
+# 其实这里，Filter(auth,log) = outer , @Filter(auth,log) =  @outer
+@Filter(auth, log)
+def f1(name, age):
+    print('f1:{}-{}'.format(name, age))
+
+# 调用方法
+f1('a', 1)
+print(f1.__name__)
+```
+
+```text
+a-1认证成功！
+a-1
+a-1日志添加成功
+wrapper
+```
+
+***
+
+### 示例
+
+#### 简单的日志
 
 每次函数调用，都会在屏幕中打印日志信息。
 
@@ -38,7 +266,7 @@ its foo
 
 ***
 
-### 带参数的日志装饰器
+#### 带参数的日志装饰器
 
 插入参数 `logfile` 是日志信息输出的文件。被装饰函数调用成功和失败，都会打印不同的日志信息。
 
@@ -92,54 +320,7 @@ its foo
 
 ***
 
-### 装饰器调用顺序
-
-函数装饰器再导入模块时立即执行，而被装饰的函数只有在调用时运行。
-
-```python
-registry = []
-
-def register(func):
-    print('running register(%s)' % func)
-    registry.append(func)
-    return func
-
-@register
-def f1():
-    print('running f1')
-
-@register
-def f2():
-    print('running f2')
-
-def f3():
-    print('running f3')
-```
-
-```python
-if __name__ == '__main__':
-    print('running main')
-    print('registry --> ', registry)
-    f1()
-    f2()
-    f3()
-```
-
-```bash
-running register(<function f1 at 0x00000207F5C66C80>)
-running register(<function f2 at 0x00000207F5C97D90>)
-running main
-registry -->  [<function f1 at 0x00000207F5C66C80>, <function f2 at 0x00000207F5C97D90>]
-running f1
-running f2
-running f3
-```
-
-显而易见，当使用装饰器 `register` 时，`register` 已经执行。`f1`、`f2` 与 `f3`相同，直到被调用才执行。
-
-***
-
-### clock 装饰器
+#### clock 装饰器
 
 计算函数调用使用的时间的装饰器。
 
@@ -276,3 +457,5 @@ WARNING:root:bar stopped
 参考：
 
 [刘志军](https://foofish.net/python-decorator.html)
+
+http://www.liujiangblog.com/course/python/39

@@ -44,15 +44,33 @@ Python 中任意的对象，只要它定义了可以返回一个迭代器的 `__
 * 内置数据类型：`list`、`tuple`、`dict`、`set`、`str`；
 * `generator`：包括生成器和带 `yield` 的 `generator function`。
 
+可以通过collections模块的Iterable类型来判断一个对象是否可迭代：
+
+```python
+In [3]: isinstance('abc', Iterable)
+Out[3]: True
+
+In [4]: isinstance([1,2,3], Iterable)
+Out[4]: True
+```
+
 ***
 
 ### 迭代器(Iterator)
 
-同时定义了 `__next__` 和 `__iter__` 两个方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
+迭代器只能往后遍历不能回溯，不像列表，随时可以取后面的数据，也可以返回头取前面的数据。迭代器通常要实现两个基本的方法：`iter()` 和 `next()`。同时定义了 `__next__` 和 `__iter__` 两个方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
 
 `Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。
 
-**可迭代的对象和迭代器之间的关系：** Python 从可迭代的对象中获取迭代器。
+**可迭代的对象和迭代器之间的关系：**
+
+*  Python 从可迭代的对象中获取迭代器
+* 凡是可作用于for循环的对象都是可迭代类型
+* 凡是可作用于next()函数的对象都是迭代器类型
+
+
+
+list、dict、str等是可迭代的但不是迭代器，因为next()函数无法调用它们。可以通过iter()函数将它们转换成迭代器。Python的for循环本质上就是通过不断调用next()函数实现的
 
 `list`、`dict`、`str` 虽然是 `Iterable`，却不是 `Iterator`。不过可以通过 `iter()` 函数获得一个 `Iterator` 对象。
 
