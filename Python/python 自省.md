@@ -476,6 +476,97 @@ DOC:       iter(iterable) -> iterator
 
 ***
 
+## 基于字符串的反射机制
+
+利用字符串的形式去对象中操作成员属性和方法。Python的四个重要内置函数：getattr()、hasattr()、delattr()和setattr()较为全面的实现了基于字符串的反射机制。
+
+场景：需要根据用户输入url的不同，调用不同的函数，实现不同的操作，也就是一个WEB框架的url路由功能。
+
+* 具体执行操作的`commons.py`文件
+* 入口文件`index.py`，接收用户输入，并根据输入展示相应的页面
+
+```python
+# commons.py
+
+def login():
+    print('登录页面!')
+
+def logout():
+    print('退出页面!')
+
+def index():
+    print('主页面')
+```
+
+```python
+# visit.py
+import commons
+
+def run():
+    inp = input("请输入您想访问页面的url：  ").strip()
+    if hasattr(commons, inp):
+        func = getattr(commons, inp)
+        func()
+    else:
+        print("404")
+
+if __name__ == '__main__':
+    run()
+```
+
+```bash
+请输入您想访问页面的url：  index
+主页面
+```
+
+## 动态导入模块
+
+使用Python内置的`__import__(字符串参数)`函数解决这个问题。通过它，可以实现类似getattr()的反射功能。`__import__()`方法会根据字符串参数，动态地导入同名的模块。
+
+```python
+# visit.py
+
+def run():
+    inp = input("请输入您想访问页面的url：  ").strip()
+    modules, func = inp.split("/")
+    obj = __import__(modules)
+    if hasattr(obj, func):
+        func = getattr(obj, func)
+        func()
+    else:
+        print("404")
+
+if __name__ == '__main__':
+    run()
+```
+
+```python
+请输入您想访问页面的url：  commons/index
+主页面
+```
+
+如果我们的目录结构是这样的，visit.py和commons.py不在一个目录下，存在跨包的问题：
+
+```python
+def run():
+    inp = input("请输入您想访问页面的url：  ").strip()
+    modules, func = inp.split("/")
+    obj = __import__("lib." + modules, fromlist=True)  # 注意fromlist参数
+    if hasattr(obj, func):
+        func = getattr(obj, func)
+        func()
+    else:
+        print("404") 
+if __name__ == '__main__':
+    run()
+```
+
+因为对于`lib.xxx.xxx.xxx`这一类的模块导入路径，`__import__()`默认只会导入最开头的圆点左边的目录，也就是`lib`。
+
+***
+
 参考：
 
 [Python 自省指南](https://www.ibm.com/developerworks/cn/linux/l-pyint/#ibm-pcon)
+
+http://www.liujiangblog.com/course/python/48
