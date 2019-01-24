@@ -262,6 +262,87 @@ end
 
 ***
 
+## fileinput 标准库
+
+fileinput模块用于对标准输入或多个文件进行逐行遍历。这个模块的使用非常简单，相比open()方法批量处理文件，fileinput模块可以对文件、行号进行一定的控制。
+
+```python
+fileinput.input(files=None, inplace=False, backup='', bufsize=0, mode='r', openhook=None)
+创建并返回一个FileInput类的实例
+files指定要处理的文件，可以是一个多元元组，表示按顺序批量处理元组内文件
+inplace参数最关键，可设置是否对源文件进行修改
+backup则用于指定对源文件进行备份的后缀名
+mode用于指定文件读写方式，和open()方法的定义一样， 默认为只读‘r’。
+```
+
+input()函数有点类似文件readlines()方法，区别在于:
+
+* 前者是一个迭代对象，即每次只生成一行，需要用for循环迭代。
+
+* 后者是一次性读取所有行。在碰到大文件的读取时，前者无疑效率更高效。
+
+`fileinput.input()`方法也可以作为一个上下文管理器使用
+
+```python
+with fileinput.input(files=('spam.txt', 'eggs.txt')) as f:
+    for line in f:
+        process(line)
+```
+
+## 主要属性
+
+```python
+fileinput.filename()
+返回当前正在处理的文件名（也就是包含了当前正在处理的文本行的文件）
+
+fileinput.fileno()
+返回当前文件的总行数。
+
+fileinput.lineno()
+返回当前的行数，这个行数是累计的。多个文件的行数会累加起来。
+
+fileinput.filelineno()
+返回当前正在处理的文件的当前行数。每次处理完一个文件并开始处理下一个文件时，该值会重置为1，重新开始计数。
+
+fileinput.isfirstline()
+当前行是当前文件的第一行时返回True，否则False
+
+fileinput.isstdin()
+当前操作对象为sys.stdin时返回True否则False。
+
+fileinput.nextfile()
+关闭当前的文件，跳到下一个文件，跳过的行不计数。
+
+fileinput.close()
+关闭整个文件链，结束迭代。
+```
+
+统计文件夹中，文件行数：
+
+```python
+import os, fileinput
+
+files_g = ()
+
+for root, dirs, files in os.walk(r"C:\test"):
+    print("directory {}".format(root))
+    if '.vscode' in dirs:
+        dirs.remove('.vscode')
+    if '__pycache__' in dirs:
+        dirs.remove('__pycache__')
+    for i in range(len(files)):
+        files[i] = '\\'.join([r'C:\test', files[i]])
+    files_g = tuple(files)
+
+   
+with fileinput.input(files=files_g) as f:
+    for file in f:
+        pass
+    print(f.lineno())
+```
+
+***
+
 参考：
 
 http://www.liujiangblog.com/course/python/41
