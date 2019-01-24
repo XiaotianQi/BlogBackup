@@ -22,7 +22,7 @@ Internally, those three types of queues use locks to temporarily block competing
 
 `class queue.Queue(maxsize=0)`
 
-实现了先进先出（FIFO）队列。
+实现了先进先出（FIFO）队列。`maxsize`是队列里最多能同时存在的元素个数。如果队列满了，则会暂时阻塞队列，直到有消费者取走元素
 
 ```bash
 In [1]: import queue
@@ -45,7 +45,7 @@ In [4]: while not q.empty():	# 读取，遵循FIFO，输出 0， 1， 2
 
 ` class queue.LifoQueue(maxsize=0)`
 
-与 `Queue` 不同，`LifoQueue` 后进先出序（LIFO）。
+与 `Queue` 不同，`LifoQueue` 后进先出序（LIFO）。`maxsize`是队列里最多能同时存在的元素个数。如果队列满了，则会暂时阻塞队列，直到有消费者取走元素
 
 ```bash
 In [5]: q = queue.LifoQueue()
@@ -66,7 +66,7 @@ In [7]: while not q.empty():	# 读取，遵循LIFO，输出 2， 1， 0
 
 ` class queue.PriorityQueue(maxsize=0)`
 
-除了以上的顺序外，`PriorityQueue`依据队列中优先级决定哪个元素将被检索。优先级队列是被 `put` 进去的一个元祖(优先级,数据)，优先级数字越小，优先级越高。
+除了以上的顺序外，`PriorityQueue`依据队列中优先级决定哪个元素将被检索。优先级队列是被 `put` 进去的一个元祖(优先级,数据)，优先级数字越小，优先级越高。`maxsize`是队列里最多能同时存在的元素个数。如果队列满了，则会暂时阻塞队列，直到有消费者取走元素
 
 ```bash
 In [10]: q = queue.PriorityQueue()
@@ -94,16 +94,17 @@ Out[16]: (3, 'c')
 ## 公用方法
 
 ```text
-q.size()：返回队列的大小。
+q.qsize()：返回队列的大小。
 
 q.empty()：如果队列为空，返回True，否则返回False。
 
 q.full()：如果队列已满，返回True，否则返回False。
 
 q.put(item, block=True, timeout=None)：将item放入队列。
-如果 block=True，队列满时，那么调用者将被阻塞直到队列中出现可用的空闲位置为止。
-如果 block=False，队列满时，那么此方法将引发Full异常。
-如果 timeout 为正数，队列满时，那么调用者最多被阻塞 timeout 秒。如果在超时时间内没有空闲的位置，那么那么引发Full异常。
+block和timeout两个参数配合使用。
+如果 block=True，timeout=None，队列满时，那么调用者将被阻塞直到队列中出现可用的空闲位置为止。
+如果 block=True，timeout=正整数N，队列满时，如果在等待了N秒后，队列还没有空槽，则弹出Full异常
+如果 block=False，则timeout参数被忽略，队列满时，那么此方法将引发Full异常。
 
 q.put_nowait(item):等价于q.put(item,False)
 
@@ -119,7 +120,8 @@ q.get_nowait()：等价于get(False)
 Two methods are offered to support tracking whether enqueued tasks have been fully processed by daemon consumer threads.
 
 ```text
-q.task_done():指示队列中的一个item已经完成。完成一个item之后，queue.task_done()函数向队列调用者的线程发送一个完成信号。
+q.task_done():指示队列中的一个item已经完成。
+完成一个item之后，queue.task_done()函数向队列调用者的线程发送一个完成信号。
 每次调用 q.get() 方法获取队列中一个item后，再次调用 q.task_done() 告知队列被获取的item完成。
 当 q.join() 处于阻塞状态时，当每个被 q.put() 进入队列的item都 q.task_done() 后，即队列中所有的item都已完成，那么 q.join() 恢复，解除阻塞。
 如果 q.task_done() 调用次数超过了队列中item的次数，那么抛出 ValueError。
@@ -133,6 +135,14 @@ q.join()：阻塞调用线程，直到队列中的所有item均被处理为止�
 - get: 从队列中删除并返回该项。
 - task_done: 当某一项任务完成时调用。
 - join: 阻塞直到所有的项目都被处理完。
+
+PS：
+
+Python提供了很多关于队列的类，其中：
+
+`Class multiprocessing.Queue`是用于多进程的队列类（不要和多线程搞混了） 
+
+`collections.deque`则是一种可选择的队列替代方案，它提供了快速的原子级别的`append()`和`popleft()`方法，但是不提供锁的能力。
 
 ***
 
