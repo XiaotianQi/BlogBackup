@@ -1,3 +1,5 @@
+## OS 模块
+
 os模块是Python标准库中的一个用于访问操作系统相关功能的模块，os模块提供了一种可移植的使用操作系统功能的方法。使用os模块中提供的接口，可以实现跨平台访问。但是，并不是所有的os模块中的接口在全平台都通用，有些接口的实现是一来特定平台的，比如linux相关的文件权限管理和进程管理。
 
 os模块的主要功能：系统相关、目录及文件操作、执行命令和管理进程。
@@ -33,7 +35,7 @@ os.path.getatime(path)  返回path所指向的文件或者目录的最后存取�
 os.path.getmtime(path)  返回path所指向的文件或者目录的最后修改时间
 ```
 
-## 系统相关
+### 系统相关
 
 os模块提供了一些操作系统相关的变量，可以在跨平台的时候提供支持，便于编写移植性高，可用性好的代码。所以在涉及操作系统相关的操作时，请尽量使用本模块提供的方法，而不要使用当前平台特定的用法或格式，否则一旦移植到其他平台，可能会造成难以解决的困扰。
 
@@ -49,7 +51,7 @@ os模块提供了一些操作系统相关的变量，可以在跨平台的时候
 | os.devnull | 在不同的系统上null设备的路径，在Windows下为‘nul’，在POSIX下为‘/dev/null’。 |
 | os.defpath | 当使用exec函数族的时候，如果没有指定PATH环境变量，则默认会查找os.defpath中的值作为子进程PATH的值。 |
 
-## 文件和目录操作
+### 文件和目录操作
 
 os模块中包含了一系列文件操作相关的函数，其中有一部分是Linux平台专用方法。Linux是用C写的，底层的`libc`库和系统调用的接口都是`C API`，Python的os模块中包括了对这些接口的Python实现，通过Python的os模块，可以调用Linux系统的一些底层功能，进行系统编程。
 
@@ -124,13 +126,169 @@ except OSError as ex:
 
 ***
 
-## 执行命令
+### 执行命令
 
 在早期的Python版本中，通常使用os模块的system或者popen等方法执行操作系统的命令。但是，最近Python官方逐渐弃用了这些命令，而是改用内置的subprocess模块执行操作系统相关命令。
 
 `os.system(command)`
 
 运行操作系统命令，直接显示结果。但返回值是0或-1，不能获得显示在屏幕上的数据。 command是要执行的命令字符串。
+
+***
+
+## shutil 模块
+
+shutil模块是对os模块的补充，主要针对文件的拷贝、删除、移动、压缩和解压操作。
+
+` shutil.copyfileobj(fsrc, fdst[, length=16\*1024])`
+
+copy文件内容到另一个文件，可以copy指定大小的内容。这个方法是shutil模块中其它拷贝方法的基础，其它方法在本质上都是调用这个方法。
+
+源码：
+
+```
+def copyfileobj(fsrc, fdst, length=16*1024):
+
+    while 1:
+        buf = fsrc.read(length)
+        if not buf:
+            break
+        fdst.write(buf)
+```
+
+注意，其中的fsrc，fdst都是使用open()方法打开后的文件对象。
+
+`shutil.copyfile(src, dst)`
+
+拷贝整个文件。
+
+该方法的核心在最后几行，我们可以很清楚地看到`copyfile()`方法对`copyfileobj()`进行了调用。
+
+```
+def copyfile(src, dst, *, follow_symlinks=True):
+    if _samefile(src, dst):
+        raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+
+    for fn in [src, dst]:
+        try:
+            st = os.stat(fn)
+        except OSError:      
+            pass
+        else:
+            if stat.S_ISFIFO(st.st_mode):
+                raise SpecialFileError("`%s` is a named pipe" % fn)
+
+    if not follow_symlinks and os.path.islink(src):
+        os.symlink(os.readlink(src), dst)
+    else:
+        with open(src, 'rb') as fsrc:
+            with open(dst, 'wb') as fdst:
+                copyfileobj(fsrc, fdst)
+    return dst
+```
+
+`shutil.copymode(src, dst)`
+
+仅拷贝权限。内容、组、用户均不变。
+
+`shutil.copystat(src, dst)`
+
+仅复制所有的状态信息，包括权限，组，用户，时间等。
+
+`shutil.copy(src,dst)` 
+
+同时复制文件的内容以及权限，也就是先copyfile()然后copymode()。
+
+`shutil.copy2(src, dst)`
+
+同时复制文件的内容以及文件的所有状态信息。先copyfile()后copystat()。
+
+`shutil.ignore_patterns(*patterns)`
+
+忽略指定的文件。通常配合下面的copytree()方法使用。
+
+`shutil.copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,ignore_dangling_symlinks=False)`   
+
+递归地复制目录及其子目录的文件和状态信息
+
+- symlinks：指定是否复制软链接。小心陷入死循环。
+- ignore：指定不参与复制的文件，其值应该是一个ignore_patterns()方法。
+- copy_function：指定复制的模式
+
+```
+# 典型用法
+from shutil import copytree, ignore_patterns
+
+copytree(source, destination, ignore=ignore_patterns('*.pyc', 'tmp*'))
+
+copytree('folder1', 'folder2', ignore=ignore_patterns('*.pyc', 'tmp*'))
+
+copytree('f1', 'f2', symlinks=True, ignore=ignore_patterns('*.pyc', 'tmp*'))
+```
+
+`shutil.rmtree(path, ignore_errors=False, onerror=None)`
+
+递归地删除目录及子目录内的文件。
+
+注意！该方法不会询问yes或no，被删除的文件也不会出现在回收站里，请务必小心！
+
+下面的例子在碰到只读文件时，尝试清除只读属性，然后再删除。
+
+```
+import os, stat
+import shutil
+
+def remove_readonly(func, path, _):
+    "去除文件的只读属性，尝试再次删除"
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+shutil.rmtree(directory, onerror=remove_readonly)
+```
+
+`shutil.move(src, dst, copy_function=copy2)`
+
+递归地移动文件，类似mv命令。
+
+`shutil.which(cmd)`
+
+类似linux的`which`命令，返回执行该命令的程序路径。Python3.3新增
+
+`12. shutil.make_archive(base_name, format[, root_dir[, base_dir[, verbose[, dry_run[, owner[, group[, logger]]]]]]])`
+
+创建归档或压缩文件。
+
+- `base_name`：压缩后的文件名。如果不指定绝对路径，则压缩文件保存在当前目录下。这个参数必须指定。
+- `format`：压缩格式，可以是“zip”, “tar”, “bztar” ，“gztar”，“xztar”中的一种。这个参数也必须指定。
+- `root_dir`：设置压缩包里的根目录，一般使用默认值，不特别指定。
+- `base_dir`：要进行压缩的源文件或目录。
+- `owner`：用户，默认当前用户。
+- `group`：组，默认当前组。
+- `logger`：用于记录日志，通常是`logging.Logger`对象。
+
+范例：
+
+```
+import shutil
+shutil.make_archive("d:\\3", "zip",  base_dir="d:\\1.txt")
+```
+
+`13. shutil.unpack_archive(filename[, extract_dir[, format]])`
+
+解压缩或解包源文件。
+
+- filename是压缩文档的完整路径
+- extract_dir是解压缩路径，默认为当前目录。
+- format是压缩格式。默认使用文件后缀名代码的压缩格式。
+
+范例：
+
+```
+import shutil
+shutil.unpack_archive("d:\\3.zip", "f:\\3", 'zip')
+```
+
+shutil模块的压缩和解压功能，在后台是通过调用zipfile和tarfile两个模块来进行的。下面我们会立刻介绍这两个模块。
 
 ***
 
