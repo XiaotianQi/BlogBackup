@@ -67,3 +67,44 @@ set LANG=zh_CN.UTF-8
 alias ll=ls -al --show-control-chars --color $*
 ```
 
+***
+
+## vscode
+
+使用 setting sync 第三方插件，同步配置信息。
+
+```text
+ALT+SHITF+U:长传配置
+
+ALT+SHITF+D:下载配置
+
+需要GitHub-Personal Access Token
+以及第一次使用时，插件自身提供的GIST ID
+进行认证
+```
+
+***
+
+## git
+
+```text
+配置git用户名和邮箱
+git config --global user.name "用户名"
+git config --global user.email "邮箱"
+
+生成ssh key
+ssh-keygen -t rsa -C “邮箱”
+按3个回车，密码为空。
+
+上传key到github
+cat < ~/.ssh/id_rsa.pub
+windows 在C:\Users\username\.ssh 文件夹中
+Github--Accounting settings--SSH key--Add SSH key
+
+测试是否配置成功
+ssh -T git@github.com
+输入yes
+```
+
+
+
