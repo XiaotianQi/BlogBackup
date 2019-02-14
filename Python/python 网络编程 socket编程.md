@@ -1,5 +1,11 @@
 本文多数内容选自官方文档和《python 核心编程》。
 
+socket是基于C/S架构的，也就是说进行socket网络编程，通常需要编写两个py文件，一个服务端，一个客户端。
+
+![socket](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fy387t9fxgj20jz0sj3zn.jpg)
+
+Python3以后，socket传递的都是bytes类型的数据，字符串需要先转换一下，`string.encode()`即可；另一端接收到的bytes数据想转换成字符串，只要`bytes.decode()`一下就可以。在正常通信时，`accept()`和`recv()`方法都是阻塞的。所谓的阻塞，指的是程序会暂停在那，一直等到有数据过来。
+
 ## Socket 标准库
 
 ### 创建 Socket 对象
@@ -20,6 +26,18 @@
   * socket.SOCK_RAW：原始套接字。
 * protocol: 一般不填默认为0。如果是 0 ，则系统就会根据地址格式和套接类别,自动选择一个合适的协议。
 
+| socket类型            | 描述                                                         |
+| --------------------- | ------------------------------------------------------------ |
+| socket.AF_UNIX        | 只能够用于单一的Unix系统进程间通信                           |
+| socket.AF_INET        | IPv4                                                         |
+| socket.AF_INET6       | IPv6                                                         |
+| socket.SOCK_STREAM    | 流式socket , for TCP                                         |
+| socket.SOCK_DGRAM     | 数据报式socket , for UDP                                     |
+| socket.SOCK_RAW       | 原始套接字，普通的套接字无法处理ICMP、IGMP等网络报文，而SOCK_RAW可以；其次，SOCK_RAW也可以处理特殊的IPv4报文；此外，利用原始套接字，可以通过IP_HDRINCL套接字选项由用户构造IP头。 |
+| socket.SOCK_SEQPACKET | 可靠的连续数据包服务                                         |
+| 创建TCP Socket：      | s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)           |
+| 创建UDP Socket：      | s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)            |
+
 ***
 
 ### Socket 对象方法和属性
@@ -37,18 +55,13 @@
 | 方法                      | 作用                                                         |
 | ------------------------- | ------------------------------------------------------------ |
 | `socket.connect(address)` | Connect to a remote socket at address. (The format of address depends on the address family） |
-
-
+| `socket.connect_ex()`     | connect()函数的扩展版本,出错时返回出错码,而不是抛出异常      |
 
 #### 公共的套接字函数
 
 * ` socket.recv(bufsize[, flags])`
 
-  Receive data from the socket.  
-
-  The return value is a bytes object representing the data received.  The maximum amount of data to be received at once is specified by *bufsize*. 
-
-  For best match with hardware and network realities, the value of  *bufsize* should be a relatively small power of 2.
+  接收数据，数据以bytes类型返回，bufsize指定要接收的最大数据量。
 
 * ` socket.recvfrom(bufsize[, flags])`
 
@@ -94,8 +107,6 @@
 ***
 
 ## 创建 TCP 服务器和客户端
-
-![socket](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fy387t9fxgj20jz0sj3zn.jpg)
 
 ### TCP 服务器
 
@@ -156,7 +167,7 @@ HOST = 'localhost'    # The remote host
 PORT = 50007          # The same port as used by the server
 BUFSIZ = 1024
 
-with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
     while True:
         print('Type:')
@@ -170,6 +181,43 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
 ### 执行 TCP 服务器和客户端
 
 首先启动服务器，在任何客户端试图连接之前。
+
+### 多线程服务器
+
+```python
+import socket
+import threading
+
+
+def link_handler(link, client):     
+    """
+    该函数为线程需要执行的函数，负责具体的服务器和客户端之间的通信工作
+    :param link: 当前线程处理的连接
+    :param client: 客户端ip和端口信息，一个二元元组
+    :return: None
+    """
+    print('Connected by ', client)
+    while True:                 # 保持和客户端的通信状态
+        data = link.recv(1024)
+        if not data: break
+        link.sendall(data)
+    link.close()
+
+
+ip_port = ('', 50007)
+sk = socket.socket()            # 创建套接字
+sk.bind(ip_port)                # 绑定服务地址
+sk.listen(1)                    # 监听连接请求
+
+print('wait...')
+
+while True:                     # 不断的接受客户端发来的连接请求
+    conn, address = sk.accept() # 等待连接，此处自动阻塞
+    # 每当有新的连接过来，自动创建一个新的线程，
+    # 并将连接对象和访问者的ip信息作为参数传递给线程的执行函数
+    t = threading.Thread(target=link_handler, args=(conn, address))
+    t.start()
+```
 
 ***
 
