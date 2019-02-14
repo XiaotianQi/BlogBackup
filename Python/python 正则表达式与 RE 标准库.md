@@ -277,30 +277,26 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 
 `()` 指分组。大概分为以下四种：
 
-|`()`|说明|
-|:-|:-|
-|捕获组||
-|非捕获组||
-|反向引用||
-|断言||
-
-`()` 的作用很多，具体可以参考这篇博文：
-
-[python 正则表达式 () 的使用](http://starrynight.tech/post/20/)
+* 捕获组
+* 非捕获组
+* 反向引用
+* 断言
 
 ***
 
 ## re 标准库
 
-|函数|说明|
-|:-|:-|
-|`re.compile(pattern[, flags=0])`|编译表达式，返回一个正则表达式对象，方便重复调用|
-|`re.match(pattern, string[, flags=0])`|尝试从字符串的起始位置匹配。匹配成功返回一个 `Match` 对象，如果起始位置匹配不成功的话，返回 `None`|
-|`re.search(pattern, string[, flags=0])`|扫描整个字符串并返回第一个成功的匹配，是一个 `Match` 对象|
-|`re.findall(pattern, string[, flags=0])`|找到 `RE` 匹配的所有字符串，一个 `list` 对象返回|
-|`re.finditer(pattern, string[, flags=0])` |找到 `RE` 匹配的所有字符串，将其作为一个迭代器返回|
-|`re.sub(pattern, repl, string[, count=0, flags=0]`|替换匹配到的字符串|
-|`re.split(pattern, string[, maxsplit=0])`|按指定字符串分割|
+|函数|说明|返回值|
+|:-|:-|:-|
+|`re.compile(pattern[, flags=0])`|编译表达式，返回一个正则表达式对象，方便重复调用|re对象|
+|`re.match(pattern, string[, flags=0])`|尝试从字符串的起始位置匹配。匹配成功返回一个 `Match` 对象，如果起始位置匹配不成功的话，返回 `None`|在字符串开头匹配到的对象或者None|
+|`re.search(pattern, string[, flags=0])`|扫描整个字符串并返回第一个成功的匹配，是一个 `Match` 对象|第一个匹配到的对象或者None|
+|`re.findall(pattern, string[, flags=0])`|找到 `RE` 匹配的所有字符串，一个 `list` 对象返回|所有匹配到的字符串列表|
+|`re.finditer(pattern, string[, flags=0])` |找到 `RE` 匹配的所有字符串，将其作为一个迭代器返回||
+|`re.sub(pattern, repl, string[, count=0, flags=0]`|替换匹配到的字符串|完成替换后的新字符串|
+|`re.subn(pat,repl, string[,count=0,flags])`|在替换字符串后，同时报告替换的次数|完成替换后的新字符串及替换次数|
+|`re.split(pattern, string[, maxsplit=0])`|按指定字符串分割|分割后的字符串列表|
+|`re.finditer(pattern, string,flags)`|将所有匹配到的项生成一个迭代器|所有匹配到的字符串组合成的迭代器|
 
 * `pattern`：正则表达式；
 * `string`：需要匹配的字符串；
@@ -407,6 +403,8 @@ print(re.findall(r'[a-z]', test))
 ['a', 'b', 'c']
 ```
 
+findall()和match()、search()的不同之处在于，前两者都是单值匹配，找到一个就忽略后面，直接返回不再查找了。而findall是全文查找，它的返回值是一个匹配到的字符串的列表。这个列表没有group()方法，没有start、end、span，更不是一个匹配对象，仅仅是个列表！
+
 * `re.finditer(pattern, string[, flags=0])`
 
 与 `re.findall()` 作用相同，但返回的是一个 `iter`，同时对于每一次匹配，迭代器都返回一个 `Match object`
@@ -438,6 +436,8 @@ print(re.sub(r'2', 'b', test))
 输出结果：
 a1bbc3
 ```
+
+sub()方法有一个高级功能——“分组引用”:
 
 将形式为 11/27/2012 的日期字符串改成 2012-11-27：
 
@@ -488,7 +488,18 @@ print(re.sub(r'2', 'b', test))
 
 * `re.split(pattern, string[, maxsplit=0])`
 
-`re.split()` 用来分割字符串，具体的说明和应用在这篇博文中 [python str.split() 与 re.split() 处理字符串](http://starrynight.tech/post/26/) 已说明，不再赘述。
+`re.split()` 用来分割字符串，re模块的split()方法和字符串的split()方法很相似，都是利用特定的字符去分割字符串。但是re模块的split()可以使用正则表达式。具体的说明和应用在这篇博文中 [python str.split() 与 re.split() 处理字符串](http://starrynight.tech/post/26/) 已说明，不再赘述。
+
+利用分组的概念，`re.split()`方法还可以保存被匹配到的分隔符，这个功能非常重要！
+
+```python
+In [2]: s = "8+7*5+6/3"
+
+In [3]: a_list = re.split(r'([\+\-\*\/])', s)
+
+In [4]: a_list
+Out[4]: ['8', '+', '7', '*', '5', '+', '6', '/', '3']
+```
 
 ***
 
