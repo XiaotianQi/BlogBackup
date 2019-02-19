@@ -1,6 +1,219 @@
-线程间通信
+## 多线程编程
+
+### threading 标准库
+
+使用 threading 标准库，进行多线程编程。
+
+| 类型                     | 含义             |
+| ------------------------ | ---------------- |
+| Thread Objects           | 线程对象         |
+| Lock Objects             | 互斥锁           |
+| RLock Objects            | 可重入锁，递归锁 |
+| Condition Objects        | 条件锁           |
+| Semaphore Objects        | 信号锁           |
+| BoundedSemaphore Objects | 有边界信号量     |
+| Event Objects            | 事件             |
+| Timer Objects            | 计时器           |
+| Barrier Objects          | 屏障             |
+
+### 线程池
+
+使用 concurrent.futures 标准库中的线程池，进行多线程编程。
+
+线程池不是线程安全的。
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+g_num = 0
+
+def add():
+    global g_num
+    for i in range(1000000):
+        g_num += 1     
+
+def desc():
+    global g_num
+    for i in range(1000000):
+        g_num -= 1
+
+
+with ThreadPoolExecutor(max_workers=2) as executor:
+    add_tast = executor.submit(add)
+    desc_tast = executor.submit(desc)
+    print(g_num)	# 非0
+```
+
+### 死锁
+
+死锁的发生也必须具备一定的条件，死锁的发生必须具备以下四个必要条件：
+
+* 互斥条件：指进程对所分配到的资源进行排它性使用，即在一段时间内某资源只由一个进程占用。如果此时还有其它进程请求资源，则请求者只能等待，直至占有资源的进程用毕释放。
+* 请求和保持条件：指进程已经保持至少一个资源，但又提出了新的资源请求，而该资源已被其它进程占有，此时请求进程阻塞，但又对自己已获得的其它资源保持不放。
+* 不剥夺条件：指进程已获得的资源，在未使用完之前，不能被剥夺，只能在使用完时由自己释放。
+* 环路等待条件：指在发生死锁时，必然存在一个进程——资源的环形链，即进程集合{P0，P1，P2，···，Pn}中的P0正在等待一个P1占用的资源；P1正在等待P2占用的资源，……，Pn正在等待已被P0占用的资源。
+
+#### “迭代”死锁
+
+该情况是一个线程“迭代”请求同一个资源，直接就会造成死锁。
+
+threading.Lock 并不关心当前是哪个线程占有了该锁；如果该锁已经被占有了，那么任何其它尝试获取该锁的线程都会被阻塞，包括已经占有该锁的线程也会被阻塞。为了解决这问题可以用threading.RLock代替threading.Lock。
+
+```python
+import threading
+import time
+
+
+class MyThread(threading.Thread):
+    def run(self):
+        global num
+        time.sleep(1)
+        if mutex.acquire():		# 第一次请求资源，请求后还未 release 
+            num = num+1
+            msg = self.name+' set num to '+str(num)
+            print(msg)
+            mutex.acquire()		# 再次请求，产生死锁
+            mutex.release()
+            mutex.release()
+
+num = 0
+mutex = threading.Lock()
+
+def test():
+    for i in range(5):
+        t = MyThread()
+        t.start()
+
+
+if __name__ == '__main__':
+    test()
+```
+
+#### 互相调用死锁
+
+与上例类似，上面是同一个def函数内多次调用造成的，另一种情况是两个函数中都会调用相同的资源，互相等待对方结束的情况。如果两个线程分别占有一部分资源并且同时等待对方的资源，就会造成死锁。
+
+```python
+import threading
+import time
+
+# 账户类
+class Account(object):
+    def __init__(self, name, balance, lock):
+        self.name = name
+        self.balance = balance
+        self.lock = lock
+
+    # 支出    
+    def withdraw(self, amount):
+        self.balance -= amount
+
+    # 收入    
+    def deposit(self, amount):
+        self.balance += amount
+
+# 转账函数        
+def transfer(from_account, to_account, amount):
+    with from_account.lock:             # 请求锁
+        from_account.withdraw(amount)
+        time.sleep(1)
+        print("trying to get %s's lock..." % to_account.name)
+        with to_account.lock:           # 请求锁
+            to_account.deposit(amount)
+    print("transfer finish")
+    
+if __name__ == "__main__":
+    a = Account('a',1000, threading.Lock())
+    b = Account('b',1000, threading.Lock())
+    thread_list = []
+    thread_list.append(threading.Thread(target = transfer, args=(a,b,100)))
+    thread_list.append(threading.Thread(target = transfer, args=(b,a,500)))
+    for i in thread_list:
+        i.start()
+    for j in thread_list:
+        j.join()
+```
+
+#### 防止死锁的加锁机制
+
+目前我们遇到的问题是两个线程想获取到的锁，都被对方线程拿到了，那么我们只需要保证在这两个线程中，获取锁的顺序保持一致就可以了。
+
+```python
+# _*_coding:utf-8_*_
+
+import threading, time
+from contextlib import contextmanager
+
+# Thread-local state to stored information on locks already acquired
+_local = threading.local()
+
+@contextmanager
+def acquire(*locks):
+    # Sort locks by object identifier
+    locks = sorted(locks, key=lambda x: id(x))
+
+    # Make sure lock order of previously acquired locks is not violated
+    acquired = getattr(_local,'acquired',[])
+    if acquired and max(id(lock) for lock in acquired) >= id(locks[0]):
+        raise RuntimeError('Lock Order Violation')
+
+    # Acquire all of the locks
+    acquired.extend(locks)
+    _local.acquired = acquired
+
+    # 实现的是锁的获取和释放
+    try:
+        for lock in locks:
+            lock.acquire()
+        yield
+    finally:
+        # Release locks in reverse order of acquisition
+        for lock in reversed(locks):
+            lock.release()
+        del acquired[-len(locks):]
+
+# 账户类
+class Account(object):
+    def __init__(self, name, balance, lock):
+        self.name = name
+        self.balance = balance
+        self.lock = lock
+
+    # 支出    
+    def withdraw(self, amount):
+        self.balance -= amount
+
+    # 收入    
+    def deposit(self, amount):
+        self.balance += amount
+
+# 转账函数        
+def transfer(from_account, to_account, amount):
+    with acquire(from_account.lock, to_account.lock):             # 请求锁
+        from_account.withdraw(amount)
+        time.sleep(1)
+        to_account.deposit(amount)
+    print("transfer finish")
+
+if __name__ == "__main__":
+    a = Account('a',1000, threading.Lock())
+    b = Account('b',1000, threading.Lock())
+    thread_list = []
+    thread_list.append(threading.Thread(target = transfer, args=(a,b,100)))
+    thread_list.append(threading.Thread(target = transfer, args=(b,a,500)))
+    for i in thread_list:
+        i.start()
+    for j in thread_list:
+        j.join()
+```
+
+
+
+***
 
 ## 线程安全
+
+在多线程环境中，当各线程不共享数据的时候，那么一定是线程安全的。在多数情况下需要共享数据，这时就需要进行适当的同步控制。线程安全一般都涉及到synchronized，就是多线程环境中，共享数据同一时间只能有一个线程来操作 不然中间过程可能会产生不可预制的结果。
 
 存在线程安全问题必须满足三个条件：
 
@@ -9,6 +222,8 @@
 2.处在多线程环境下
 
 3.共享变量有修改操作。仅读取数据则不会产生线程安全问题。
+
+当对全局资源存在写操作时，如果不能保证写入过程的原子性，会出现脏读脏写的情况，即线程不安全。Python的GIL只能保证原子操作的线程安全，因此在多线程编程时我们需要通过加锁来保证线程安全。
 
 g_num 的值预想中应该是 0，但运行多次结果都不是  0，而且每次不同。
 
@@ -46,6 +261,8 @@ PS：
 
 一般来说，线程安全的函数应该为每个调用它的线程分配专门的空间，来储存需要单独保存的状态（如果需要的话），不依赖于“线程惯性”，把多个线程共享的变量正确对待（如，通知编译器该变量为“易失（volatile）”型，阻止其进行一些不恰当的优化），而且，线程安全的函数一般不应该修改全局对象。
 
+**原子操作**：原子操作就是不会因为进程并发或者线程并发而导致被中断的操作。原子操作的特点就是要么一次全部执行，要么全不执行。不存在执行了一半而被中断的情况。当对全局资源存在写操作时，如果不能保证写入过程的原子性，会出现脏读脏写的情况。
+
 **线程惯性**：指在多线程编程中的一种错误的心理状态，它假定当前编写的代码执行完毕后会继续执行下一条代码。而实际上，在现代处理器中，线程随时（当该线程的时间片用完时）可能被处理器冻结，而处理器被另一线程抢占（这里指单处理器上的情况，在多处理器上，情况更加复杂）。
 
 因此，如果程序执行的结果依赖于这两个（或者可能更多）线程的顺序，程序就可能出错。
@@ -60,9 +277,9 @@ PS：
 
 事件对象一般具有下述操作：
 
-* wait - 执行中的线程被挂起直到事件为真。如果执行wait时事件已为真，则空操作。
-* set - 设置事件状态为真，所有等待此事件的进程变为可调度。
-* clear - 设置事件状态为假。
+- wait - 执行中的线程被挂起直到事件为真。如果执行wait时事件已为真，则空操作。
+- set - 设置事件状态为真，所有等待此事件的进程变为可调度。
+- clear - 设置事件状态为假。
 
 **竞争条件**：当多个进程或者线程在读写数据时，其最终的的结果依赖于多个进程的指令执行顺序。举例来说，如果计算机中的两个进程同时试图修改一个共享内存的内容，在没有并发控制的情况下，最后的结果依赖于两个进程的执行顺序与时机。而且如果发生了并发访问冲突，则最后的结果是不正确的。
 
@@ -84,7 +301,6 @@ Python 的 Queue 模块中提供了同步的、线程安全的队列类，包括
 
 | 类型                     | 含义             |
 | ------------------------ | ---------------- |
-| Thread Objects           | 线程对象         |
 | Lock Objects             | 互斥锁           |
 | RLock Objects            | 可重入锁，递归锁 |
 | Condition Objects        | 条件锁           |
@@ -98,7 +314,9 @@ Python 的 Queue 模块中提供了同步的、线程安全的队列类，包括
 
 ## 生产者消费者问题
 
-Producer-consumer problem，也称有限缓冲问题（Bounded-buffer problem），是一个多进程同步问题的经典案例。
+Producer-consumer problem，也称有限缓冲问题（Bounded-buffer problem），是一个多进程同步问题的经典案例。本质上，这是一种供需不平衡的表现。生产者消费者模式的核心是‘阻塞队列’也称消息队列。
+
+生产者消费者模式是通过一个容器来解决生产者和消费者的强耦合问题。生产者和消费者彼此之间不直接通讯，而是通过阻塞队列来进行通讯，所以生产者生产完数据之后不用等待消费者处理，直接扔给阻塞队列，消费者不直接找生产者要数据，而是从阻塞队列里取，阻塞队列就相当于一个缓冲区，平衡了生产者和消费者的处理能力，解耦了生产者和消费者。
 
 该问题描述了**共享**固定大小缓冲区的两个进程——即所谓的“生产者”和“消费者”——在实际运行时会发生的问题。生产者的主要作用是生成一定量的数据放到缓冲区中，然后重复此过程。与此**同时**，消费者也在缓冲区消耗这些数据。该问题的关键就是要保证生产者不会在缓冲区满时加入数据，消费者也不会在缓冲区中空时消耗数据。 
 
@@ -367,33 +585,5 @@ if __name__ == '__main__':
 
 ***
 
-## 线程池
 
-标准库提供了concurrent.futures模块，它提供了 ThreadPoolExecutor 类，实现了对threading的进一步抽象，对编写线程池提供了直接的支持。
-
-线程池是用于在程序中优化和简化线程的使用。通过池，可以提交任务给executor。池由两部分组成，一部分是内部的队列，存放着待执行的任务；另一部分是一系列的线程，用于执行这些任务。池的概念主要目的是为了重用：让线程在生命周期内可以多次使用。它减少了创建创建线程的开销，提高了程序性能。重用不是必须的规则，但它是程序员在应用中使用池的主要原因。
-
-线程池不是线程安全的。
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-
-g_num = 0
-
-def add():
-    global g_num
-    for i in range(1000000):
-        g_num += 1     
-
-def desc():
-    global g_num
-    for i in range(1000000):
-        g_num -= 1
-
-
-with ThreadPoolExecutor(max_workers=2) as executor:
-    add_tast = executor.submit(add)
-    desc_tast = executor.submit(desc)
-    print(g_num)	# 非0
-```
 

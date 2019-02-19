@@ -1,75 +1,18 @@
-标准库提供了**concurrent.futures**模块，它提供了 ThreadPoolExecutor 和 ProcessPoolExecutor 两个类，实现了对threading和multiprocessing的进一步抽象，对编写线程池/进程池提供了直接的支持。使用`concurrent.futures`编写的代码可以轻松地在线程版本与进程版本之间转换。
+标准库提供了concurrent.futures模块，它提供了 ThreadPoolExecutor 和 ProcessPoolExecutor 两个类，实现了对threading和multiprocessing的进一步抽象，对编写线程池/进程池提供了直接的支持。使用`concurrent.futures`编写的代码可以轻松地在线程版本与进程版本之间转换。
 
 线程池或进程池是用于在程序中优化和简化线程/进程的使用。通过池，可以提交任务给executor。池由两部分组成，一部分是内部的队列，存放着待执行的任务；另一部分是一系列的进程或线程，用于执行这些任务。池的概念主要目的是为了重用：让线程或进程在生命周期内可以多次使用。它减少了创建创建线程和进程的开销，提高了程序性能。重用不是必须的规则，但它是程序员在应用中使用池的主要原因。
 
 ***
 
-## Executor Objects
-
-### 语法、方法
-
-```text
-class concurrent.futures.Executor:执行异步调用的方法的抽象基类
-
-Executor.submit(fn, *args, **kwargs):将 args、kwargs 传入可调用函数 fn，并返回一个 future 对象。
-submit方法会对future进行排期
-如果运行的线程数没达到最大线程数，则future会被立即运行，并将其状态置为running；
-否则就等待，并将其状态置为pending。
-
-Executor.map(func, *iterables, timeout=None, chunksize=1):和内置map(func, *iterables)函数类似。
-区别在于:立即执行而不是惰性计算，func 是异步执行。输出结果的顺序和传入参数的顺序相同。
-
-Executor.shutdown(wait=True):向executor发出信号，释放所有资源。
-wait=True时，直到所有pending futures执行完毕，再返回。
-wait=False时，立即返回。
-```
-
-### wait=True&swait=False
-
-调用shutdown(wait=True)或使用上下文管理器将阻塞，直到所有挂起的期货完成执行。
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-import time
-
-def task(name):
-    print("name",name)
-    time.sleep(1)
-
-start = time.time()
-executor = ThreadPoolExecutor(max_workers=2)
-for i in range(5):
-    executor.submit(task,"task-%d"%i)
-executor.shutdown(wait=True)
-end = time.time()
-print('cost:', end-start)
-```
-
-输出结果：
-
-```text
-name task-0
-name task-1
-name task-2
-name task-3
-name task-4
-cost: 3.013853073120117
-```
-
-当修改为`wait=False`时：
-
-```text
-name task-0
-name task-1
-cost: 0.002997159957885742
-name task-2
-name task-3
-name task-4
-```
-
-***
-
 ## ThreadPoolExecutor
+
+在使用多线程处理任务时也不是线程越多越好。因为在切换线程的时候，需要切换上下文环境，线程很多的时候，依然会造成CPU的大量开销。为解决这个问题，线程池的概念被提出来了。
+
+标准库提供了concurrent.futures模块，它提供了 ThreadPoolExecutor 类，实现了对threading的进一步抽象，对编写线程池提供了直接的支持。
+
+线程池是用于在程序中优化和简化线程的使用。通过池，可以提交任务给executor。池由两部分组成，一部分是内部的队列，存放着待执行的任务；另一部分是一系列的线程，用于执行这些任务。池的概念主要目的是为了重用：让线程在生命周期内可以多次使用。它减少了创建创建线程的开销，提高了程序性能。重用不是必须的规则，但它是程序员在应用中使用池的主要原因。
+
+线程池不是线程安全的。
 
 ThreadPoolExecutor 是 Executor 的子类，它使用线程池执行异步调用。
 
@@ -200,6 +143,71 @@ if __name__ == '__main__':
 
 ***
 
+## Executor Objects
+
+### 语法、方法
+
+```text
+class concurrent.futures.Executor:执行异步调用的方法的抽象基类
+
+Executor.submit(fn, *args, **kwargs):将 args、kwargs 传入可调用函数 fn，并返回一个 future 对象。
+submit方法会对future进行排期
+如果运行的线程数没达到最大线程数，则future会被立即运行，并将其状态置为running；
+否则就等待，并将其状态置为pending。
+
+Executor.map(func, *iterables, timeout=None, chunksize=1):和内置map(func, *iterables)函数类似。
+区别在于:立即执行而不是惰性计算，func 是异步执行。输出结果的顺序和传入参数的顺序相同。
+
+Executor.shutdown(wait=True):向executor发出信号，释放所有资源。
+wait=True时，直到所有pending futures执行完毕，再返回。
+wait=False时，立即返回。
+```
+
+### wait=True&swait=False
+
+调用shutdown(wait=True)或使用上下文管理器将阻塞，直到所有挂起的期货完成执行。
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+def task(name):
+    print("name",name)
+    time.sleep(1)
+
+start = time.time()
+executor = ThreadPoolExecutor(max_workers=2)
+for i in range(5):
+    executor.submit(task,"task-%d"%i)
+executor.shutdown(wait=True)
+end = time.time()
+print('cost:', end-start)
+```
+
+输出结果：
+
+```text
+name task-0
+name task-1
+name task-2
+name task-3
+name task-4
+cost: 3.013853073120117
+```
+
+当修改为`wait=False`时：
+
+```text
+name task-0
+name task-1
+cost: 0.002997159957885742
+name task-2
+name task-3
+name task-4
+```
+
+***
+
 ## Future Objects
 
 Future 类封装了可调用的异步执行。Future instances由Executor.submit()创建。
@@ -222,8 +230,6 @@ future.exception(timeout=None):返回调用引发的异常
 
 future.add_done_callback(fn):将可调用函数fn附加到future。当future被取消或者执行完毕，将调用fn，并将future作为传入参数
 ```
-
-
 
 ***
 
