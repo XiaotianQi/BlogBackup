@@ -1,4 +1,5 @@
-# Blog Backup
-博文的管理。
+# Note-Taking，Taking-Note
 
-如需讨论，请联系：slrecollect@126.com
+
+email：slrecollect@126.com
+
