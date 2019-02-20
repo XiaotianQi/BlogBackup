@@ -1,1 +1,0 @@
-The multiprocessing package mostly replicates the API of the threading module.
