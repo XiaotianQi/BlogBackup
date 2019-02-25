@@ -1,5 +1,11 @@
 Python中的multiprocess提供了Process类，实现进程相关的功能。但是它基于fork机制，因此不被windows平台支持。想要在windows中运行，必须使用`if __name__ == '__main__:`的方式，显然这只能用于调试和学习，不能用于实际环境。
 
+线程具有五种状态：初始化、可运行、运行中、阻塞、销毁
+
+这五种状态的转化关系如下：
+
+![](https://wx4.sinaimg.cn/mw690/af9e9c30ly1g0e3sotyekj20n806g3yt.jpg)
+
 ## 创建进程
 
 ### multiprocessing.Process
@@ -40,8 +46,6 @@ p.name：当前进程实例别名，默认为Process-N，N为从1开始递增的
 
 p.pid：当前进程实例的PID
 ```
-
-
 
 示例
 
