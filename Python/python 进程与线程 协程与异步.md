@@ -1,0 +1,321 @@
+通常在Python中我们进行并发编程一般都是使用多线程或者多进程来实现的，对于CPU计算密集型任务由于GIL的存在通常使用多进程来实现，而对于IO密集型任务可以通过线程调度来让线程在执行IO任务时让出GIL，从而实现表面上的并发。
+
+其实对于IO密集型任务我们还有一种选择就是协程。协程，又称微线程，英文名Coroutine。Python中的异步IO模块asyncio就是基本的协程模块。可以多次进出、每次暂停并恢复执行的函数被称为协程。
+
+协程和线程、进程的区别：
+
+- **进程**：操作系统资源分配的最小单位。 每个进程有独立的内存空间，互不干扰，创建进程需要创建或者拷贝进程空间，占用很多资源，进程切换需要内核切换上下文
+- **线程**：操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。同一个进程内，线程共享进程空间的任务单位，但有各自的调用栈（call stack），自己的寄存器环境（register context），自己的线程本地存储（thread-local storage）。另外，线程是进程中的一个实体，是被系统独立调度和分派的基本单位，线程自己不独立拥有系统资源，但它可与同属一个进程的其它线程共享该进程所拥有的全部资源。每一个应用程序都至少有一个进程和一个线程。线程切换需要内核切换上下文。
+- **协程**：是计算机程序的一类组件，推广了非抢先多任务的子程序，允许执行被挂起与被恢复。是非抢占式的多任务子例程的概括，可以允许有多个入口点在例程中确定的位置来控制程序的暂停与恢复执行。通过编程方法态实现，协程切换任务由应用层面实现，开销很小。同个调度器下的协程应该是在同一个线程内。
+
+***
+
+## 基于生成器的协程
+
+基于生成器的协程（generator-based coroutine）特指使用 `yield from` 句法的协程。
+
+1. 生成器用于生成供迭代的数据
+2. 协程是数据的消费者
+
+### yield/send
+
+Python对协程的支持是通过generator实现的。
+
+在generator中，我们不但可以通过`for`循环来迭代，还可以不断调用`next()`函数获取由`yield`语句返回的下一个值。但是Python的`yield`不但可以返回一个值，它还可以接收调用者发出的参数。当协程执行到yield关键字时，会暂停在那一行，等到主线程调用send方法发送了数据，协程才会接到数据继续执行。
+
+每个生成器都可以执行send()方法，为生成器内部的yield语句发送数据。此时yield语句不再只是`yield xxxx`的形式，还可以是`var = yield xxxx`的赋值形式。它同时具备两个功能，一是暂停并返回函数，二是接收外部send()方法发送过来的值，重新激活函数，并将这个值赋值给var变量！
+
+协程可以处于下面四个状态中的一个。当前状态可以导入inspect模块，使用inspect.getgeneratorstate(...) 方法查看，该方法会返回下述字符串中的一个。
+
+- 'GEN_CREATED'　　等待开始执行。
+- 'GEN_RUNNING'　　协程正在执行。
+- 'GEN_SUSPENDED'  在yield表达式处暂停。
+- 'GEN_CLOSED' 　　执行结束。
+
+```python
+>>> def coroutine():
+...     reply = yield 'hello'
+...     yield reply
+... 
+
+>>> c = coroutine()
+
+>>> next(c)
+'hello'
+
+>>> c.send('world')
+'world'
+```
+
+```python
+def printer(): 
+    counter = 0
+    while True:
+        string = str(yield)
+        print('[{0}] {1}'.format(counter, string))
+        counter += 1
+ 
+if __name__ == '__main__':
+    p = printer()
+    next(p)
+    p.send('Hi')
+    p.send('My name is hsfzxjy.')
+    p.send('Bye!')
+```
+
+仅当协程处于暂停状态时才能调用 send()方法，例如`my_coro.send(10)`。不过，如果协程还没激活（状态是`'GEN_CREATED'`），就立即把None之外的值发给它，会出现TypeError。因此，始终要先调用`next(my_coro)`激活协程（也可以调用`my_coro.send(None)`），这一过程被称作预激活。
+
+```python
+def consumer():
+    r = ''
+    while True:
+        n = yield r		# 消费者通过yield接收生产者的消息，同时返给其结果
+        if not n:
+            return
+        print('[CONSUMER] Consuming %s...' % n)
+        r = '200 OK'	# 消费者消费结果，下个循环返回给生产者
+
+def produce(c):
+    c.send(None)		# 启动消费者生成器，同时第一次接收返回结果
+    n = 0
+    while n < 5:
+        n = n + 1
+        print('[PRODUCER] Producing %s...' % n)
+        r = c.send(n)	# 向消费者发送消息并准备接收结果。此时会切换到消费者执行
+        print('[PRODUCER] Consumer return: %s' % r)
+    c.close()			# 关闭消费者生成器
+
+c = consumer()
+produce(c)
+```
+
+注意到`consumer`函数是一个`generator`，把一个`consumer`传入`produce`后：
+
+1. 首先调用`c.send(None)`启动生成器；
+2. 然后，一旦生产了东西，通过`c.send(n)`切换到`consumer`执行；
+3. `consumer`通过`yield`拿到消息，处理，又通过`yield`把结果传回；
+4. `produce`拿到`consumer`处理的结果，继续生产下一条消息；
+5. `produce`决定不生产了，通过`c.close()`关闭`consumer`，整个过程结束。
+
+整个流程无锁，由一个线程执行，`produce`和`consumer`协作完成任务，所以称为“协程”，而非线程的抢占式多任务。
+
+协程的特点在于是一个线程执行，那和多线程比，协程有何优势？
+
+最大的优势就是协程极高的执行效率。协程不是被操作系统内核所管理，而完全是由程序所控制（也就是在用户态执行）。因为子程序切换不是线程切换，而是由程序自身控制，因此，没有线程切换的开销，和多线程比，线程数量越多，协程的性能优势就越明显。
+
+第二大优势就是不需要多线程的锁机制，因为只有一个线程，也不存在同时写变量冲突，在协程中控制共享资源不加锁，只需要判断状态就好了，所以执行效率比多线程高很多。
+
+因为协程是一个线程执行，那怎么利用多核CPU呢？最简单的方法是多进程+协程，既充分利用多核，又充分发挥协程的高效率，可获得极高的性能。
+
+### yield from
+
+yield from 其实就是等待另外一个协程的返回。主要解决的就是在生成器里嵌套生成器不方便的问题。它有两大主要功能:
+
+* 让嵌套生成器不必通过循环迭代`yield`，而是直接`yield from`。`yield from iterable`本质上是`for item in iterable: yield item`的缩写版  。
+* 在子生成器和委派生成器的调用者之间打开双向通道，两者可以直接通信。
+
+```python
+def gen():
+    yield from subgen()
+
+def subgen():
+    while True:
+        x = yield
+        yield x+1
+
+def main():
+    g = gen()
+    next(g)                # 驱动生成器g开始执行到第一个 yield
+    retval = g.send(1)     # 看似向生成器 gen() 发送数据
+    print(retval)          # 返回2
+```
+
+专门的术语：
+
+- 委派生成器 （delegating generator）- 包含 `yield from <iterable>` 表达式的生成器函数。
+- 子生成器 （subgenerator）- 从 `<iterable>` 部分获取的生成器。
+- 调用方 （caller）- 调用委派生成器的客户端代码。
+
+同时，PEP 380 中对 `yield from` 的行为做了如下说明：
+
+- 子生成器产出的值都直接传给委派生成器的调用方。
+- 使用 `send()` 方法发给委派生成器的值都直接传给子生成器。如果发送的值是 `None` ，那么会调用子 生成器的 `__next__()` 方法。如果发送的值不是 `None` ，那么会调用子生成器的 `send()` 方法。如 果子生成器抛出 `StopIteration` 异常，那委派生成器恢复运行。任何其它异常都会向上冒泡，传给委派生 成器。
+- 生成器退出时，生成器（或子生成器）中的 `return expr` 表达式会触发 `StopIteration(expr)` 异常 抛出。
+- `yield from` 表达式的值是子生成器终止时传给 `StopIteration` 异常的第一个参数值。
+- 传入委派生成器的异常，除了 `GeneratorExit` 之外都传给子生成器的 `throw()` 方法。如果调用 `throw()` 方法时抛出了 `StopIteration` 异常，委派生成器恢复运行。 `StopIteration` 之外的异 常会向上冒泡，传给委派生成器。
+- 如果把 `GeneratorExit` 异常传入委派生成器，或者在委派生成器上调用 `close()` 方法，那么（委派 生成器）调用子生成器的 `close()` 方法（如果子生成器提供了该方法的话）。如果子生成器的 `close()` 方法导致异常抛出，那么异常会向上冒泡，传给委派生成器。如果子生成器的 `close()` 方法 正常执行的话，委派生成器随后向上抛出 `GeneratorExit` 异常。
+
+***
+
+## 原生协程
+
+Python 3.5 又增加了用于创建原生协程的句法结构（见下面） `async def` ，以便从句法上和基于生成器的协程进行区分。很多人仍然弄不明白生成器和协程的联系与区别，也弄不明白`yield` 和 `yield from` 的区别。这种混乱的状态也违背Python之禅的一些准则。
+
+同时，为了让两种生成器可以互相操作，Python 3.5 还提供了 `types.coroutine`装饰器函数对基于生成器的协程进行了包装。打算交给 *asyncio* 处理基于生成器的协程 **最好** 使用 `asyncio.coroutine` （Python 3.4）或者`types.coroutine` （Python 3.5）进行装饰，这样可以把协程函数凸显出来，也有助于调试
+
+原生协程（native coroutine）有如下关键特征：
+
+- `async def` functions are always coroutines, even if they do not contain `await` expressions.
+
+- It is a `SyntaxError` to have `yield` or `yield from` expressions in an `async def` function.
+
+- Internally, two new code object flags were introduced:
+
+  > - `CO_COROUTINE` is used to mark *native coroutines* (defined with new syntax).
+  > - `CO_ITERABLE_COROUTINE` is used to make *generator-based coroutines* compatible with *native coroutines*.
+
+- Regular generators, when called, return a *generator object*; similarly, coroutines return a *coroutine object*.
+
+- `StopIteration` exceptions are not propagated out of coroutines, and are replaced with a `RuntimeError`. For regular generators such behavior requires a future import (see PEP 479).
+
+- When a *native coroutine* is garbage collected, a `RuntimeWarning` is raised if it was never awaited on (see also Debugging Features).
+
+原生协程（native coroutine）和 基于生成器的协程（generator-based coroutine）有如下区别：
+
+- 原生协程对象并未实现 `__iter__` 和 `__next__` 方法，所以它们并不能用于需要可迭代对象的场景。
+- 普通生成器函数内部不能使用 `yield from 原生协程` 句法。
+- 基于生成器的协程函数（代码用于 *asyncio* 时，需用 `asyncio.coroutine` ）内部可以使用 `yield from 原生协程` 句法。
+- `inspect.isgenerator()` 函数和 `inspect.isgeneratorfunction()` 函数作用于原生协程时，返回 `False` 。
+
+用`asyncio`的异步网络连接来获取sina、sohu和163的网站首页：
+
+```python
+import asyncio
+
+@asyncio.coroutine
+def wget(host):
+    print('wget %s...' % host)
+    connect = asyncio.open_connection(host, 80)
+    reader, writer = yield from connect
+    header = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % host
+    writer.write(header.encode('utf-8'))
+    yield from writer.drain()
+    while True:
+        line = yield from reader.readline()
+        if line == b'\r\n':
+            break
+        print('%s header > %s' % (host, line.decode('utf-8').rstrip()))
+    # Ignore the body, close the socket
+    writer.close()
+
+loop = asyncio.get_event_loop()
+tasks = [wget(host) for host in ['www.sina.com.cn', 'www.sohu.com', 'www.163.com']]
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()
+```
+
+改写：
+
+```python
+import asyncio
+
+async def wget(host):
+    print('wget %s...' % host)
+    connect = asyncio.open_connection(host, 80)
+    reader, writer = await connect
+    header = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % host
+    writer.write(header.encode('utf-8'))
+    await writer.drain()
+    while True:
+        line = await reader.readline()
+        if line == b'\r\n':
+            break
+        print('%s header > %s' % (host, line.decode('utf-8').rstrip()))
+    # Ignore the body, close the socket
+    writer.close()
+
+loop = asyncio.get_event_loop()
+tasks = [wget(host) for host in ['www.sina.com.cn', 'www.sohu.com', 'www.163.com']]
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()
+```
+
+***
+
+## 协程
+
+几乎所有的异步框架都将异步编程模型简化：一次只允许处理一个事件。故而有关异步的讨论几乎都集中在了单线程内。如果某事件处理程序需要长时间执行，所有其他部分都会被阻塞。所以，一旦采取异步编程，每个异步调用必须"足够小"，不能耗时太久。如何拆分异步任务成了难题。
+
+- 程序下一步行为往往依赖上一步执行结果，如何知晓上次异步调用已完成并获取结果？
+- 回调（Callback）成了必然选择。那又需要面临“回调地狱”的折磨。
+- 同步代码改为异步代码，必然破坏代码结构。
+- 解决问题的逻辑也要转变，不再是一条路走到黑，需要精心安排异步任务。
+
+在事件循环+回调的基础上衍生出了基于协程的解决方案，代表作有 Tornado、Twisted、asyncio 等。异步编程最大的困难：异步任务何时执行完毕？接下来要对异步调用的返回结果做什么操作？程序得知道当前所处的状态，而且要将这个状态在不同的回调之间延续下去。任务之间得相互通知，每个任务得有自己的状态。那不就是很古老的编程技法：协作式多任务？然而要在单线程内做调度，啊哈，协程！每个协程具有自己的栈帧，当然能知道自己处于什么状态，协程之间可以协作那自然可以通知别的协程。
+
+不用回调的方式了，怎么知道异步调用的结果呢？先设计一个对象，异步调用执行完的时候，就把结果放在它里面。这种对象称之为Future对象。
+
+Future对象有一个`result`属性，用于存放未来的执行结果。还有个`set_result()`方法，是用于设置`result`的，并且会在给`result`绑定值以后运行事先给`future`添加的回调。回调是通过Future对象的`add_done_callback()`方法添加的。
+
+不要疑惑此处的`callback`，说好了不回调的嘛？难道忘了我们曾经说的要异步，必回调。不过也别急，此处的回调，和先前学到的回调，还真有点不一样。`add_done_callback()`不是写业务逻辑用的，此前的`callback`可就干的是业务逻辑呀。生成器，其内部写完了所有的业务逻辑。
+
+遵循一个编程规则：单一职责，每种角色各司其职，如果还有工作没有角色来做，那就创建一个角色去做。Task封装了`coro`对象，即初始化时传递给他的对象，被管理的任务是待执行的协程。我们知道生成器需要先调用`next()`迭代一次或者是先`send(None)`启动，遇到`yield`之后便暂停。Task 在初始化的时候就会执行一遍，`step()`内会调用生成器的`send()`方法，初始化第一次发送的是`None`就驱动了`coro`的第一次执行。这样Task, Future, Coroutine三者精妙地串联在了一起。
+
+初始化`Task`对象以后，把Coroutine给驱动到了`yied `就完事了，接下来怎么继续？
+
+该事件循环上场了。事件循环(Event Loop)驱动协程运行。事件循环就像心脏一般，只要它开始跳动，整个程序就会持续运行。
+
+因为协程能够保存自己的状态，知道自己的future是哪个。也不用关心到底要设置什么值，因为要设置什么值也是协程内安排的。这里的回调根本不关心是谁触发了这个事件，以及`future`是谁它也不关心。
+
+**生成器协程风格VS回调风格对比总结：**
+
+在回调风格中：
+
+- 存在链式回调（虽然示例中嵌套回调只有一层）
+- 请求和响应也不得不分为两个回调以至于破坏了同步代码那种结构
+- 程序员必须在回调之间维护必须的状态。
+
+而基于生成器协程的风格：
+
+- 无链式调用
+- 回调里只管给`future`设置值，不再关心业务逻辑
+- `loop` 内回调`callback()`不再关注是谁触发了事件
+- 已趋近于同步代码的结构
+- 无需程序员在多个协程之间维护状态
+
+`asyncio`是Python 3.4 试验性引入的异步I/O框架（PEP 3156），提供了基于协程做异步I/O编写单线程并发代码的基础设施。其核心组件有事件循环（Event Loop）、协程(Coroutine）、任务(Task)、未来对象(Future)以及其他一些扩充和辅助性质的模块。
+
+对比生成器版的协程，使用asyncio库后变化很大：
+
+- 没有了`yield` 或 `yield from`，而是`async/await`
+- 没有了自造的`loop()`，取而代之的是`asyncio.get_event_loop()`
+- 没有了显式的 `Future` 和 `Task`，`asyncio`已封装
+- 更少量的代码，更优雅的设计
+
+PS：
+
+**协程**是计算机程序的一类组件，推广了非抢先多任务的子程序，允许执行被挂起与被恢复。是非抢占式的多任务子例程的概括，可以允许有多个入口点在例程中确定的位置来控制程序的暂停与恢复执行。相对子例程而言，协程更为一般和灵活。协程更适合于用来实现彼此熟悉的程序组件，如合作式多任务、异常处理、事件循环、迭代器、无限列表和管道。 
+
+**子程序**是一个大型程序中的某部分代码，由一个或多个语句块组成。它负责完成某项特定任务，而且相较于其他代码，具备相对的独立性。子程序（subroutine）是一个概括性的术语，子程序（subroutine）是所有高端程序所称。它经常被使用在汇编语言层级上。子程序的主体（body）是一个代码区块，当它被调用时就会进入运行。
+
+**协程VS子程序**：
+
+子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次。
+
+协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。协程的起始处是第一个入口点，在协程里，返回点之后是接下来的入口点。子例程的生命期遵循后进先出（最后一个被调用的子例程最先返回）；相反，协程的生命期完全由他们的使用的需要决定。 
+
+因为相对于子例程，协程可以有多个入口和出口点，可以用协程来实现任何的子例程。事实上，正如Knuth所说：“子例程是协程的特例。”
+
+每当子例程被调用时，执行从被调用子例程的起始处开始；然而，接下来的每次协程被调用时，从协程返回（或yield）的位置接着执行。
+
+因为子例程只返回一次，要返回多个值就要通过集合的形式。这在有些语言，如Forth里很方便；而其他语言，如C，只允许单一的返回值，所以就需要引用一个集合。相反地，因为协程可以返回多次，返回多个值只需要在后继的协程调用中返回附加的值即可。在后继调用中返回附加值的协程常被称为产生器。
+
+子例程容易实现于堆栈之上，因为子例程将调用的其他子例程作为下级。相反地，协程对等地调用其他协程，最好的实现是用continuations（由有垃圾回收的堆实现）以跟踪控制流程。 
+
+***
+
+## 异步
+
+清晰优雅的协程可以说实现异步的最优方案之一。
+
+***
+
+参考：
+
+https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001432090171191d05dae6e129940518d1d6cf6eeaaa969000
+
+https://zhuanlan.zhihu.com/p/25228075
+
+https://ialloc.org/blog/into-python3-asyncio/
+
+http://aju.space/2017/07/31/Drive-into-python-asyncio-programming-part-1.html
