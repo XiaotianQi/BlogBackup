@@ -1,5 +1,3 @@
-#### **XML**
-
 XML 指可扩展标记语言(eXtensible Markup Language)，被设计用来结构化、存储以及传输数据，而不是显示数据。XML 语言没有预定义的标签，允许定义标签和文档结构。区别于，HTML 中使用的标签都是预定义的。XML 不会替代 HTML，而是对 HTML 的补充。
 
 * XML 树结构
@@ -44,9 +42,7 @@ XML 文档必须包含根元素。该元素是所有其他元素的父元素。�
 </collection>
 ```
 
-***
-
-#### **解析 XML 的方法**
+解析 XML 的方法
 
 * DOM
 
@@ -60,9 +56,17 @@ SAX 解析是通过流模式在解析 XML 的过程中触发对应的事件，�
 
 一个轻量级、Pythonic的API，同时还有一个高效的C语言实现，即xml.etree.cElementTree。与DOM相比，ET的速度更快，API使用更直接、方便。与SAX相比，ET.iterparse函数同样提供了按需解析的功能，不会一次性在内存中读入整个文档。
 
+* lxml
+
+这个lxml和xml.etree.ElementTree两个的操作方式看起来差不多。xml.etree.ElementTree也是读写xml文档的一种方式。lxml要更好一些，使用更简洁。解析xml的时候，自动处理各种编码问题。而且它天生支持 XPath 1.0、XSLT 1.0、定制元素类。不过，lxml不是Python自带的标准库。需要自己安装，如下方式安装：
+
+```
+pip install lxml
+```
+
 ***
 
-#### **DOM(Document Object Model)**
+## DOM
 
 DOM（Document Object Model）定义了一个访问 XML 的标准方式。
 
@@ -143,7 +147,7 @@ Description: A schientific fiction
 
 ***
 
-#### **SAX(simple API for XML)**
+## SAX
 
 python 标准库包含 SAX 解析器，SAX 用事件驱动模型，通过在解析XML的过程中触发一个个的事件并调用用户定义的回调函数来处理XML文件。SAX 是一种基于事件驱动的 API。
 
@@ -258,7 +262,7 @@ Description: A schientific fiction
 
 ***
 
-#### **ElementTree**
+## ElementTree
 
 ET 模块可以归纳为三个部分：```ElementTree``` 类，```Element``` 类以及一些操作 XML 的函数。ElementTree 表示整个 XML 树，Element 表示树上的单个节点。操作整个 XML 文档时使用 ElementTree 类。操作 XML 元素时使用 Element 类。Element是一个灵活的容器对象，在内存中存储层次化的数据结构。
 
@@ -373,3 +377,27 @@ tree.write('movies_new.xml')
 <studio>XX</studio></movie>
 </collection>
 ```
+
+***
+
+## lxml
+
+关于第三方包 lxml，以在爬虫篇记录。
+
+```python
+from lxml import etree
+
+# xml_text = '<xml><head></head><body></body></xml>'
+# xml = etree.fromstring(xml_text)  # 解析xml的字符串
+
+xml = etree.parse('movies.xml') # 读取test.xml文件
+root = xml.getroot()            # 获取根节点
+ 
+for child in root:
+    if child.tag == "movie":
+        print("*** movie ***")
+        print("Title:", child.attrib['title'])
+    for sub in child:
+         print(sub.tag.capitalize(),":",sub.text)
+```
+
