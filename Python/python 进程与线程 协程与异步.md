@@ -6,7 +6,7 @@
 
 - **进程**：操作系统资源分配的最小单位。 每个进程有独立的内存空间，互不干扰，创建进程需要创建或者拷贝进程空间，占用很多资源，进程切换需要内核切换上下文
 - **线程**：操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。同一个进程内，线程共享进程空间的任务单位，但有各自的调用栈（call stack），自己的寄存器环境（register context），自己的线程本地存储（thread-local storage）。另外，线程是进程中的一个实体，是被系统独立调度和分派的基本单位，线程自己不独立拥有系统资源，但它可与同属一个进程的其它线程共享该进程所拥有的全部资源。每一个应用程序都至少有一个进程和一个线程。线程切换需要内核切换上下文。
-- **协程**：是计算机程序的一类组件，推广了非抢先多任务的子程序，允许执行被挂起与被恢复。是非抢占式的多任务子例程的概括，可以允许有多个入口点在例程中确定的位置来控制程序的暂停与恢复执行。通过编程方法态实现，协程切换任务由应用层面实现，开销很小。同个调度器下的协程应该是在同一个线程内。
+- **协程**：是计算机程序的一类组件，推广了非抢先多任务的子程序，允许执行被挂起与被恢复。是非抢占式的多任务子例程的概括，可以允许有多个入口点在例程中确定的位置来控制程序的暂停与恢复执行。通过编程方法态实现，协程切换任务由应用层面实现，开销很小。同个调度器下的协程应该是在同一个线程内。协同运行的例程，它是比是线程（thread）更细量级的用户态线程，特点是允许用户的主动调用和主动退出，挂起当前的例程然后返回值或去执行其他任务，接着返回原来停下的点继续执行。
 
 ***
 
@@ -145,11 +145,22 @@ def main():
 - 传入委派生成器的异常，除了 `GeneratorExit` 之外都传给子生成器的 `throw()` 方法。如果调用 `throw()` 方法时抛出了 `StopIteration` 异常，委派生成器恢复运行。 `StopIteration` 之外的异 常会向上冒泡，传给委派生成器。
 - 如果把 `GeneratorExit` 异常传入委派生成器，或者在委派生成器上调用 `close()` 方法，那么（委派 生成器）调用子生成器的 `close()` 方法（如果子生成器提供了该方法的话）。如果子生成器的 `close()` 方法导致异常抛出，那么异常会向上冒泡，传给委派生成器。如果子生成器的 `close()` 方法 正常执行的话，委派生成器随后向上抛出 `GeneratorExit` 异常。
 
+### Coroutine与Generator
+
+最重要的区别：
+
+- generator总是生成值，一般是迭代的序列
+- coroutine关注的是消耗值，是数据(data)的消费者
+- coroutine不会与迭代操作关联，而generator会
+- coroutine强调协同控制程序流，generator强调保存状态和产生数据
+
+相似的是，它们都是不用return来实现重复调用的函数/对象，都用到了yield(中断/恢复)的方式来实现。
+
 ***
 
 ## 原生协程
 
-Python 3.5 又增加了用于创建原生协程的句法结构（见下面） `async def` ，以便从句法上和基于生成器的协程进行区分。很多人仍然弄不明白生成器和协程的联系与区别，也弄不明白`yield` 和 `yield from` 的区别。这种混乱的状态也违背Python之禅的一些准则。
+用yield from容易在表示协程和生成器中混淆，没有良好的语义性，所以在Python 3.5推出了更新的async/await表达式来作为协程的语法，以便从句法上和基于生成器的协程进行区分。很多人仍然弄不明白生成器和协程的联系与区别，也弄不明白`yield` 和 `yield from` 的区别。这种混乱的状态也违背Python之禅的一些准则。
 
 同时，为了让两种生成器可以互相操作，Python 3.5 还提供了 `types.coroutine`装饰器函数对基于生成器的协程进行了包装。打算交给 *asyncio* 处理基于生成器的协程 **最好** 使用 `asyncio.coroutine` （Python 3.4）或者`types.coroutine` （Python 3.5）进行装饰，这样可以把协程函数凸显出来，也有助于调试
 
@@ -176,6 +187,30 @@ Python 3.5 又增加了用于创建原生协程的句法结构（见下面） `a
 - 普通生成器函数内部不能使用 `yield from 原生协程` 句法。
 - 基于生成器的协程函数（代码用于 *asyncio* 时，需用 `asyncio.coroutine` ）内部可以使用 `yield from 原生协程` 句法。
 - `inspect.isgenerator()` 函数和 `inspect.isgeneratorfunction()` 函数作用于原生协程时，返回 `False` 。
+
+下面观察一个asyncio中Future的例子：
+
+```python
+import asyncio
+
+future = asyncio.Future()
+
+async def coro1():
+    await asyncio.sleep(1)
+    future.set_result('data')
+
+async def coro2():
+    print(await future)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait([
+    coro1(), 
+    coro2()
+]))
+loop.close()
+```
+
+两个协程在在事件循环中，协程coro1在执行第一句后挂起自身切到asyncio.sleep，而协程coro2一直等待future的结果，让出事件循环，计时器结束后coro1执行了第二句设置了future的值，被挂起的coro2恢复执行，打印出future的结果'data'。
 
 用`asyncio`的异步网络连接来获取sina、sohu和163的网站首页：
 
@@ -304,9 +339,36 @@ PS：
 
 ***
 
+## 事件驱动
+
+```python
+import asyncio
+
+async def compute(x, y):
+    print("Compute %s + %s ..." % (x, y))
+    await asyncio.sleep(1.0)
+    return x + y
+
+async def print_sum(x, y):
+    result = await compute(x, y)
+    print("%s + %s = %s" % (x, y, result))
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(print_sum(1, 2))
+loop.close()
+```
+
+
+
+![](https://pic3.zhimg.com/80/v2-9c313f71f5fae011851541122ff7249a_hd.png)
+
+当事件循环开始运行时，它会在Task中寻找coroutine来执行调度，因为事件循环注册了*print_sum()*，因此*print_sum()*被调用，执行*result = await compute(x, y)*这条语句（等同于*result = yield from compute(x, y)*），因为*compute()*自身就是一个coroutine，因此*print_sum()*这个协程就会暂时被挂起，*compute()*被加入到事件循环中，程序流执行*compute()*中的print语句，打印”Compute %s + %s …”，然后执行了*await asyncio.sleep(1.0)*，因为*asyncio.sleep()*也是一个coroutine，接着*compute()*就会被挂起，等待计时器读秒，在这1秒的过程中，事件循环会在队列中查询可以被调度的coroutine，而因为此前*print_sum()*与*compute()*都被挂起了，因此事件循环会停下来等待协程的调度，当计时器读秒结束后，程序流便会返回到*compute()*中执行return语句，结果会返回到*print_sum()*中的result中，最后打印result，事件队列中没有可以调度的任务了，此时*loop.close()*把事件队列关闭，程序结束。
+
+***
+
 ## 异步
 
-清晰优雅的协程可以说实现异步的最优方案之一。
+清晰优雅的协程可以说实现异步的最优方案之一。**事件驱动**模型就是异步编程的重中之重。
 
 ***
 
@@ -319,3 +381,5 @@ https://zhuanlan.zhihu.com/p/25228075
 https://ialloc.org/blog/into-python3-asyncio/
 
 http://aju.space/2017/07/31/Drive-into-python-asyncio-programming-part-1.html
+
+https://zhuanlan.zhihu.com/p/25228075
