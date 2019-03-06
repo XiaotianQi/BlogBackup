@@ -62,13 +62,13 @@ Out[4]: True
 
 `Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。
 
+迭代器是单向的，一旦用完，就不会再收到任何输出。
+
 **可迭代的对象和迭代器之间的关系：**
 
 *  Python 从可迭代的对象中获取迭代器
 * 凡是可作用于for循环的对象都是可迭代类型
 * 凡是可作用于next()函数的对象都是迭代器类型
-
-
 
 list、dict、str等是可迭代的但不是迭代器，因为next()函数无法调用它们。可以通过iter()函数将它们转换成迭代器。Python的for循环本质上就是通过不断调用next()函数实现的
 
@@ -425,7 +425,185 @@ f
 
 ***
 
-## 等差数列生成器
+## 示例
+
+### map()
+
+使用 `map` 函数，可以处理迭代器中的每一个项，以便生成新的迭代器。接受一个迭代器并生成一个派生迭代器。
+
+```python
+In [1]: l = range(10)
+
+In [2]: r = map(str, l)
+
+In [3]: list(r)
+Out[3]: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+```
+
+### 降维
+
+不想将一个迭代器转换为另一个迭代器，而只是想通过迭代器来计算一个值。
+
+```text
+functools.reduce(function, iterable[, initializer])
+
+Apply function of two arguments cumulatively to the items of sequence, from left to right, so as to reduce the sequence to a single value. For example, reduce(lambda x, y: x+y, [1, 2, 3, 4, 5]) calculates ((((1+2)+3)+4)+5). The left argument, x, is the accumulated value and the right argument, y, is the update value from the sequence. If the optional initializer is present, it is placed before the items of the sequence in the calculation, and serves as a default when the sequence is empty. If initializer is not given and sequence contains only one item, the first item is returned.
+```
+
+`map` 接受一个迭代器并生成一个派生迭代器。`reduce`接受一个迭代器并返回由所有项派生的单个值。这些概念共同构成一种处理大量数据的强大方法。
+
+```text
+str.join(sequence)
+
+返回通过指定字符连接序列中元素后生成的新字符串。
+```
+
+```python
+In [8]: strings = (chr(ord('a')+i) for i in range(10))
+
+In [9]: '-'.join(strings)
+Out[9]: 'a-b-c-d-e-f-g-h-i-j'
+```
+
+### 过滤
+
+```bash
+In [15]: not_by2or3 = ( i for i in range(20) if math.gcd(i, 2) == 1 and math.gcd(i, 3)=
+    ...: = 1)
+
+In [16]: list(not_by2or3)
+Out[16]: [1, 5, 7, 11, 13, 17, 19]
+```
+
+或者使用filter()函数
+
+```bash
+In [17]: def not_by2or3(n):
+    ...:     return math.gcd(n, 2)==1 and math.gcd(n, 3)==1
+    ...:
+
+In [18]: list(filter(not_by2or3, range(20)))
+Out[18]: [1, 5, 7, 11, 13, 17, 19]
+
+In [19]: list(filter(lambda x: math.gcd(x, 2)==1 and math.gcd(x, 3)==1, range(20)))
+Out[19]: [1, 5, 7, 11, 13, 17, 19]
+```
+
+### 连接一系列迭代器
+
+```text
+itertools.chain(*iterables)
+
+Make an iterator that returns elements from the first iterable until it is exhausted, then proceeds to the next iterable, until all of the iterables are exhausted. Used for treating consecutive sequences as a single sequence.
+
+chain('ABC', 'DEF') --> A B C D E F
+```
+
+```bash
+In [20]: import itertools
+
+In [21]: it = itertools.chain(range(5), range(5, 0, -1), range(5))
+
+In [22]: list(it)
+Out[22]: [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4]
+
+In [23]: list_of_iters = [range(5), range(5, 0, -1), range(5)]
+
+In [24]: it = itertools.chain(*list_of_iters)
+
+In [25]: list(it)
+Out[25]: [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4]
+```
+
+### 无限迭代器
+
+```python
+def zigzag_iters(period): 
+    while True: 
+        yield range(period)
+        yield range(period, 0, -1)
+```
+
+```bash
+In [26]: def zigzag_iters(period):
+    ...:     while True:
+    ...:         yield range(period)
+    ...:         yield range(period, 0, -1)
+    ...:
+
+In [27]: it = zigzag_iters(2)
+
+In [28]: next(it)
+Out[28]: range(0, 2)
+
+In [29]: next(it)
+Out[29]: range(2, 0, -1)
+
+In [30]: next(it)
+Out[30]: range(0, 2)
+
+In [31]: next(it)
+Out[31]: range(2, 0, -1)
+```
+
+如果继续输入 `next(it)`，将继续在两个输出范围之间反复循环，因为 `while True`会实现无限循环，其内部没有代码可用于中断循环的执行。此生成器持续处于暂挂和恢复状态，直到 Python进程（在此例中为交互式解释器）终止。或者，可以对任何生成器对象使用 `close()`方法来结束它，而无论它在何处执行。
+
+无限迭代器实际上是一个有用的概念。但是，必须知道要尝试通过此类迭代器的内容构建任何集合的操作。
+
+### 级联迭代器
+
+```python
+def zigzag(period): 
+    while True: 
+        for n in range(period): 
+            yield n
+        for n in range(period, 0, -1): 
+            yield n
+```
+
+```bash
+In [35]: def zigzag(period):
+    ...:     while True:
+    ...:         for n in range(period):
+    ...:             yield n
+    ...:         for n in range(period, 0, -1):
+    ...:             yield n
+    ...:
+
+In [36]: it = zigzag(2)
+
+In [37]: next(it)
+Out[37]: 0
+
+In [38]: next(it)
+Out[38]: 1
+
+In [39]: next(it)
+Out[39]: 2
+
+In [40]: next(it)
+Out[40]: 1
+
+In [41]: next(it)
+Out[41]: 0
+
+In [42]: next(it)
+Out[42]: 1
+```
+
+这是另一种常见模式，其中外部迭代器是一个或多个内部迭代器的级联形式。Python 为它提供了标准语法，即
+`yield from` 语句，您可以在下面重写的功能相同的 `zigzag` 中看到此语句。
+
+```python
+def zigzag(period): 
+    while True: 
+        yield from range(period)
+        yield from range(period, 0, -1)
+```
+
+如果想要一个迭代器完整提供另一个迭代器，请考虑使用`yield from`。在此例中，将完整使用所提供的迭代器。如果它是一个无限迭代器，那么外部迭代器也将是无限迭代器，并且无限地继续执行`yield from` 语句。
+
+### 等差数列生成器
 
 ```python
 class ArithmeticProgression:
@@ -454,6 +632,8 @@ def aritprog_gen(begin, step, end=None):
         index += 1
         result = begin + step * index
 ```
+
+
 
 ***
 
