@@ -215,7 +215,7 @@ Process-2 3
 0
 ```
 
-想要在进程之间进行数据共享可以使用`Queues`、`Array`和`Manager`这三个multiprocess模块提供的类。
+想要在进程之间进行数据传递可以使用`Queues`、`Array`和`Manager`这三个multiprocess模块提供的类。
 
 ### multiprocessing.Queue
 
