@@ -1,3 +1,5 @@
+依赖原生正则表达式的程序会更加难以维护！借助一些专门做这些事情的解析库，才能使程序变得清晰。
+
 ## 准备
 
 创建虚拟环境：
@@ -24,8 +26,6 @@ PS：虚拟环境包：
 
 * `virtualenv`
 * `virtualenvwrapper`（或者 `virtualenvwrapper-win`）
-
-
 
 ***
 
