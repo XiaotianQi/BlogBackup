@@ -54,6 +54,8 @@
 
 **tips**：
 
+元字符在未指定重复次数时，均只匹配一个字符。
+
 `\w` 在支持 ASCII 码的语言中，等价于 `[a-zA-Z0-9_]`。
 
 `\w` 在支持 Unicode 的语言中，例如 python。默认情况下，除了可以匹配 `[a-zA-Z0-9_]` 外，还可以匹配一些 Unicode 字符集，如汉字，全角数字等等。
@@ -94,10 +96,6 @@
 |{n,}|至少 n 次||
 |{n,m}|至少 n 次，但不多于m次||
 
-**tips**：
-
-元字符在未指定重复次数时，均只匹配一个字符。
-
 ***
 
 ### 匹配优先级
@@ -122,21 +120,14 @@ re 模块默认采用贪婪匹配，即输出匹配最长的子串。限定符�
 import re
 
 test_str = "Words, 你, words."
-regEx = re.compile(r'\w+')
-print(regEx.findall(test_str))
+regEx = re.compile(r'\w+')		
+print(regEx.findall(test_str))	# ['Words', '你', 'words']
 regEx = re.compile(r'\w+?')
-print(regEx.findall(test_str))
+print(regEx.findall(test_str))	# ['W', 'o', 'r', 'd', 's', '你', 'w', 'o', 'r', 'd', 's']
 regEx = re.compile(r'\w{1,2}')
-print(regEx.findall(test_str))
+print(regEx.findall(test_str))	# ['Wo', 'rd', 's', '你', 'wo', 'rd', 's']
 regEx = re.compile(r'\w{1,2}?')
-print(regEx.findall(test_str))
-
-
-输出结果：
-['Words', '你', 'words']
-['W', 'o', 'r', 'd', 's', '你', 'w', 'o', 'r', 'd', 's']
-['Wo', 'rd', 's', '你', 'wo', 'rd', 's']
-['W', 'o', 'r', 'd', 's', '你', 'w', 'o', 'r', 'd', 's']
+print(regEx.findall(test_str))	# ['W', 'o', 'r', 'd', 's', '你', 'w', 'o', 'r', 'd', 's']
 ```
 
 对于 `\w\d*\w` 与 `\w\d*?\w` 两个正则表达式，匹配过程基本一致，只不过就是 `\d*` 和 `\d*?` 匹配与回溯过程因优先级有所区别而已。对于 `\d*?` 来说，回溯和匹配是交替进行的。而 `\d*` 在最后一次成功匹配前，只记录回溯，匹配失败后，进行回溯。
@@ -206,7 +197,7 @@ print(regEx.findall(test))
 
 ***
 
-## 部分元字符解释
+## 部分字符解释
 
 ### 分支条件 `|`
 
@@ -298,12 +289,20 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 |`re.split(pattern, string[, maxsplit=0])`|按指定字符串分割|分割后的字符串列表|
 |`re.finditer(pattern, string,flags)`|将所有匹配到的项生成一个迭代器|所有匹配到的字符串组合成的迭代器|
 
-* `pattern`：正则表达式；
-* `string`：需要匹配的字符串；
-* `flags`：修饰符，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等；
-* `repl`：替换的字符串，也可作为一个函数；
-* `count`：模式匹配后替换的最大次数，默认0表示替换所有匹配。
-* `maxsplit`：最大分割次数。
+参数说明：
+
+```text
+- pattern：正则表达式；
+- string：需要匹配的字符串；
+- flags：修饰符，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等；
+- repl：替换的字符串，也可作为一个函数；
+- count：模式匹配后替换的最大次数，默认0表示替换所有匹配。
+- maxsplit：最大分割次数。
+```
+
+- `re.compile(pattern[, flags=0])`
+
+`re.compile()` 用于编译正则表达式，生成一个正则表达式 `Pattern` 对象，便于复用。该对象拥有一系列方法用于正则表达式匹配和替换。
 
 |修饰符|说明|
 |:-|:-|
@@ -313,12 +312,6 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 |`re.S`|使 `.` 匹配包括换行在内的所有字符|
 |`re.U`|根据Unicode字符集解析字符。这个标志影响 `\w`、`\W`、`\b`、`\B`|
 |`re.X`|该标志通过给予你更灵活的格式以便你将正则表达式写得更易于理解。|
-
-* `re.compile(pattern[, flags=0])`
-
-`re.compile()` 用于编译正则表达式，生成一个正则表达式 `Pattern` 对象，便于复用。该对象拥有一系列方法用于正则表达式匹配和替换。
-
-返回 `RegexObject` 对象。
 
 * `MatchObject` 可调用的方法
 
