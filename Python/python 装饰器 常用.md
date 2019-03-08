@@ -2,6 +2,28 @@
 
 ***
 
+## `@functools.wraps(wrapped[, assigned][, updated])`
+
+将装饰过的函数的特殊属性保留。函数是有几个特殊属性比如函数名，在被装饰后，函数名func会变成包装函数的名字wrapper，如果你希望使用反射，可能会导致意外的结果。这个装饰器可以解决这个问题。
+
+```python
+import time
+import functools
+ 
+def timeit(func):
+    @functools.wraps(func)
+    def wrapper():
+        start = time.clock()
+        func()
+        end =time.clock()
+        print 'used:', end - start
+    return wrapper
+```
+
+
+
+***
+
 ## `@property`
 
 `@property` 使方法像属性一样调用，并且提供了可读、可写、可删除的操作。
