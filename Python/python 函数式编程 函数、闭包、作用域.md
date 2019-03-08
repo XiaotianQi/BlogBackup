@@ -258,6 +258,72 @@ greet() function
 
 ***
 
+## 匿名函数
+
+```python
+lambda [parameter_list]: expression
+```
+
+返回函数对象。
+
+改为定义函数模式如下：
+
+```python
+def <lambda>(parameter_list):
+    return expression
+```
+
+字典排序：
+
+```python
+prices = {
+    'A': 45.23,
+    'B': 612.78,
+    'C': 205.55,
+    'D': 37.20,
+    'E': 10.75
+}
+
+prices = sorted(prices.items(), key=lambda x: x[1])
+print(prices)	# [('E', 10.75), ('D', 37.2), ('A', 45.23), ('C', 205.55), ('B', 612.78)]
+```
+
+跳转表(jump table)：
+
+```python
+lst = [
+    lambda x: x.__name__,
+    lambda x: x.__class__.__name__,
+    lambda x: type(x),
+    lambda x: repr(x)
+]
+
+for i in lst:
+    print(i(iter))
+```
+
+```bash
+In [33]: lst = [lambda x:x*i for i in range(10)]
+
+In [34]: lst
+Out[34]:
+[<function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>,
+ <function __main__.<listcomp>.<lambda>(x)>]
+
+In [35]: [i(1) for i in lst]
+Out[35]: [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+```
+
+***
+
 ## 作用域
 
 ### 概念与使用
@@ -417,7 +483,7 @@ for i in range(4):
 
 ### 概念与演示
 
-内部函数对外部函数作用域里变量的引用（非全局变量），则称内部函数为闭包。简而言之，闭包指延伸了作用域的函数，其中包含函数定义体中引用，但是不在定义体中定义的非全局变量。
+内部函数对外部函数作用域里变量的引用（非全局变量），则称内部函数为闭包。大部分情况下外部作用域指的是外部函数。 简而言之，闭包指延伸了作用域的函数，其中包含函数定义体中引用，但是不在定义体中定义的非全局变量。
 
 闭包(closure)和类(class)有相通之处，带有面向对象的封装思维。而面向对象编程正是为了更佳的可读性和更关键的可移植性。
 
@@ -580,4 +646,3 @@ print(line2(5))
 
 ***
 
-* 
