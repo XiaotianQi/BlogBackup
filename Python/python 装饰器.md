@@ -183,13 +183,13 @@ f1
 
 ```python
 # 认证函数
-def  auth(request, kargs):
+def auth(request, kargs):
     print("{}-{}认证成功！".format(request, kargs))
 # 日志函数
 def log(request, kargs):
     print("{}-{}日志添加成功".format(request, kargs))
 # 装饰器函数。接收两个参数，这两个参数应该是某个函数的名字。
-def Filter(auth_func,log_func):
+def wrapper_f(auth_func, log_func):
     # 第一层封装，f1函数实际上被传递给了main_fuc这个参数
     def outer(main_func):
         # 第二层封装，auth和log函数的参数值被传递到了这里
@@ -209,10 +209,10 @@ def Filter(auth_func,log_func):
 
         return wrapper
     return outer
-# 注意了，这里的装饰器函数有参数哦，它的意思是先执行filter函数
-# 然后将filter函数的返回值作为装饰器函数的名字返回到这里，所以，
-# 其实这里，Filter(auth,log) = outer , @Filter(auth,log) =  @outer
-@Filter(auth, log)
+# 注意了，这里的装饰器函数有参数哦，它的意思是先执行wrapper_f函数
+# 然后将wrapper_f函数的返回值作为装饰器函数的名字返回到这里，所以，
+# 其实这里，wrapper_f(auth,log) = outer , @wrapper_f(auth,log) =  @outer
+@wrapper_f(auth, log)
 def f1(name, age):
     print('f1:{}-{}'.format(name, age))
 

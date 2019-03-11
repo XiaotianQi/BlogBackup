@@ -1,6 +1,8 @@
-> 逗号分隔值（Comma-Separated Values，CSV，有时也称为字符分隔值，因为分隔字符也可以不是逗号），其文件以纯文本形式存储表格数据（数字和文本）。纯文本意味着该文件是一个字符序列，不含必须像二进制数字那样被解读的数据。CSV文件由任意数目的记录组成，记录间以某种换行符分隔；每条记录由字段组成，字段间的分隔符是其它字符或字符串，最常见的是逗号或制表符。
+逗号分隔值（Comma-Separated Values，CSV，有时也称为字符分隔值，因为分隔字符也可以不是逗号），其文件以纯文本形式存储表格数据（数字和文本）。纯文本意味着该文件是一个字符序列，不含必须像二进制数字那样被解读的数据。CSV文件由任意数目的记录组成，记录间以某种换行符分隔；每条记录由字段组成，字段间的分隔符是其它字符或字符串，最常见的是逗号或制表符。
 
-## `csv.reader()`
+## CSV 文件读取与写入
+
+### 读取
 
 ```python
 csv.reader(csvfile, dialect='excel', **fmtparams)
@@ -14,7 +16,7 @@ Return **a reader object** which will **iterate** over lines in the given csvfil
 
 ***
 
-## `csv.writer()`
+### 写入
 
 ```python
 csv.writer(csvfile, dialect='excel', **fmtparams)
@@ -24,15 +26,15 @@ Return **a writer object** responsible for converting the user’s data into del
 
 参数同 `csv.reader`。
 
-### `csvwriter.writerow(row)`
-
+```text
+csvwriter.writerow(row)
 Write the row parameter to the writer’s file object, formatted according to the current dialect.
 
-### `csvwriter.writerows(rows)`
-
+csvwriter.writerows(rows)
 Write all elements in rows (an iterable of row objects as described above) to the writer’s file object, formatted according to the current dialect.
+```
 
-***
+### 示例
 
 ```python
 import csv
@@ -41,12 +43,9 @@ def writeCsvFile(path, data, header=None, mode='w'):
     try:
         with open(path, mode, newline='') as csv_file:
             writer = csv.writer(csv_file, dialect='excel')
-
             if header is not None:
                 writer.writerow(header)
-
             writer.writerows(data)
-
             print("Successful! Path: %s." % path)
     except Exception as e:
         print("Error! Path: %s, Case: %s" % (path, e))
@@ -87,7 +86,9 @@ Successful! Path: testCSV.csv.
 
 ***
 
-## `csv.DictReader`
+## 字典
+
+### 读取
 
 ```python
 class csv.DictReader(f, fieldnames=None, restkey=None, restval=None, dialect='excel', *args, **kwds)
@@ -118,7 +119,7 @@ C 53.08 -0.25
 CAT 78.29 -0.23
 ```
 
-## `csv.DictWriter`
+### 写入
 
 ```python
 class csv.DictWriter(f, fieldnames, restval='', extrasaction='raise', dialect='excel', *args, **kwds)
@@ -180,21 +181,21 @@ with open('testCSV.csv', 'w', newline='') as csvfile:
 |`QUOTE_NONNUMERIC`|引用那些不是整数或浮点数的字段。当使用读取对象时, 如果输入的字段是没有引号的, 那么它们会被转换成浮点数。|
 |`QUOTE_NONE`|对所有的输出内容都不加引用，当使用读取对象时，引用字符看作是包含在每个字段的值里（但在正常情况下，它们被当成定界符而被去掉）。|
 
-### `csv.register_dialect(name[, dialect[, **fmtparams]])`
+```text
+csv.register_dialect(name[, dialect[, **fmtparams]])
+Associate dialect with name. name must be a string. The dialect can be specified either by passing a sub-class of Dialect, or by fmtparams keyword arguments, or both, with keyword arguments overriding parameters of the dialect.
 
-Associate dialect with name. **name must be a string**. The dialect can be specified either by passing a sub-class of Dialect, or by fmtparams keyword arguments, or both, with keyword arguments overriding parameters of the dialect.
+csv.get_dialect(name)
+获取已定义的 dialect。
 
-### `csv.get_dialect(name)`
+csv.unregister_dialect(name)
+注销自定义的 dialect。
 
-获取已定义的 `dialect`。
+csv.list_dialects()
+列出当前 csv 模块里所有的 dialect。
+```
 
-### `csv.unregister_dialect(name)`
-
-注销自定义的 `dialect`。
-
-### `csv.list_dialects()`
-  
-列出当前 `csv` 模块里所有的 `dialect`。
+示例：
 
 ```python
 import csv
@@ -304,3 +305,4 @@ Dialect: "unix"
 [CSV File Reading and Writing](https://docs.python.org/3.7/library/csv.html#id3)
 
 [csv — 逗号分隔值文件格式](https://pythoncaff.com/docs/pymotw/csv-comma-separated-value-files/125)
+

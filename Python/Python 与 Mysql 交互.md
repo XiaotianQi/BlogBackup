@@ -4,7 +4,6 @@ Python 与 MySQL 交互的基本流程如下图：
 
 <div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fpydcbbku2j20qr08474s.jpg" width = "550" height = "170" align=center />
 </div>
-
 ***
 
 ## 相关函数说明
@@ -35,7 +34,7 @@ connect = pymysql.connect("localhost", 3310, "root"，"xxx", "TESTDB", "utf8"
 
 | 方法 | 作用 |
 | ------ | :------- |
-| `cursor()` | 使用该连接，创建并返回游标 |
+| `.cursor()` | 使用该连接，创建并返回游标 |
 | `.commit()` | 提交当前事务 |
 | `.rollback()` | 回滚当前事务 |
 | `.close()` | 关闭连接 |
@@ -156,7 +155,6 @@ db.close()
 
 <div align="center"><img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fqe9fbas1uj20k4078t8z.jpg" width = "550" height = "170" align=center />
 </div>
-
 ***
 
 ## 添加数据
@@ -188,7 +186,6 @@ db.close()
 
 <div align="center"><img src="https://wx2.sinaimg.cn/mw690/af9e9c30ly1fqea19accsj20hc04mjrg.jpg" width = "550" height = "130" align=center />
 </div>
-
 ***
 
 ## 查询数据
@@ -252,7 +249,6 @@ db.close()
 
 <div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fqeiquwiqrj20hc09ojrt.jpg" width = "550" height = "250" align=center />
 </div>
-
 ***
 
 ## 删除数据

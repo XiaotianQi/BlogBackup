@@ -246,6 +246,37 @@ fh.addFilter(filter)
 ```python
 import logging
 
+# 创建一个logger
+logger = logging.getLogger('mylogger')
+logger.setLevel(logging.DEBUG)
+
+# 创建一个handler，用于写入日志文件
+fh = logging.FileHandler('test.log')
+fh.setLevel(logging.DEBUG)
+
+# 再创建一个handler，用于输出到控制台
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+
+# 定义handler的输出格式
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+sh.setFormatter(formatter)
+
+# 给logger添加handler
+logger.addHandler(fh)
+logger.addHandler(sh)
+
+# 记录一条日志
+logger.info('foorbar')  
+ 
+```
+
+
+
+```python
+import logging
+
 # FileHandler
 logging.basicConfig(filename='example.log',
                     format='%(asctime)s - %(name)s - %(levelname)-8s -%(module)s: %(message)s',

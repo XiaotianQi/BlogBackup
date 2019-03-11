@@ -86,6 +86,15 @@ f = open('test.txt','wb')   		# 注意多了个b
 f.write(b)							# 将变量b传给它，b是个bytes类型
 ```
 
+NOTE:
+
+如果读取文件不是unicode编码，就不能直接使用`r`模式，直接读会出现乱码。**只能先以'rb'参数读取二进制文件的方式读取进来，`f.read()`之后再解码**。
+
+```python
+with open(filename. 'rb') as f:
+    f = f.decode('该文件的编码方式')
+```
+
 ***
 
 ## 文件对象方法
@@ -340,6 +349,31 @@ with fileinput.input(files=files_g) as f:
         pass
     print(f.lineno())
 ```
+
+***
+
+## chardet 第三方包
+
+检测编码的功能。
+
+```text
+chardet.detect()
+返回字典，其中confidence是检测精确度，encoding是编码形式
+```
+
+```python
+import chardet
+
+text_b = b'text strings'
+r = chardet.detect(text_b)
+print(r)	# {'encoding': 'ascii', 'confidence': 1.0, 'language': ''}
+
+text_gbk = '离离原上草，一岁一枯荣'.encode('gbk')
+r = chardet.detect(text_gbk)
+print(r)	# {'encoding': 'GB2312', 'confidence': 0.7407407407407407, 'language': 'Chinese'}
+```
+
+
 
 ***
 
