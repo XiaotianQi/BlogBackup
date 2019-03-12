@@ -189,6 +189,14 @@ Out[5]: '===functools==='
 |p|指针(用十六进制打印值的内存地址)|
 |n|存储输出字符的数量放进参数列表的下一个变量中|
 
+**格式转化**
+
+```text
+!s、!a、!r
+
+一个对象本身不是str，ascii，repr格式，可以使用!s、!a、!r，将其转成``str，ascii，repr
+```
+
 ```python
 # name
 print("{a}{b}".format(a="1",b="2"))
@@ -302,3 +310,31 @@ print(a('Bob', 18))
 ```bash
 is guy is Bob,is 18 old.
 ```
+
+* 使用模版
+
+```python
+TEMPLATE = '''
+User: "{name}"
+
+  age    = {ag!r:<2}    height = {he!r:<3}
+  sex    = {se!r:<2}    weight = {we!r:<3}    
+
+'''
+
+print(TEMPLATE.format(
+        name = 'Joy',
+        ag = 15,
+        se = 1,
+        he = 175,
+        we = 55,
+    ))
+```
+
+```bash
+User: "Joy"
+
+  age    = 15    height = 175
+  sex    = 1     weight = 55
+```
+

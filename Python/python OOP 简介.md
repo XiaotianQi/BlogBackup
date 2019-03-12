@@ -6,7 +6,7 @@
 
 ## 概述
 
-面向对象最重要的概念就是类（**Class**）和实例（**Instance**）。类是一种数据类型。类与实例之间的关系，类似生物中种属关系。
+面向对象最重要的概念就是类（**Class**）和实例（**Instance**）。类是一种数据类型。类与实例之间的关系，类似生物中种属关系。类是创建实例的模板，而实例则是一个具体的对象，各个实例拥有的数据都互相独立，互不影响。方法就是与实例绑定的函数，和普通函数不同，方法可以直接访问实例的数据。通过在实例上调用方法，我们就直接操作了对象内部的数据，但无需知道方法内部的实现细节。
 
 ### 一个简单的面向对象的程序
 
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
 仅定义了 `__id`，但打印结果中，它的名字改为了 `_Animals__id`。不能直接访问 `__id` 是因为 Python 解释器对外把 `__id` 变量改成了 `_Animals__id`，所以，仍然可以通过 `_Animals__id` 来访问 `__id` 变量。
 
-#### 类变量与实例变量
+#### 类变量VS实例变量
 
 - Python是动态语言，根据类创建的实例可以任意绑定属性给实例，即使绑定的属性没有在类属性中定义。
 
@@ -200,7 +200,7 @@ cats.test='test'
 ```
 
 - 若类本身需要绑定一个属性，可以直接在类中定义属性，即类属性。类属性虽然归类所有，但类的所有属性实例都可以访问。
-- 不要把实例属性和类属性使用相同的名字，相同名称的实例属性将屏蔽掉类属性，实例属性优先级比类属性高。
+- 不要把实例属性和类属性使用相同的名字，相同名称的实例属性将屏蔽掉类属性，实例属性优先级比类属性高。但是当删除实例属性后，再使用相同的名称，访问到的将是类属性。
 
 ------
 
@@ -421,19 +421,79 @@ print_twice(siamese)
 
 ## 多态和鸭子类型
 
-> **Is it same like Polymorphism???** 
->
-> No.
->
->  **Polymorphism** means a method of a class can do different things in subclasses.  For example: a class Animal can have a method talk () and the subclasses.  Dog and Cat of Animal can let the method talk () make different sounds.  
->
->  **Duck typing** means code will simply accept any object that has a particular method.  For example: animal.quack(). If the given object animal has the method we  want to call then we're good (no additional type requirements needed).  It does not matter whether animal is actually a Duck.   
->
-> Duck  Typing and Polymorphism are simply separate features that a programming  language may have. There are programming languages which have  polymorphism but that do not have duck typing (such as Java). There are  also languages that have polymorphism and duck typing (such as Python).
+**Is it same like Polymorphism???** 
 
-------
+No.
 
-OOP 的特点就是 数据封装和归一化，由此产生 继承和多态。目的是对 数据和逻辑 封装，提供用户简单的接口。
+**Polymorphism** means a method of a class can do different things in subclasses.  For example: a class Animal can have a method talk () and the subclasses.  Dog and Cat of Animal can let the method talk () make different sounds.  
+
+**Duck typing** means code will simply accept any object that has a particular method.  For example: animal.quack(). If the given object animal has the method we  want to call then we're good (no additional type requirements needed).  It does not matter whether animal is actually a Duck.   
+
+Duck  Typing and Polymorphism are simply separate features that a programming  language may have. There are programming languages which have  polymorphism but that do not have duck typing (such as Java). There are  also languages that have polymorphism and duck typing (such as Python).
+
+考虑用于一个使用鸭子类型的语言的以下伪代码： 
+
+```text
+function calculate(a, b, c) => return (a+b)*c
+
+example1 = calculate (1, 2, 3)
+example2 = calculate ([1, 2, 3], [4, 5, 6], 2)
+example3 = calculate ('apples ', 'and oranges, ', 3)
+
+print to_string example1
+print to_string example2
+print to_string example3
+```
+
+在样例中，每次对`calculate`的调用都使用的对象（数字、列表和字符串）在继承关系中没有联系。只要对象支持“+”和“*”方法，操作就能成功。例如，翻译成jpython语言，运行结果应该是： 
+
+```pyton
+9
+[1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+apples and oranges, apples and oranges, apples and oranges, 
+```
+
+鸭子类型在**不使用继承**的情况下使用了多态，它并不要求严格的继承体系。
+
+就`in_the_forest`函数而言，对象是一个鸭子：
+
+```python
+class Duck:
+
+    def quack(self):
+        print("這鴨子在呱呱叫")
+
+    def feathers(self):
+        print("這鴨子擁有白色與灰色羽毛")
+
+
+class Person:
+    
+    def quack(self):
+        print("這人正在模仿鴨子")
+
+    def feathers(self):
+        print("這人在地上拿起1根羽毛然後給其他人看")
+        
+
+def in_the_forest(duck):
+    duck.quack()
+    duck.feathers()
+
+def game():
+    donald = Duck()
+    john = Person()
+    in_the_forest(donald)
+    in_the_forest(john)
+
+game()
+```
+
+“换言之，不要检查它**是不是**一个鸭子：检查它**像不像**一个鸭子地**叫**，等等。取决于你需要哪个像鸭子的行为的子集来使用语言。”---Alex Martelli
+
+***
+
+综上，OOP 的特点就是 数据封装和归一化，由此产生 继承和多态。目的是对 数据和逻辑 封装，提供用户简单的接口。
 
 ------
 
@@ -512,3 +572,5 @@ Animals:100
 [廖雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431865288798deef438d865e4c2985acff7e9fad15e3000)
 
 [What is duck typing?](https://www.quora.com/What-is-duck-typing)
+
+https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B

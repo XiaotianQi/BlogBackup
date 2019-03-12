@@ -2,10 +2,39 @@
 
 ## pip 使用相关
 
-```bash
+```text
+pip list --outdate	# 检查更新
+
+pip install --upgrade xxx	# 升级
+
+pip uninstall xx	# 卸载
+
 pip freeze > d:\requirements.txt	# 记录所有第三方模块
 
 pip install -r requirements.txt		# 通过第三方模块安装记录安装模块
+
+pip install xxx -i http://pypi.douban.com/simple/ # 使用豆瓣源安装
+```
+
+pip升级所有的已安装Python包：
+
+```text
+pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
+
+pip freeze --local : 列出所有本地安装的python包
+grep -v '^-e' : 过滤掉以编辑模式安装的python包
+cut -d = -f 1 : 剪切取得安装包名列表
+xargs -n1 pip install -U : 把前面得到的软件包列表以参数形式传给pip，进行安装升级，xargs选项-n1是防止一个软件包安装失败后终止安装后面的软件包
+```
+
+用python代码来执行升级：
+
+```python
+import pip
+from subprocess import call
+
+for dist in pip.get_installed_distributions():
+    call("pip install --upgrade " + dist.project_name, shell=True)
 ```
 
 ***

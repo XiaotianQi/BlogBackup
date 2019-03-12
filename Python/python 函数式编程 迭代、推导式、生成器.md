@@ -8,12 +8,38 @@
 
 当使用一个循环来遍历时，这个过程本身就叫迭代。
 
-```text
-有魔法函数__iter__则为可迭代
-有魔法函数__iter__、__next__则为迭代器
+### 可迭代对象(Iterable)
+
+Python 中任意的对象，只要它定义了可以返回一个迭代器的 `__iter__` 方法，或者定义了可以支持下标索引的 `__getitem__`方法，那么它就是一个可迭代对象。
+
+可迭代的数据类型大致一下两类：
+
+* 内置数据类型：`list`、`tuple`、`dict`、`set`、`str`；
+* `generator`：包括生成器和带 `yield` 的 `generator function`。
+
+可以通过collections模块的Iterable类型来判断一个对象是否可迭代：
+
+```python
+In [2]: from collections.abc import Iterable
+
+In [3]: isinstance('abc', Iterable)
+Out[3]: True
+
+In [4]: isinstance([1,2,3], Iterable)
+Out[4]: True
 ```
 
-### iter函数
+### 迭代器(Iterator)
+
+迭代器是访问集合内元素的一种方式。迭代器对象从集合的第一个元素开始访问，直到所有的元素都被访问一遍后结束。 迭代器是单向的，一旦用完，就不会再收到任何输出。
+
+迭代器只能往后遍历不能回溯，不像列表，随时可以取后面的数据，也可以返回头取前面的数据。迭代器通常要实现两个基本的方法：`iter()` 和 `next()`。同时定义了 `__next__` 和 `__iter__` 两个方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
+
+`Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。
+
+NOTE：**迭代器只能迭代一次**
+
+### iter()函数
 
 `iter(object[, sentinel])`
 
@@ -35,42 +61,15 @@ with open('mydata.txt') as fp:
 - 如果没有实现 `__iter__` 方法，但是实现了 `__getitem__` 方法，Python 会创建一个迭代器，尝试按顺序（从索引 `0` 开始）获取元素。
 - 如果尝试失败，Python 抛出 `TypeError` 异常，通常会提示“`C object is not iterable`”其中 `C` 是 `x`所属的类。
 
-### 可迭代(Iterable)
+for item in Iterable 循环的本质就是先通过iter()函数获取可迭代对象Iterable的迭代器，然后对获取到的迭代器不断调用next()方法来获取下一个值并将其赋值给item，当遇到StopIteration的异常后循环结束。
 
-Python 中任意的对象，只要它定义了可以返回一个迭代器的 `__iter__` 方法，或者定义了可以支持下标索引的 `__getitem__`方法，那么它就是一个可迭代对象。
-
-可迭代的数据类型大致一下两类：
-
-* 内置数据类型：`list`、`tuple`、`dict`、`set`、`str`；
-* `generator`：包括生成器和带 `yield` 的 `generator function`。
-
-可以通过collections模块的Iterable类型来判断一个对象是否可迭代：
-
-```python
-In [3]: isinstance('abc', Iterable)
-Out[3]: True
-
-In [4]: isinstance([1,2,3], Iterable)
-Out[4]: True
-```
-
-***
-
-### 迭代器(Iterator)
-
-迭代器是访问集合内元素的一种方式。迭代器对象从集合的第一个元素开始访问，直到所有的元素都被访问一遍后结束。 迭代器是单向的，一旦用完，就不会再收到任何输出。
-
-迭代器只能往后遍历不能回溯，不像列表，随时可以取后面的数据，也可以返回头取前面的数据。迭代器通常要实现两个基本的方法：`iter()` 和 `next()`。同时定义了 `__next__` 和 `__iter__` 两个方法，它就是一个迭代器。可以被 `next()` 函数调用并不断返回下一个值。
-
-`Iterator` 对象表示的是一个数据流，不能提前预知其的长度，只能不断通过 `next()` 函数实现按需计算得到下一个数据，所以 `Iterator` 的计算是惰性的，只有在需要返回下一个数据时它才会计算。`Iterator` 可以表示一个无限大的数据流，例如全体自然数。
-
-**可迭代的对象和迭代器之间的关系：**
+### 可迭代对象VS迭代器
 
 *  Python 从可迭代的对象中获取迭代器
 * 凡是可作用于for循环的对象都是可迭代类型
 * 凡是可作用于next()函数的对象都是迭代器类型
 
-list、dict、str等是可迭代的但不是迭代器，因为next()函数无法调用它们。可以通过iter()函数将它们转换成迭代器。Python的for循环本质上就是通过不断调用next()函数实现的
+list、dict、str等是可迭代的但不是迭代器，因为它们**无法调用next()函数**。可以通过iter()函数将它们转换成迭代器。Python的for循环本质上就是通过不断调用next()函数实现的
 
 `list`、`dict`、`str` 虽然是 `Iterable`，却不是 `Iterator`。不过可以通过 `iter()` 函数获得一个 `Iterator` 对象。
 
@@ -84,12 +83,18 @@ In [3]: isinstance(iter([]), Iterator)
 Out[3]: True
 ```
 
+从类的角度:
+
+* 有魔法函数`__iter__`则为可迭代
+* 有魔法函数`__iter__`、`__next__`则为迭代器
+
 迭代器也不是线程安全的，在多线程环境中对可变集合使用迭代器是一个危险的操作。但如果小心谨慎，或者干脆贯彻函数式思想坚持使用不可变的集合，那这也不是什么大问题。 
 
 使用迭代器的循环可以避开索引，但有时候我们还是需要索引来进行一些操作的。这时候内建函数enumerate就派上用场咯，它能在iter函数的结果前加上索引，以元组返回，用起来就像这样：
 
 ```python
-`for` `idx, ele ``in` `enumerate``(lst):``    ``print` `idx, ele`
+for idx, ele in enumerate(lst):
+    print(idx, ele)
 ```
 
 ***
@@ -378,15 +383,16 @@ tuple(t for t in range(11))
 
 ### 生成器函数
 
+函数中使用关键字''yield"之后，函数就不再是普通的函数了，而变成了生成器函数。generator函数和函数的执行流程不一样。函数是顺序执行，遇到return语句或者最后一行函数语句就返回。而变成generator函数，在每次调用next()的时候执行，遇到yield语句返回，再次执行时从上次返回的yield语句处继续执行。
+
 生成器函数的特性如下：
 
-* 调用生成器函数将返回一个生成器；
-* 第一次调用生成器的`__next__()`方法时，生成器才开始执行生成器函数（而不是构建生成器时），直到遇到yield时暂停执行（挂起），并且yield的参数将作为此次`__next__()`方法的返回值； 
-* 之后每次调用生成器的`__next__()`方法，生成器将从上次暂停执行的位置恢复执行生成器函数，直到再次遇到yield时暂停，并且同样的，yield的参数将作为`__next__()`方法的返回值； 
+* 第一次调用生成器函数的`__next__()`方法时，生成器函数才开始执行生成器（而不是构建生成器时），直到遇到yield时暂停执行（挂起），并且yield的参数将作为此次`__next__()`方法的返回值； 
+* 之后每次调用生成器函数的`__next__()`方法，生成器将从上次暂停执行的位置恢复执行生成器，直到再次遇到yield时暂停，并且同样的，yield的参数将作为`__next__()`方法的返回值； 
 * 如果当调用`__next__()`方法时生成器函数结束（遇到空的return语句或是到达函数体末尾），则这次`__next__()`方法的调用将抛出StopIteration异常（即for循环的终止条件）； 
-* 生成器函数在每次暂停执行时，函数体内的所有变量都将被封存(freeze)在生成器中，并将在恢复执行时还原，并且类似于闭包，即使是同一个生成器函数返回的生成器，封存的变量也是互相独立的。
+* 生成器在每次暂停执行时，函数体内的所有变量都将被封存(freeze)在生成器中，并将在恢复执行时还原，并且类似于闭包，即使是同一个生成器函数返回的生成器，封存的变量也是互相独立的。
 
-生成器函数虽然也是函数，但是它不可以使用return输出返回值，遇到return就会中断。
+生成器虽然也是函数，但是它不可以使用return输出返回值，遇到return就会中断。
 
 比如实现 `range()`函数：
 
@@ -398,7 +404,7 @@ def frange(start, stop, increment):	# 生成器函数
         x += increment
 ```
 
-斐波那契数列的生成器。
+1. 斐波那契数列的生成器
 
 ```python
 def fib(num):
@@ -416,7 +422,27 @@ def fib():
         yield b
 ```
 
-杨辉三角生成器。
+```python
+def fib(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        yield b
+        a, b = b, a + b
+        n = n + 1
+    return 'Done'
+```
+
+生成器中可以没有return语句，并不影响生成器的功能。上述代码例子中带的return 'Done'，将会在抛出StopIteration的错误时打印出来。你可以用next()函数触发StopIteration错误试一试。使用 for 循环不会触发。
+
+```text
+StopIteration                             Traceback (most recent call last)
+<ipython-input-9-dcf180275632> in <module>
+----> 1 f.__next__()
+
+StopIteration: Done
+```
+
+2. 杨辉三角生成器
 
 ```python
 def triangles(num):
@@ -430,7 +456,7 @@ for i in triangles(10):
     print(i)
 ```
 
-字母加密：
+3. 字母加密
 
 ```python
 def key_value_gen(k):
@@ -461,6 +487,26 @@ c
 d
 e
 f
+```
+
+### 迭代器VS生成器
+
+每个生成器都是一个迭代器，但是反过来不行。通常生成器是通过调用一个或多个yield表达式构成的函数生成，同时满足迭代器的定义。生成器其实是一种特殊的迭代器，但是不需要像迭代器一样实现`__iter__`和`__next__`方法，只需要使用关键字yield就可以。
+
+```bash
+In [63]: from collections.abc import Iterable, Iterator, Generator
+
+In [64]: isinstance(range(5), Iterable)
+Out[64]: True
+
+In [65]: isinstance(range(5), Iterator)
+Out[65]: False
+
+In [66]: isinstance(iter(range(5)), Iterator)
+Out[66]: True
+
+In [67]: isinstance(iter(range(5)), Generator)
+Out[67]: False
 ```
 
 ***

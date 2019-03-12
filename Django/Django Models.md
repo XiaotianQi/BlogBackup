@@ -1,4 +1,4 @@
-Django Model 是以 Python 代码形式表示数据在数据库中的定义。对数据层来说，Python 代码等同于 SQL 语句，只不过执行的是 Python 代码而不是 SQL。这也是 OBM 的好处之一，只要专注 Model 即可，避免大脑在不同领域来回切换。
+Django Model 是以 Python 代码形式表示数据在数据库中的定义。对数据层来说，Python 代码等同于 SQL 语句，只不过执行的是 Python 代码而不是 SQL。这也是 ORM 的好处之一，只要专注 Model 即可，避免大脑在不同领域来回切换。
 
 ***
 

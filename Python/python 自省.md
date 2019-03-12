@@ -1,4 +1,4 @@
-自省（introspection）也称为反射（reflection）。简而言之，自省使用一些机制实现自我检查，通过这些机制可以查看对象的类型、class、属性、方法等信息。
+自省（introspection）也称为反射（reflection）。简而言之，自省使用一些机制实现自我检查，通过这些机制可以查看对象的类型、class、属性、方法等信息。在计算机编程中，检查某些事物以确定它是什么、它知道什么以及它能做什么。自省向程序员提供了极大的灵活性和控制力。
 
 ***
 
@@ -96,6 +96,41 @@ print(type(siamese))
 
 ***
 
+## `hasattr`
+
+```python
+hasattr(obj, attr)
+```
+
+判断 `obj` 是否有一个属性名为 `attr`，返回一个布尔值。一般用于访问某属性前先做一个检查。
+
+```python
+class Cat(object):
+
+    def __init__(self, name):
+        self.name = name
+
+    def hi(self):
+        print('Hi,', self.name)
+
+cat = Cat('siamese')
+```
+
+```python
+if hasattr(cat, 'name'):
+    setattr(cat, 'name', 'siamese')
+
+print(getattr(cat, 'name'))
+getattr(cat, 'hi')()
+```
+
+```bash
+siamese
+Hi, siamese
+```
+
+***
+
 ## `isinstance`
 
 ```python
@@ -146,69 +181,6 @@ True
 
 * `type()` 不会认为子类是一种父类类型，不考虑继承关系。
 * `isinstance()` 会认为子类是一种父类类型，考虑继承关系。
-  
-***
-
-## `issubclass`
-
-```python
-isinstance(object, class-or-tuple)
-```
-
-判断 `object` 是否是 `class-or-tuple` 的子类，是则返回 True ，反之则返回 False。
-
-```python
-print(issubclass(Dogs, Animals))
-print(issubclass(Cats, Animals))
-print(issubclass(Dogs, Dogs))
-```
-
-```bash
-True
-True
-True
-```
-
-***
-
-## ` vars([object])`
-
-返回对象object的属性和属性值的字典对象。
-
-如果没有参数，就打印当前调用位置的属性和属性值，类似 `locals()`。
-
- 当函数接收一个参数时，参数可以是模块、类、类实例，或者定义了`__dict__`属性的对象，等价于`obj.__dict__`。
-
-***
-
-## `locals()` & ` globals()`
-
-- `locals()`
-
-  更新并返回表示当前本地符号表的字典。
-
-  在函数块而不是类块中调用时，会返回自由变量。
-
-  不要更改此字典的内容，因为更改不会影响解释器使用的局部变量或自由变量的值。
-
-  ```bash
-  In [140]: def func(n):
-       ...:     str = 'a'
-       ...:     print(locals())
-       ...:     test = locals()
-       ...:     test['str'] = 'b'
-       ...:     print(locals())
-       ...:
-  
-  In [141]: func(2)
-  {'n': 2, 'str': 'a'}
-  {'n': 2, 'str': 'a', 'test': {...}}
-  ```
-
-- ` globals()`
-
-  返回全局变量的字典。
-
 ***
 
 ## `id`
@@ -219,7 +191,7 @@ id([object])
 
 返回对象的内存地址。
 
-***
+------
 
 ## ` hash(object)`
 
@@ -236,42 +208,7 @@ In [136]: hash('abc')
 Out[136]: 7491864301760075081
 ```
 
-***
-
-## `hasattr`
-
-```python
-hasattr(obj, attr)
-```
-
-判断 `obj` 是否有一个属性名为 `attr`，返回一个布尔值。一般用于访问某属性前先做一个检查。
-
-```python
-class Cat(object):
-
-    def __init__(self, name):
-        self.name = name
-
-    def hi(self):
-        print('Hi,', self.name)
-
-cat = Cat('siamese')
-```
-
-```python
-if hasattr(cat, 'name'):
-    setattr(cat, 'name', 'siamese')
-
-print(getattr(cat, 'name'))
-getattr(cat, 'hi')()
-```
-
-```bash
-siamese
-Hi, siamese
-```
-
-***
+------
 
 ## `callable`
 
@@ -314,6 +251,28 @@ dog True
 
 ***
 
+## `issubclass`
+
+```python
+isinstance(object, class-or-tuple)
+```
+
+判断 `object` 是否是 `class-or-tuple` 的子类，是则返回 True ，反之则返回 False。
+
+```python
+print(issubclass(Dogs, Animals))
+print(issubclass(Cats, Animals))
+print(issubclass(Dogs, Dogs))
+```
+
+```bash
+True
+True
+True
+```
+
+***
+
 ## Special Attributes
 
 > - `object.__dict__`
@@ -347,8 +306,6 @@ dog True
 > -  `class.__subclasses__`()
 >
 >   Each class keeps a list of weak references to its immediate subclasses.  This method returns a list of all those references still alive. Example:
-
-### `obj.__dict__`
 
 在 python 中，对象的属性和方法都统称为属性。无论类还是实例，它们的属性都是以字典的形式存储在`__dict__`中。
 
@@ -392,6 +349,46 @@ Out[30]: 1
 ```
 
 而且，`A.attr_a` 也可以通过 `A.__dict__['attr_a']` 访问。
+
+***
+
+## ` vars([object])`
+
+返回对象object的属性和属性值的字典对象。
+
+如果没有参数，就打印当前调用位置的属性和属性值，类似 `locals()`。
+
+ 当函数接收一个参数时，参数可以是模块、类、类实例，或者定义了`__dict__`属性的对象，等价于`obj.__dict__`。
+
+------
+
+## `locals()` & ` globals()`
+
+- `locals()`
+
+  更新并返回表示当前本地符号表的字典。
+
+  在函数块而不是类块中调用时，会返回自由变量。
+
+  不要更改此字典的内容，因为更改不会影响解释器使用的局部变量或自由变量的值。
+
+  ```bash
+  In [140]: def func(n):
+       ...:     str = 'a'
+       ...:     print(locals())
+       ...:     test = locals()
+       ...:     test['str'] = 'b'
+       ...:     print(locals())
+       ...:
+  
+  In [141]: func(2)
+  {'n': 2, 'str': 'a'}
+  {'n': 2, 'str': 'a', 'test': {...}}
+  ```
+
+- ` globals()`
+
+  返回全局变量的字典。
 
 ***
 
