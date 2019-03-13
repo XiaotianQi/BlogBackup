@@ -176,7 +176,7 @@ e = {x:y for x, y in b.items()}
    Out[73]: {'a': 0, 'b': 0, 'c': 0, 'd': 0}
    ```
 
-## 其他
+## 相关
 
 Dictionary order is guaranteed to be insertion order.
 
@@ -193,6 +193,20 @@ Out[82]: ['one', 'two', 'three', 'four']
 In [83]: list(d.values())
 Out[83]: [1, 2, 3, 4]
 ```
+
+遍历字典的多种方法：
+
+```python
+d = {'a': 1, 'b': 2, 'c': 3}
+
+for k, v in d.items():
+    print(k, v)
+
+for i in d.items():
+    print(i[0], i[1])
+```
+
+当然，使用`d.keys()`或者`d.values()`选择性遍历也是可以的。
 
 ***
 
