@@ -1,3 +1,7 @@
+threading模块用于提供线程相关的操作，线程是应用程序中工作的最小单元。
+
+threading模块提供的类： 
+
 | 类型                     | 含义             |
 | ------------------------ | ---------------- |
 | Thread Objects           | 线程对象         |
@@ -9,6 +13,8 @@
 | Event Objects            | 事件             |
 | Timer Objects            | 计时器           |
 | Barrier Objects          | 屏障             |
+
+threading 模块提供的常用方法： 
 
 ```text
 threading.current_thread(): 返回当前的线程对象。
@@ -26,8 +32,13 @@ threading.settrace(func):为所有线程设置一个跟踪函数The func will be
 threading.setprofile(func):为所有线程设置一个配置文件函数The func will be passed to sys.setprofile() for each thread, before its run() method is called.
 
 threading.stack_size([size]):返回新创建线程栈大小；或为后续创建的线程设定栈大小为 size
+```
 
-threading.TIMEOUT_MAX:阻塞允许的最大超时时间，超时则抛出OverflowError.例如Lock.acquire(), RLock.acquire(), Condition.wait(), etc.
+threading 模块提供的常量：
+
+```text
+threading.TIMEOUT_MAX:
+设置threading全局超时时间，阻塞允许的最大超时时间，超时则抛出OverflowError.例如Lock.acquire(), RLock.acquire(), Condition.wait(), etc.
 ```
 
 所有的线程锁都有一个加锁和释放锁的动作，非常类似文件的打开和关闭。通过with上下文管理器，可以确保锁被正常释放。
@@ -172,6 +183,8 @@ print("退出主线程")
 
 ### 关于 `t.join([timeout])`
 
+阻塞当前上下文环境的线程，直到调用此方法的线程终止或到达指定的timeout（可选参数）。即当子进程的join()函数被调用时，主线程就被阻塞住了，意思为不再继续往下执行。
+
 `t.join([timeout])` 具有阻塞作用，所以对控制多个线程的执行顺序非常关键，尤其设置了 timeout 参数后。
 
 #### 不使用 `t.join()`
@@ -232,7 +245,7 @@ all done
 
 与预想中相同。
 
-不过，这也说明，无论 `t.join()` 是否存在，主线程是否执行完毕，主线程都会等待非守护子线程执行完毕，然后一起退出。`t.join()` 对调用顺序起到了控制作用。
+不过，这也说明，无论 `t.join()` 是否存在，主线程是否执行完毕，主线程都会等待非守护子线程执行完毕，然后一起退出。`t.join()` **控制调用顺序**。
 
 #### 多线程中 `t.join()` 对线程的控制
 
@@ -395,9 +408,10 @@ All done, cost: 0.0
 
 只有当所有非守护线程执行完毕，那么主线程才会退出。对于守护线程：
 
-如果设置了 join(timeout=n)，当所有普通线程执行完毕，守护线程超时了，那么继续执行主线程。
+* 如果 join() 未设置timeout参数，等待守护进程执行完毕，然后继续执行主线程。
+* 如果设置了timeout=n，当所有普通线程执行完毕，且守护线程超时了，那么结束守护进程，继续执行主线程。
 
-如果 join() 未设置参数，等待守护进程执行完毕，然后继续执行主线程。
+`t.join()`阻塞当前上下文环境的线程，直到调用此方法的线程终止或到达指定的timeout，即使设置了setDeamon（True）主线程依然要等待子线程结束。
 
 * `deamon=False`，设置 `join(1)`
 
@@ -800,6 +814,7 @@ Deadlock，又译为**死结**，计算机科学名词。当两个以上的运�
 
 Lock 在下面的情形下会发生死锁
 
+```python
 Lock.acquire()
 
 Lock.acquire()
@@ -807,6 +822,7 @@ Lock.acquire()
 Lock.release()
 
 Lock.release()
+```
 
 连续两次acquire请求，会导致死锁，因为第一次获得锁之后还没有释放，第二次再来申请，程序就阻塞在这里，导致第一次申请到的锁无法释放。
 
@@ -870,7 +886,9 @@ g
 
 条件变量，比Lock, RLock更高级的功能， 用于复杂的线程间同步。
 
-Condition 也提供了acquire(), release()方法，其含义与琐的acquire(), release()方法一致。除此之外，Condition还提供wait()、notify()、notifyAll()方法。注意：这些方法只有在 lock 状态，才能调用，否则将会报RuntimeError异常。
+Condition 也提供了acquire(), release()方法，其含义与琐的acquire(), release()方法一致。除此之外，Condition还提供wait()、notify()、notifyAll()方法。注意：这些方法**只有在 lock 状态**，才能调用，否则将会报RuntimeError异常。
+
+Condition类适合于生产者，消费者模型。 即Condition很适合那种**主动休眠，被动唤醒**的场景。
 
 ### 语法、方法
 
@@ -894,7 +912,9 @@ notify(n=1):唤醒等待条件变量的线程，那些阻塞的线程接到这�
 notifyAll(): 唤醒所有阻塞的线程。不会主动释放锁。
 ```
 
-被唤醒的线程获得锁才能继续执行。notify()不会释放锁，必须由其线程调用 release()。
+被唤醒的线程获得锁才能继续执行。notify()**不会**释放锁，必须由其线程调用 release()。
+
+ 一个**Condition实例的内部实际上维护了两个队列**，**一个是等待锁队列**(实际上，内部其实就是维护这个等待锁队列) ，**另一个队列可以叫等待条件队列**，在这队列中的节点都是由于（某些条件不满足而）线程自身调用wait方法阻塞的线程（记住是自身阻塞）。最重要的Condition方法是wait和notify方法。另外condition还需要lock的支持， 如果你构造函数没有指定lock，condition会默认给你配一个rlock。   
 
 解释条件同步机制的一个很好的例子就是生产者/消费者（producer/consumer）模型。
 
@@ -1007,7 +1027,7 @@ class Consumer(threading.Thread):
                 if self.integers:	    # 判断是否有整数
                     integer = self.integers.pop()
                     print('{} popped from list by {}'.format(integer, self.name))
-                    break
+                    break				# 跳出循环，将运行释放锁
                 print('condition wait by ', self.name)
                 self.condition.wait()	# 等待商品，并且释放资源
             print('condition released by ', self.name)
@@ -1025,6 +1045,27 @@ def main():
 
 if __name__ == '__main__':
      main()
+```
+
+```bash
+condition acquired by  Thread-1
+215 appended to list by Thread-1
+condition notified by  Thread-1
+condition released by  Thread-1
+condition acquired by  Thread-2
+215 popped from list by Thread-2
+condition released by  Thread-2
+condition acquired by  Thread-2
+condition wait by  Thread-2
+condition acquired by  Thread-1
+58 appended to list by Thread-1
+condition notified by  Thread-1
+condition released by  Thread-1
+58 popped from list by Thread-2
+condition released by  Thread-2
+condition acquired by  Thread-2
+condition wait by  Thread-2
+...
 ```
 
 ***
@@ -1150,22 +1191,27 @@ if __name__ == "__main__":
 
 ## Event Objects
 
-事件的同步机制：一个线程发送/传递事件，另外的线程等待事件的触发。
+事件的同步机制：一个线程通知事件，其他线程等待事件。
 
-全局定义了一个Flag，如果Flag的值为False，那么当程序执行wait()方法时就会阻塞，如果Flag值为True，线程不再阻塞。这种锁，类似交通红绿灯（默认是红灯），它属于在红灯的时候一次性阻挡所有线程，在绿灯的时候，一次性放行所有排队中的线程。Event 使用了一个 internal flag，初始值是 False。
+全局定义了一个Flag，初始值是 False：
+
+* 如果Flag的值为False，那么当程序执行wait()方法时就会阻塞
+* 如果Flag值为True，线程不再阻塞。
+
+这种锁，类似交通红绿灯（默认是红灯），它属于在红灯的时候一次性阻挡所有线程，在绿灯的时候，一次性放行所有排队中的线程。Event其实就是一个简化版的 Condition。Event没有锁，无法使线程进入同步阻塞状态。
 
 ### 语法、方法
 
 ```text
 class threading.Event:创建一个事件对象
 
-set():设置flag为true，所有的调用wait()的线程被唤醒，不再阻塞
+.set():设置flag为true，所有的调用wait()的线程被唤醒，不再阻塞
 
-clear():重置flag为false，随后使用wait()的线程将会阻塞
+.clear():重置flag为false，随后使用wait()的线程将会阻塞
 
-wait(timeout=None):阻塞当前线程，直到flag值是true或者超时。除非超时，将会一直返回True
+.wait(timeout=None):阻塞当前线程，直到flag值是true或者超时。除非超时，将会一直返回True
 
-is_set():当flag为true时，返回True
+.is_set():当flag为true时，返回True
 ```
 
 ### 示例
