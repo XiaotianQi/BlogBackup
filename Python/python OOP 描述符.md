@@ -1,24 +1,24 @@
 ## Descriptor
 
-> In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol.  Those methods are `__get__`, `__set__`, and `__delete__`.  If any of those methods are defined for an object, it is said to be a descriptor.
->
+In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol.  Those methods are `__get__`, `__set__`, and `__delete__`.  If any of those methods are defined for an object, it is said to be a descriptor.
+
 > They are the mechanism behind properties, methods, static methods, class methods, and `super()`.
 
 使用 Descriptor 的便捷之处：
 
 把函数的调用伪装成对属性的访问。
 
-> For the users of a class, properties are syntactically identical to ordinary attributes.You can start with the simplest implementation imaginable, and  you are free to later migrate to a property version without having to change the interface! So properties are not just a replacement for getters and setter! 
->
-> The Pythonic way to introduce attributes is to make them public.
+For the users of a class, properties are syntactically identical to ordinary attributes.You can start with the simplest implementation imaginable, and  you are free to later migrate to a property version without having to change the interface! So properties are not just a replacement for getters and setter! 
 
-> The default behavior for attribute access is to get, set, or delete the attribute from an object’s dictionary.
+The Pythonic way to introduce attributes is to make them public.
 
-> ```
-> descr.__get__(self, obj, type=None) -> value
-> descr.__set__(self, obj, value) -> None
-> descr.__delete__(self, obj) -> None
-> ```
+The default behavior for attribute access is to get, set, or delete the attribute from an object’s dictionary.
+
+```
+descr.__get__(self, obj, type=None) -> value
+descr.__set__(self, obj, value) -> None
+descr.__delete__(self, obj) -> None
+```
 
 如果一个对象同时定义了`__get__`和`__set__`，则这个描述符被称为 `data descriptor`。
 
@@ -42,7 +42,7 @@ obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
 * 若是，则调用 `__set__` 或 `__get__`，进行属性读写；
 * 若不是，则采用默认调用，进行属性读写 。
 
-即，descriptor 会改变默认的属性读写方式。
+即，descriptor 会**改变默认的属性读写方式**。
 
 ***
 
@@ -132,7 +132,7 @@ In [35]: a.__dict__['data_noset']
 Out[35]: 3
 ```
 
-> Data and non-data descriptors differ in how overrides are calculated with  respect to entries in an instance’s dictionary.  If an instance’s dictionary has an entry with the same name as a data descriptor, the data descriptor takes precedence.  If an instance’s dictionary has an entry with the same name as a non-data descriptor, the dictionary entry takes precedence.
+Data and non-data descriptors differ in how overrides are calculated with  respect to entries in an instance’s dictionary.  If an instance’s dictionary has an entry with the same name as a data descriptor, the data descriptor takes precedence.  If an instance’s dictionary has an entry with the same name as a non-data descriptor, the dictionary entry takes precedence.
 
 对属性进行访问的时候需要几行打交道的基本上包含这几个对象：
 
@@ -141,38 +141,39 @@ Out[35]: 3
 3. 实例的字典
 4. 内置的`__getattr__`函数
 
-> 优先级顺序是：
->
-> ```text
-> data descriptor  >>  instance's dict  >>  non-data descriptor  >>   __getattr__()
-> ```
+优先级顺序是：
 
->The details of invocation depend on whether obj is an object or a class.
-> For objects, the machinery is in `object.__getattribute__()` which transforms `b.x` into `type(b).__dict__['x'].__get__(b, type(b))`. The implementation works through a precedence chain that gives data descriptors priority over instance variables, instance variables priority over non-data descriptors, and assigns lowest priority to `__getattr__()` if provided. The full C implementation can be found in `PyObject_GenericGetAttr()` in `Objects/object.c`.
-> For classes, the machinery is in `type.__getattribute__()` which transforms `B.x` into `B.__dict__['x'].__get__(None, B)`. 
->
->The important points to remember are:
->
->- descriptors are invoked by the`__getattribute__()` method
->- overriding`__getattribute__()` prevents automatic descriptor calls
->- `__getattribute__()` and `type.__getattribute__()` make different calls to `__get__()`.
->- data descriptors always override instance dictionaries.
->- non-data descriptors may be overridden by instance dictionaries.
+```text
+data descriptor  >>  instance's dict  >>  non-data descriptor  >>   __getattr__()
+```
 
-> Classes can turn-off descriptor invocation by overriding `__getattribute__()`.
+The details of invocation depend on whether obj is an object or a class.
+
+* For objects, the machinery is in `object.__getattribute__()` which transforms `b.x` into `type(b).__dict__['x'].__get__(b, type(b))`. The implementation works through a precedence chain that gives data descriptors priority over instance variables, instance variables priority over non-data descriptors, and assigns lowest priority to `__getattr__()` if provided. The full C implementation can be found in `PyObject_GenericGetAttr()` in `Objects/object.c`.
+* For classes, the machinery is in `type.__getattribute__()` which transforms `B.x` into `B.__dict__['x'].__get__(None, B)`.
+
+The important points to remember are:
+
+- descriptors are invoked by the`__getattribute__()` method
+- overriding`__getattribute__()` prevents automatic descriptor calls
+- `__getattribute__()` and `type.__getattribute__()` make different calls to `__get__()`.
+- data descriptors always override instance dictionaries.
+- non-data descriptors may be overridden by instance dictionaries.
+
+Classes can turn-off descriptor invocation by overriding `__getattribute__()`.
 
 PS:
 
 当使用 `obj.name` 或 `obj.name = value`时
 
 ```python
-object.__setattribute__(self,name,value)
-object.__getattribute__(self,name)
+object.__setattribute__(self, name, value)
+object.__getattribute__(self, name)
 ```
 
 创建一个只读数据描述符：
 
-> To make a read-only data descriptor, define both `__get__` and `__set__` with the `__set__` raising an `AttributeError` when called.
+To make a read-only data descriptor, define both `__get__` and `__set__` with the `__set__` raising an `AttributeError` when called.
 
 ```python
 def __set__(self, instance, value):
@@ -256,7 +257,7 @@ Woops, negative value
 
 ### 1. 在类的层次上（class level)使用描述符
 
-为了让描述符能够正常工作，它们必须定义在类的层次上。否则，Python 无法**自动**调用`__get__`和`__set__`方法。
+为了让描述符能够正常工作，它们**必须定义在类的层次**上。否则，Python 无法**自动**调用`__get__`和`__set__`方法。
 
 ```python
 class Broken(object):
@@ -388,7 +389,7 @@ class CallbackProperty(object):
  
     def __set__(self, instance, value):
         # alert callback function of new value
-        #for callback in self.callbacks.get(instance, []):
+        # for callback in self.callbacks.get(instance, []):
             #callback(value)
         self.callbacks[instance][0](value)
         self.data[instance] = value
@@ -550,7 +551,7 @@ class property([fget[, fset[, fdel[, doc]]]])
 
 ###  3.`super()`
 
-> The object returned by `super()` also has a custom `__getattribute__` method for invoking descriptors.  The call `super(B, obj).m()` searches `obj.__class__.__mro__` for the base class `A` immediately following `B` and then returns `A.__dict__['m'].__get__(obj, B)`.  If not a descriptor, `m` is returned unchanged.  If not in the dictionary, `m` reverts to a search using `object.__getattribute__`.
+The object returned by `super()` also has a custom `__getattribute__` method for invoking descriptors.  The call `super(B, obj).m()` searches `obj.__class__.__mro__` for the base class `A` immediately following `B` and then returns `A.__dict__['m'].__get__(obj, B)`.  If not a descriptor, `m` is returned unchanged.  If not in the dictionary, `m` reverts to a search using `object.__getattribute__`.
 
 ### 4. function
 
@@ -662,9 +663,9 @@ TypeError: func() missing 1 required positional argument: 'self'
 
 ### `__getattr__`
 
-> **Called when** the default attribute access fails with an `AttributeError` (either `__getattribute__()` raises an `AttributeError` because *name* is not an instance attribute or an attribute in the class tree for `self`; or `__get__()` of a *name* property raises `AttributeError`).  This method should either return the (computed) attribute value or raise an `AttributeError` exception.
->
-> **Note that** if the attribute is found through the normal mechanism,`__getattr__()` is not called.  (This is an intentional asymmetry between `__getattr__()` and `__setattr__()`.) This is done both for efficiency reasons and because otherwise `__getattr__()` would have no way to access other attributes of the instance.  Note that at least for instance variables,you can fake total control by not inserting any values in the instance attribute dictionary (but instead inserting them in another object).
+**Called when** the default attribute access fails with an `AttributeError` (either `__getattribute__()` raises an `AttributeError` because *name* is not an instance attribute or an attribute in the class tree for `self`; or `__get__()` of a *name* property raises `AttributeError`).  This method should either return the (computed) attribute value or raise an `AttributeError` exception.
+
+**Note that** if the attribute is found through the normal mechanism,`__getattr__()` is not called.  (This is an intentional asymmetry between `__getattr__()` and `__setattr__()`.) This is done both for efficiency reasons and because otherwise `__getattr__()` would have no way to access other attributes of the instance.  Note that at least for instance variables,you can fake total control by not inserting any values in the instance attribute dictionary (but instead inserting them in another object).
 
 ```python
 class Company:

@@ -133,8 +133,6 @@ print(a, b)
 [0, 1] [0, 1]
 ```
 
-
-
 ***
 
 #### 无返回值的方法
@@ -356,6 +354,20 @@ list_variable = [out_exp for out_exp in input_list if exp]
 ***
 
 ### 7.扩展
+
+#### 遍历
+
+```python
+lst = [i for i in range(1, 5)]
+
+for i in lst:
+    i = i + 1	# 迭代过程中对元素的修改无效
+print(lst)	# [1, 2, 3, 4]
+
+for i in list(enumerate(lst, 0)):
+    lst[i[0]] += 1
+print(lst) 	# [2, 3, 4, 5]
+```
 
 #### `list.copy()` 和 `=` 的区别
 
