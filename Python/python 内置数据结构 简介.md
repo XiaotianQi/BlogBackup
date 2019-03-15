@@ -84,7 +84,7 @@ The implementation adds a few special read-only attributes to several object typ
 
   This method can be overridden by a metaclass to customize the method resolution order for its instances.  It is called at class instantiation, and its result is stored in `__mro__`. 
 
--  `class.``__subclasses__`()
+-  `class.__subclasses__()`
 
   Each class keeps a list of weak references to its immediate subclasses.  This method returns a list of all those references still alive. 
 

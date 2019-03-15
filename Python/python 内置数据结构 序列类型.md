@@ -481,7 +481,24 @@ Note：元组只保证它的一级子元素不可变，对于嵌套的元素内�
 range(start, stop[, step])
 ```
 
-> The **advantage** of the `range` type over a regular `list` or `tuple` is that a `range` object will always take the same (small) amount of memory, no matter the size of the range it represents (as it only stores the `start`, `stop` and `step` values, calculating individual items and subranges as needed).
+The **advantage** of the `range` type over a regular `list` or `tuple` is that a `range` object will always take the same (small) amount of memory, no matter the size of the range it represents (as it only stores the `start`, `stop` and `step` values, calculating individual items and subranges as needed).
+
+* step>0时，stop值必须大于start值
+* step<0时，start值必须大于stop值
+
+```bash
+In [8]: list(range(-10))
+Out[8]: []
+
+In [9]: list(range(0, -10, -1))
+Out[9]: [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+
+In [10]: list(range(-10, 0))
+Out[10]: [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1]
+
+In [14]: list(range(10, 0, -1))
+Out[14]: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+```
 
 ***
 
@@ -603,8 +620,6 @@ range(start, stop[, step])
 * `str.center(width[, fillchar])`
 
   Return centered in a string of length *width*. Padding is done using the specified fillchar (default is an ASCII space). The original string is returned if width is less than or equal to `len(s)`.
-
-
 
 * `str.ljust(width[, fillchar])`
 
@@ -845,8 +860,6 @@ range(start, stop[, step])
   If there is only one argument, it must be a dictionary mapping Unicode ordinals (integers) or characters (strings of length 1) to Unicode ordinals, strings (of arbitrary lengths) or `None`.  Character keys will then be converted to ordinals.
 
   If there are two arguments, they must be strings of equal length, and in the resulting dictionary, each character in x will be mapped to the character at the same position in y.  If there is a third argument, it must be a string, whose characters will be mapped to `None` in the result.
-
-
 
 * `str.translate(table)`
 

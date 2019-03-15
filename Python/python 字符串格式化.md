@@ -229,39 +229,17 @@ www.xxx.cn
 ```
 
 ```python
-# fill、sign、width
-print("{a:w^3}".format(a="8"))
-```
-
-```bash
-w8w
-```
-
-```python
 # 以逗号分隔的数字格式
-print("{:,}".format(123456789))
-```
+print("{:,}".format(123456789))	# 123,456,789
 
-```bash
-123,456,789
-```
-
-```python
 # 百分比格式
-print("{:.2%}".format(0.25))
-```
+print("{:.2%}".format(0.25))	# 25.00%
 
-```bash
-25.00%
-```
+# 填充、对齐方式、宽度
+print("{a:w^3}".format(a="8"))	# w8w
 
-```python
 # 使用大括号 {} 来转义大括号
-print ("{l[0]} 对应的位置是 {{0}}".format(l=["b", "a"]))
-```
-
-```bash
-b 对应的位置是 {0}
+print ("{l[0]} 对应的位置是 {{0}}".format(l=["b", "a"]))	# b 对应的位置是 {0}
 ```
 
 * 位置映射

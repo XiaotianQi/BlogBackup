@@ -408,25 +408,15 @@ def frange(start, stop, increment):	# 生成器函数
 
 ```python
 def fib(num):
-    a = b = 1
+    a, b = 0, 1
     for i in range(num):
         yield a
         a, b = b, a+b
 
-def fib():
-    a = b = 1
-    yield a 
-    yield b
-    while True:
-        a, b = b, a+b
-        yield b
-```
-
-```python
 def fib(max):
     n, a, b = 0, 0, 1
     while n < max:
-        yield b
+        yield a
         a, b = b, a + b
         n = n + 1
     return 'Done'
