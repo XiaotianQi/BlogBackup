@@ -354,9 +354,9 @@ print('l2:', l2)
 * 对于可变对象 `list` 来说，`+=` 运算符相当于就地修改列表，所以 `l1`、`l2` 同时受到影响；
 * 对于不可变对象 `tuple` 来说，`+=` 运算符创建了一个新的元组，然后重新绑定给变量 `l2`，所以对 `l1` 没有影响。
 
-![示例](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fswonbsrkwj20ds0gs74k.jpg)
+![示例](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mutable-1.jpg)
 
-![示例](https://wx4.sinaimg.cn/mw690/af9e9c30ly1fswondw5d5j20fu0jlmxj.jpg)
+![示例](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mutable-2.jpg)
 
 ***
 

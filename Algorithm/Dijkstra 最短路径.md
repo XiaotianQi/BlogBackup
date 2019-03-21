@@ -2,7 +2,7 @@
 
 Dijkstra 算法是 BFS 的升级版。当一个图中的每条边都加上权值后，BFS 就没办法求一个点到另一个点的最短路径了。这时候，需要用到 Dijkstra 算法。从最基本原理上讲，把 BFS 改成 Dijkstra 算法，只需要把“队列”改成“优先队列”就可以了。
 
-![](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fvg2bx1vo9j216728hwmx.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Algorithm/Dijkstra.png)
 
 ```python
 # _*_coding:utf-8_*_

@@ -2,7 +2,7 @@
 
 socket是基于C/S架构的，也就是说进行socket网络编程，通常需要编写两个py文件，一个服务端，一个客户端。
 
-![socket](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fy387t9fxgj20jz0sj3zn.jpg)
+![socket](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/socket%20TCP%20%20socket%20flow.png)
 
 Python3以后，socket传递的都是bytes类型的数据，字符串需要先转换一下，`string.encode()`即可；另一端接收到的bytes数据想转换成字符串，只要`bytes.decode()`一下就可以。在正常通信时，`accept()`和`recv()`方法都是阻塞的。所谓的阻塞，指的是程序会暂停在那，一直等到有数据过来。
 

@@ -2,8 +2,8 @@
 
 Python 与 MySQL 交互的基本流程如下图：
 
-<div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fpydcbbku2j20qr08474s.jpg" width = "550" height = "170" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mysql%20flow.png)
+
 ***
 
 ## 相关函数说明
@@ -153,8 +153,8 @@ db.close()
 
 数据库输出结果：
 
-<div align="center"><img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fqe9fbas1uj20k4078t8z.jpg" width = "550" height = "170" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mysql-1.png)
+
 ***
 
 ## 添加数据
@@ -184,8 +184,8 @@ db.close()
 
 数据库输出结果：
 
-<div align="center"><img src="https://wx2.sinaimg.cn/mw690/af9e9c30ly1fqea19accsj20hc04mjrg.jpg" width = "550" height = "130" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mysql-2.png)
+
 ***
 
 ## 查询数据
@@ -247,8 +247,8 @@ db.close()
 
 更新前后数据对比：
 
-<div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fqeiquwiqrj20hc09ojrt.jpg" width = "550" height = "250" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mysql-3.png)
+
 ***
 
 ## 删除数据

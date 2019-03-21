@@ -1,4 +1,4 @@
-![BFS&DFS](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fveqcshj2uj20vg0mzq40.jpg)
+![BFS&DFS](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Algorithm/BFS%26DFS-1.png)
 
 `BFS` 核心在于 队列，取出队列中第一个元素。
 
@@ -60,7 +60,7 @@ vertex = queue.pop()   # DFS
 
 基于 `BFS` 的最短路径实现：
 
-![BFS最短路径](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fvg10nanyxj21480azwfo.jpg)
+![BFS最短路径](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Algorithm/BFS%26DFS-2.png)
 
 ```python
 # _*_coding:utf-8_*_

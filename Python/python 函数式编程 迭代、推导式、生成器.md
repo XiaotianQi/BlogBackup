@@ -709,8 +709,6 @@ def aritprog_gen(begin, step, end=None):
         result = begin + step * index
 ```
 
-
-
 ***
 
 参考：

@@ -14,7 +14,7 @@
 
 对于字符串 `'123'` 而言，包括三个字符四个位置。如下图所示：
 
-![字符串组成](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fshrwa3oqgj208204xdfo.jpg)
+![字符串组成](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-1.png)
 
 ### 占有字符和零宽度
 

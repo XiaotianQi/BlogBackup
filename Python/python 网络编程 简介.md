@@ -27,11 +27,11 @@
 
 TCP/IP网络模型四层模型从根本上和OSI七层网络模型是一样的，只是合并了几层，具体如下：　
 
-![](https://wx2.sinaimg.cn/mw690/af9e9c30ly1g060y15mttj20lm09j0to.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OSI.png)
 
 在TCP/IP协议中，其各层之间的通信机制，大致如下图所示：
 
-![](https://wx4.sinaimg.cn/mw690/af9e9c30ly1g060y2pl9wj20pg0ehjwj.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/TCP%20IP.png)
 
 ***
 

@@ -82,7 +82,7 @@ Successful! Path: testCSV.csv.
 ['CAT', '78.29', '6/11/2007', '9:36am', '-0.23', '225400']
 ```
 
-![csv文件](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fu60zqjnn8j20g006f74c.jpg)
+![csv文件](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/CSV.jpg)
 
 ***
 

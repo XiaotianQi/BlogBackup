@@ -110,7 +110,6 @@ Django 简单易懂工作流程
 <div align="center">
 <img src="https://wx2.sinaimg.cn/mw690/af9e9c30ly1fmnbupcq4gj20m80j2q7p.jpg" width = "350" height = "300" alt="图片名称" align=center />
 </div>
-
 ***
 
 ### **MVC 设计模式**
@@ -121,9 +120,15 @@ MVC 设计模式是把数据存取逻辑、业务逻辑和表现逻辑组合在�
 * View（视图）是应用程序中处理**数据显示**的部分。选择显示哪些数据要显示以及怎样显示的部分，由视图和模板处理。
 * Controller（控制器）是应用程序中处理**用户交互**的部分。根据用户输入委派视图的部分，由 Django 框架根据 URLconf 设置，对给定 URL 调用适当的 Python 函数。通常控制器负责从视图读取数据，控制用户输入，并向模型发送数据。
 
-<div align="center">
-<img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fmnkb5covxj20g30bvjs0.jpg" width = "350" height = "300" alt="图片名称" align=center />
-</div>
+MVC是三个单词的首字母缩写，它们是Model（模型）、View（视图）和Controller（控制）。
+
+这个模式认为，程序不论简单或复杂，从结构上看，都可以分成三层。
+
+> 1. 最上面的一层，是直接面向最终用户的"视图层"（View）。它是提供给用户的操作界面，是程序的外壳。
+> 2. 最底下的一层，是核心的"数据层"（Model），也就是程序需要操作的数据或信息。
+> 3. 中间的一层，就是"控制层"（Controller），它负责根据用户从"视图层"输入的指令，选取"数据层"中的数据，然后对其进行相应的操作，产生最终结果。
+
+这三层是紧密联系在一起的，但又是互相独立的，每一层内部的变化不影响其他层。每一层都对外提供接口（Interface），供上面一层调用。这样一来，软件就可以实现模块化，修改外观或者变更数据都不用修改其他层，大大方便了维护和升级。
 
 ***
 
@@ -132,3 +137,9 @@ MVC 设计模式是把数据存取逻辑、业务逻辑和表现逻辑组合在�
 Django 有意弱化 Controller ,更注重 Template（模板）。这便是 Model 、Template 和 Views，即 MTV 设计模式。
 
 * Template（模板）把数据渲染变成可浏览的网页。
+
+***
+
+参考：
+
+http://www.ruanyifeng.com/blog/2007/11/mvc.html

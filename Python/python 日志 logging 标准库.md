@@ -8,6 +8,10 @@
 | 报告错误                         | 弹出异常                                                     |
 | 在不引发异常的情况下报告错误     | `logging.error()`, `logging.exception()`或者`logging.critical()` |
 
+***
+
+python的logging模块（**logging是线程安全的**）给应用程序提供了标准的日志信息输出接口。logging不仅支持把日志输出到文件，还支持把日志输出到TCP/UDP服务器，EMAIL服务器，HTTP服务器，UNIX的syslog系统等。在logging中主要有四个概念：logger、handler、filter和formatter，下面会分别介绍。
+
 logging模块定义了下表所示的日志级别，按事件严重程度由低到高排列（注意是全部大写！因为它们是常量。）：
 
 | 级别     | 级别数值 | 使用时机                                           |
@@ -93,11 +97,11 @@ logging模块采用了模块化设计，主要包含四种组件：
 
 日志事件信息在loggers和handlers中的逻辑流程如下图所示：
 
-![](http://static.zybuluo.com/feixuelove1009/ko55xbrzpa5nk3bwgq25w4gu/image.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/logging-2.png)
 
 同时向屏幕和文件进行日志输出的流程：
 
-![](http://static.zybuluo.com/feixuelove1009/g09y63fuzu9omngnn6k2rego/image.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/logging-1.png)
 
 ```text
 1. 创建logger实例并配置
@@ -107,7 +111,11 @@ logging模块采用了模块化设计，主要包含四种组件：
 5. 写日志
 ```
 
-### Loggers
+***
+
+### 四个概念
+
+#### Loggers
 
 logging模块的日志功能是基于Logger类实现的。logger对象有三重功能：
 
@@ -143,7 +151,7 @@ Logger是一个树形层级结构，在使用debug()，info()，warn()，error()
 
 注意，`getLogger()`方法返回一个logger对象的引用，并以你提供的name参数命名，如果未提供名字，那么默认为‘root’。使用同样的name参数，多次调用`getLogger()`，将返回同样的logger对象。
 
-###  Handlers
+####  Handlers
 
 Handlers对象是日志信息的处理器、分发器。它们将日志分发到不同的目的地。比如有时候我们希望将所有的日志都记录在本地文件内，将error及其以上级别的日志发送到标准输出stdout，将critical级别的日志以邮件的方法发送给管理员。这就需要同时有三个独立的handler，分别负责一个方向的日志处理。
 
@@ -186,7 +194,7 @@ logging模块内置了下面的handler处理器，从字面上你就能看出它
 - QueueHandler
 - NullHandler 
 
-### Formatters
+#### Formatters
 
 Formatter对象用来最终设置日志信息的顺序、结构和内容。其构造方法为：
 
@@ -217,7 +225,7 @@ style参数默认为百分符%，这表示前面的fmt参数应该是一个`%(<d
 | thread      | %(thread)d      | 生成日志的线程ID（如果可用）                               |
 | threadName  | %(threadName)s  | 线程名（如果可用）                                         |
 
-### Filter
+#### Filter
 
 Handlers和Loggers可以使用Filters来完成比日志级别更复杂的过滤。比如我们定义了`filter = logging.Filter('a.b.c')`，并将这个Filter添加到了一个Handler上，则使用该Handler的Logger中只有名字带`a.b.c`前缀的Logger才能输出其日志。
 
@@ -238,6 +246,8 @@ fh.addFilter(filter)
 2017-09-27 16:27:46,227 - mylogger.child1.child2 - DEBUG - logger1 debug message
 2017-09-27 16:27:46,227 - mylogger.child1.child2 - DEBUG - logger1 debug message
 ```
+
+***
 
 ### 示例
 
@@ -298,3 +308,5 @@ logging.warning('This is warning message')
 参考：
 
 http://www.liujiangblog.com/course/python/71
+
+http://blog.timd.cn/python-logging/

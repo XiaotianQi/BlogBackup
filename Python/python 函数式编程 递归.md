@@ -34,7 +34,7 @@ def move(n, a, b, c):
 
 下图来自优酷一个老师视频，因为以前截的图，现在找不到出处了。
 
-![](https://wx4.sinaimg.cn/mw690/af9e9c30ly1g19aqrasysj20xd0io7hg.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/hanoi.png)
 
 ***
 

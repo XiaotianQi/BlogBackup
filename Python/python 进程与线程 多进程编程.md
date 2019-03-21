@@ -4,7 +4,7 @@ Python中的multiprocess提供了Process类，实现进程相关的功能。但�
 
 这五种状态的转化关系如下：
 
-![](https://wx4.sinaimg.cn/mw690/af9e9c30ly1g0e3sotyekj20n806g3yt.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%205%20status.png)
 
 ## 创建进程
 

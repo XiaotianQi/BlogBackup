@@ -160,8 +160,8 @@ head [-n number] file
 
 chmod 命令用法如下：
 
-<div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fpsr5l1ggjj20ju02b3yb.jpg" width = "1000" height = "80" alt="图片名称" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/shell-chmod.png)
+
 
 其中，a 即全部的身份。
 

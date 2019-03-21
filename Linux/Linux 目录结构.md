@@ -30,8 +30,8 @@ FHS依据文件系统使用的频繁与否与是否允许使用者随意更动�
 
 Linux 目录结构如下：
 
-<div align="center"><img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fpq7cqu4bhj20qv147dir.jpg" width = "550" height = "750" alt="图片名称" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/%20file%20system.png)
+
 
 因为根目录与系统启动有关，系统启动过程中仅有根目录会被挂载，其他分区则是在系统启动完成之后才会陆续的进行挂载。因此，系统启动过程相关的目录就不能够与根目录放到不同的分区。
 
@@ -73,8 +73,8 @@ Linux 目录结构如下：
 
 ### **文件属性**
 
-<div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fpspx2p5usj20j0061750.jpg" width = "550" height = "170" alt="图片名称" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/file%20attr.png)
+
 
 列中的第一个字符代表这个文件是“目录、文件或链接文件等”：
 
@@ -118,8 +118,8 @@ Linux 文件的基本权限就有九个，分别是owner/group/others三种身�
 
 chmod 命令用法如下：
 
-<div align="center"><img src="https://wx4.sinaimg.cn/mw690/af9e9c30ly1fpsr5l1ggjj20ju02b3yb.jpg" width = "1000" height = "80" alt="图片名称" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/shell-chmod.png)
+
 
 其中，a 即全部的身份。
 

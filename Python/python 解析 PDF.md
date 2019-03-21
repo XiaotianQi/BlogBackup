@@ -11,9 +11,9 @@
 
 主要分为三块内容：构造文档对象，解析文档对象，提取所需内容。
 
-![各个类之间关系](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fu8cpioo8qj20js0dxglx.jpg)
+![各个类之间关系](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/PDF-1.png)
 
-![实现流程](https://wx4.sinaimg.cn/mw690/af9e9c30ly1fu8cpk7bolj20uh0hadga.jpg)
+![实现流程](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/PDF-2.jpg)
 
 解析单个 `pdf` 中的文本内容，保存到 `txt` 文件中。
 
@@ -121,3 +121,9 @@ if __name__ == '__main__':
 * 只使用转换文本功能，其他未涉及；
 * 无法转换页数过多的 PDF 文件。
   
+
+***
+
+参考：
+
+https://www.cnblogs.com/wj-1314/p/9429816.html

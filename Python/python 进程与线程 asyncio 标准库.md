@@ -349,7 +349,7 @@ Return the event loop the Future object is bound to.
 
 Event Loop 是一个很重要的概念，指的是计算机系统的一种运行机制。Event Loop是一个程序结构，用于等待和发送消息和事件。简单说，就是在程序中设置两个线程：一个负责程序本身的运行，称为"主线程"；另一个负责主线程与其他进程（主要是各种I/O操作）的通信，这个等待事件通知的循环线程，被称为"Event Loop线程"（可以译为"消息线程"）。
 
-![](http://www.ruanyifeng.com/blogimg/asset/201310/2013102004.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20Event%20loop.png)
 
 上图主线程的绿色部分，还是表示运行时间，而橙色部分表示空闲时间。每当遇到I/O的时候，主线程就让Event 
 Loop线程去通知相应的I/O程序，然后接着往后运行，所以不存在红色的等待时间。等到I/O程序完成操作，Event 

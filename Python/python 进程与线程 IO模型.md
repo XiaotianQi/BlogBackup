@@ -111,7 +111,7 @@
 1. 准备数据（对于网络IO来说，很多时候数据在一开始还没有到达。这个时候kernel就要等待足够的数据到来）。数据被拷贝到操作系统内核的缓冲区中是需要一个过程，这个过程需要等待。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞）。
 2. 当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态，重新运行起来。
 
-![](https://wx1.sinaimg.cn/mw690/af9e9c30ly1g0ubp86bm7j20fe08w3zj.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-blocking.png)
 
 直到阻塞结束recvfrom才能返回。
 
@@ -121,7 +121,7 @@ linux下，可以通过设置socket使其变为non-blocking。当对一个non-bl
 
 当用户进程发出read操作时，如果kernel中的数据还没有准备好，那么它并不会block用户进程，而是立刻返回一个error。从用户进程角度讲，它发起一个read操作后，并不需要等待，而是马上就得到了一个结果。用户进程判断结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦kernel中的数据准备好了，并且又再次收到了用户进程的system call，那么它马上就将数据拷贝到了用户内存，然后返回。
 
-![](https://wx1.sinaimg.cn/mw690/af9e9c30ly1g0ubp87bg0j20fe080dgz.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-non-blocking.png)
 
 可以看出recvfrom总是立即返回。
 
@@ -129,7 +129,7 @@ linux下，可以通过设置socket使其变为non-blocking。当对一个non-bl
 
 虽然I/O多路复用的函数也是阻塞的，但是其与以上两种还是有不同的，I/O多路复用是阻塞在select，epoll这样的系统调用之上，而没有阻塞在真正的I/O系统调用如recvfrom之上。会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。如图：
 
-![](https://wx2.sinaimg.cn/mw690/af9e9c30ly1g0ubp86me3j20fe0903zu.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-multiplexing.png)
 
 当用户进程调用了select，那么整个进程会被block，而同时，kernel会“监视”所有select负责的socket，当任何一个socket中的数据准备好了，select就会返回。这个时候用户进程再调用read操作，将数据从kernel拷贝到用户进程。 
 
@@ -139,7 +139,7 @@ linux下，可以通过设置socket使其变为non-blocking。当对一个non-bl
 
 I/O multiplexing 这里面的 multiplexing 指的其实是在**单个线程**通过记录跟踪每一个Sock(I/O流)的状态(对应空管塔里面的Fight progress strip槽)来同时管理多个I/O流. 发明它的原因，是尽量多的**提高**服务器的吞吐能力。多路网络连接复用一个io线程。
 
-![](https://wx1.sinaimg.cn/mw690/af9e9c30ly1g0udbnnmbvj20b403bjra.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-multiplexing-1.jpg)
 
 在IO multiplexing  Model中，实际中，对于每一个socket，一般都设置成为non-blocking，但是，如上图所示，整个用户的process其实是一直被block的。只不过process是被select这个函数block，而不是被socket  IO给block。
 
@@ -151,7 +151,7 @@ I/O multiplexing 这里面的 multiplexing 指的其实是在**单个线程**通
 
 这类函数的工作机制是告知内核启动某个操作，并让内核在整个操作（包括将数据从内核拷贝到用户空间）完成后通知我们。用户进程发起read操作之后，立刻就可以开始去做其它的事。而另一方面，从kernel的角度，当它受到一个asynchronous read之后，首先它会立刻返回，所以不会对用户进程产生任何block。然后，kernel会等待数据准备完成，然后将数据拷贝到用户内存，当这一切都完成之后，kernel会给用户进程发送一个signal，告诉它read操作完成了。回调就是用来处理此时返回的结果。
 
-![](https://wx2.sinaimg.cn/mw690/af9e9c30ly1g0ubp85xjgj20fe081q3x.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-asynchronous.png)
 
 调用时就可以立马返回，等函数操作完成会通知我们。
 
@@ -159,9 +159,7 @@ I/O multiplexing 这里面的 multiplexing 指的其实是在**单个线程**通
 
  其实前四种I/O模型都是同步I/O操作，他们的区别在于第一阶段，而他们的第二阶段是一样的：在数据从内核复制到应用缓冲区期间（用户空间），进程阻塞于recvfrom调用。相反，异步I/O模型在这两个阶段都要处理。
 
-
-
-![](https://wx3.sinaimg.cn/mw690/af9e9c30ly1g0ubp86szej20g20abab2.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO5.png)
 
 **blocking IO**的特点就是在IO执行的两个阶段都被block了
 
@@ -184,7 +182,7 @@ I/O multiplexing 这里面的 multiplexing 指的其实是在**单个线程**通
 
 在处理 IO 的时候，阻塞和非阻塞都是同步 IO。只有使用了特殊的 API 才是异步 IO。
 
-![](https://wx1.sinaimg.cn/mw690/af9e9c30ly1g0udbmfxw7j20bj046wej.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20IO-1.jpg)
 
 I/O复用(select/poll/epoll)都属于同步I/O，因为它们在数据由内核空间复制回进程缓冲区时都是阻塞的(不能干别的事)。只有异步I/O模型(AIO)是符合异步I/O操作的含义的，即在1）数据准备完成、2）由内核空间拷贝回缓冲区后，通知进程，在等待通知的这段时间里可以干别的事。
 

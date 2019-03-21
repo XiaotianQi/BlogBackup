@@ -26,7 +26,7 @@ U eat bananas.I eat aplles.
 
 状态转移：
 
-![状态转移](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fukhw18t8fj20ow0fjdg3.jpg)
+![状态转移](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Algorithm/Markov.jpg)
 
 状态分布：
 

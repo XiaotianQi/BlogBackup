@@ -10,8 +10,7 @@ Linux系统的启动过程可以分为5个阶段：
 * 加载开机启动程序
 * 用户登录
 
-<div align="center"><img src="https://wx3.sinaimg.cn/mw690/af9e9c30ly1fplmgr0mf0j20gj08n74c.jpg" width = "550" height = "250" alt="图片名称" align=center />
-</div>
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/start-up%20process.png)
 
 ***
 

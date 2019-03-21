@@ -153,7 +153,7 @@ Out[18]: time.struct_time(tm_year=2019, tm_mon=1, tm_mday=31, tm_hour=14, tm_min
 
 ### 时间格式之间的转换
 
-![](http://static.zybuluo.com/feixuelove1009/puafhqjgxe3uc2e4jvf0f60h/image.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/time%20format.png)
 
 | FROM           | TO             | 方法              |
 | -------------- | -------------- | ----------------- |

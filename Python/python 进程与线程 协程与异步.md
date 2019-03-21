@@ -360,15 +360,13 @@ loop.run_until_complete(print_sum(1, 2))
 loop.close()
 ```
 
-
-
-![](https://pic3.zhimg.com/80/v2-9c313f71f5fae011851541122ff7249a_hd.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20Event%20loop-1.png)
 
 当事件循环开始运行时，它会在Task中寻找coroutine来执行调度，因为事件循环注册了*print_sum()*，因此*print_sum()*被调用，执行*result = await compute(x, y)*这条语句（等同于*result = yield from compute(x, y)*），因为*compute()*自身就是一个coroutine，因此*print_sum()*这个协程就会暂时被挂起，*compute()*被加入到事件循环中，程序流执行*compute()*中的print语句，打印”Compute %s + %s …”，然后执行了*await asyncio.sleep(1.0)*，因为*asyncio.sleep()*也是一个coroutine，接着*compute()*就会被挂起，等待计时器读秒，在这1秒的过程中，事件循环会在队列中查询可以被调度的coroutine，而因为此前*print_sum()*与*compute()*都被挂起了，因此事件循环会停下来等待协程的调度，当计时器读秒结束后，程序流便会返回到*compute()*中执行return语句，结果会返回到*print_sum()*中的result中，最后打印result，事件队列中没有可以调度的任务了，此时*loop.close()*把事件队列关闭，程序结束。
 
 让我们用例子来比较和对比一下单线程、多线程以及事件驱动编程模型。下图展示了随着时间的推移，这三种模式下程序所做的工作。这个程序有3个任务需要完成，每个任务都在等待I/O操作时阻塞自身。阻塞在I/O操作上所花费的时间已经用灰色框标示出来了。
 
-![](https://wx1.sinaimg.cn/mw690/af9e9c30ly1g0ubb3crl3j20fe0cfq4u.jpg)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20Event%20loop-2.png)
 
 在单线程同步模型中，任务按照顺序执行。如果某个任务因为I/O而阻塞，其他所有的任务都必须等待，直到它完成之后它们才能依次执行。这种明确的执行顺序和串行化处理的行为是很容易推断得出的。如果任务之间并没有互相依赖的关系，但仍然需要互相等待的话这就使得程序不必要的降低了运行速度。
 
