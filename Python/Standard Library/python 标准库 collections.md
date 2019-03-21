@@ -7,8 +7,6 @@ Python `collections` 模块包含许多容器数据类型。
 * `OrderedDict`：有序字典，是 `dict` 的子类；
 * `ChainMap`：合并多个 `map(dict)`，但保持原数据结构。
 
-
-
 | 数据类型       | 含义                                                         |
 | -------------- | ------------------------------------------------------------ |
 | `namedtuple()` | factory function for creating tuple subclasses with named fields |

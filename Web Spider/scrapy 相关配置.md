@@ -58,5 +58,5 @@ scrapy genspider jobbole blog.jobbole.com
 
 简单的文件结构：
 
-![简单的文件结构](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fw1sk4ap7ij206x0ap3yi.jpg)
+![简单的文件结构](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files.png)
 

@@ -156,7 +156,7 @@ urllib.parse.urlparse(urlstring, scheme='', allow_fragments=True)
 
 实现 `URL` 的识别和拆分。返回值是一个 `ParseResult` 对象，包含6部分，分别是 `scheme`、`netloc`、`path`、`params`、`query` 和 `fragment`。
 
-![属性表](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fu06nfr4loj20oo0c50td.jpg)
+![属性表](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/urllib-1.png)
 
 ```python
 In [60]: url = 'http://netloc/path;param?query=arg#frag'
@@ -184,7 +184,7 @@ Out[65]: 'netloc'
 
 和 `urlparse()` 方法非常相似，只不过它不再单独解析params这一部分，只返回 5 个结果，不再有 `params` 属性。
 
-![属性表](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fu06nfhff2j20pd0b6q3h.jpg)
+![属性表](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/urllib-2.png)
 
 ```python
 urllib.parse.urlsplit(urlstring, scheme='', allow_fragments=True)

@@ -1,6 +1,6 @@
 你和任何一个陌生人之间所间隔的人不会超过六个，也就是说，最多通过五个中间人你就能够认识任何一个陌生人，见图所示。这就是六度分割理论，也叫小世界理论。
 
-![数据库格式](https://wx4.sinaimg.cn/mw690/af9e9c30ly1fu4vivb0r6j20pj0cuq3a.jpg)
+![数据库格式](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/6Degrees.jpg)
 
 ## 数据获取
 
