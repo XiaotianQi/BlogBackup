@@ -173,7 +173,7 @@ test = "i have a dog, i have 2 cats."
 
 正则表达式：`(\d{4})-(\d{2}-(\d\d))`
 
-![普通捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-2.jpg)
+![普通捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-2.png)
 
 ![普通捕获结果](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fsgcdcp9goj207h0120no.jpg)
 
@@ -185,7 +185,7 @@ test = "i have a dog, i have 2 cats."
 
 正则表达式：`(?<year>\d{4})-(?<date>\d{2}-(?<day>\d\d))`
 
-![命名捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-3.jpg)
+![命名捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-3.png)
 
 ![命名捕获结果](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fsgcddtqskj207g0130sh.jpg)
 
@@ -195,7 +195,7 @@ test = "i have a dog, i have 2 cats."
 
 实际上组号分配过程是要从左向右扫描两遍的：第一遍只给未命名组分配，第二遍只给命名组分配－－因此所有命名组的组号都大于未命名的组号。
 
-![混合捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-4.jpg)
+![混合捕获](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-4.png)
 
 ![混合捕获结果](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fsgcdiay6ij207h0170ph.jpg)
 
@@ -354,7 +354,7 @@ print(regEx.findall(test))
 
 匹配过程：
 
-![匹配过程](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-5.jpg)
+![匹配过程](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-5.png)
 
 * 首先，由 `<` 获得控制权，由位置0开始匹配。由于`<` 匹配 `a` 失败，正则引擎向前传动，在位置1处开始第二次匹配。在成功匹配前，一直重复此过程。
 
@@ -392,7 +392,7 @@ print(regEx.findall(test))
 
 匹配过程：
 
-![匹配过程](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-6.jpg)
+![匹配过程](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/re-6.png)
 
 * 首先，`(?<=<div>)` 取得控制权，从位置0开始匹配。由于位置0是起始位置，左侧没有任何内容，所以 `<div>` 必然匹配失败，以至于表达式 `(?<=<div>)` 匹配失败，从而导致整个表达式在位置0处匹配失败。第一轮迭代匹配失败，正则引擎向前传动，由位置1处开始尝试第二次迭代匹配。
 

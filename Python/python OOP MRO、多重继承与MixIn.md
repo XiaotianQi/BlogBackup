@@ -70,7 +70,7 @@ class D(C1,C2):
 
 继承关系如下图：
 
-![继承关系](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fsr7fizg3nj20960e9jre.jpg)
+![继承关系](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20MRO-1.png)
 
 D --> C1 --> A --> C2 --> B --> Object
 
@@ -118,7 +118,7 @@ class D(C1,C2):
 
 继承关系如下图：
 
-![继承关系](https://wx3.sinaimg.cn/mw690/af9e9c30ly1fsr7fjg2l0j209a0e9gln.jpg)
+![继承关系](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20MRO-2.png)
 
 D --> C1 --> C2 --> A --> B --> Object
 
@@ -142,7 +142,7 @@ C2-bar
 
 继承关系如下图：
 
-![继承关系](https://wx2.sinaimg.cn/mw690/af9e9c30ly1fsr8ilqgfuj208z0dtmx7.jpg)
+![继承关系](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20MRO-3.png)
 
 E --> D1 --> D2 --> A --> B --> C --> Object
 

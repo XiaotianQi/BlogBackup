@@ -83,7 +83,7 @@ socket 是一种操作系统提供的进程间通信机制。进程通信之前�
 
 下图选自《图解TCP/IP》:
 
-![SOCKET](https://wx1.sinaimg.cn/mw690/af9e9c30ly1fy387tfy5dj20pc0ho3yj.jpg)
+![SOCKET](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/socket%20TCPIP.png)
 
 在操作系统中，通常会为应用程序提供一组应用程序接口（API），称为套接字接口（英语：socket API）。应用程序可以通过套接字接口，来使用网络套接字，以进行数据交换。
 
