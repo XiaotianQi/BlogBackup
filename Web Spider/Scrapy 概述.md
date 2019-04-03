@@ -44,7 +44,6 @@ New Scrapy project 'NewsSpider', using template directory 'c:\python\envs\news\l
 You can start your first spider with:
     cd NewsSpider
     scrapy genspider example example.com
-
 ```
 
 ### 文件结构
@@ -52,16 +51,16 @@ You can start your first spider with:
 ![简单的文件结构](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-1.png)
 
 ```text
-NewsSpider\
+NewsSpider/
 	scrapy.cfg            		# 部署配置文件
-    NewsSpider\
-        spiders\       	  		# 项目的Python模块,将在这里输入代码
+    NewsSpider/
+        spiders/   	  		 	# 项目的Python模块,将在这里输入代码
             __init__.py
             items.py          	# items定义文件，数据保存的格式
             middlewares.py   	# 中间件，灵活控制scrapy
             pipelines.py     	# 管道，数据的存储
             settings.py    	  	# 设置
-            spiders\     	    # 存储各类spider的文件夹
+            spiders/    	    # 存储各类spider的文件夹
                 __init__.py
 ```
 

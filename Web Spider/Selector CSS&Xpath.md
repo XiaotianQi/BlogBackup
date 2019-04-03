@@ -207,6 +207,14 @@ xpath-to-element//preceding-sibling::tag	# 定位前面同胞节点
 xpath-to-element//following-sibling::tag	# 定位前面同胞节点
 ```
 
+获取信息：
+
+```text
+a/text()      获取a标签中的文本内容
+
+a/@href 	  获取a标签中href属性的值
+```
+
 ***
 
 ## CSS
@@ -292,6 +300,14 @@ img[id*='hplogo']	任何包含hplogo的id
 
 ```
 div>#gbw
+```
+
+### 获取信息
+
+```text
+a::text        获取a标签中的文本内容
+
+a::attr(href)  获取a标签中href属性的值
 ```
 
 ***
