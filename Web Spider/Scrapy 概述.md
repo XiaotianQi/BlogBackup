@@ -94,3 +94,32 @@ execute(['scrapy', 'crawl', 'sina'])
 
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-2.png)
 
+## scrapy shell
+
+```text
+# 命令行模式
+scrapy shell http://www.chinanews.com/scroll-news/news1.html
+
+# 输出如下提示
+[s] Available Scrapy objects:
+[s]   scrapy     scrapy module (contains scrapy.Request, scrapy.Selector, etc)
+[s]   crawler    <scrapy.crawler.Crawler object at 0x000002A83CC619E8>
+[s]   item       {}
+[s]   request    <GET http://www.chinanews.com/scroll-news/news1.html>
+[s]   response   <200 http://www.chinanews.com/scroll-news/news1.html>
+[s]   settings   <scrapy.settings.Settings object at 0x000002A83CC61748>
+[s]   spider     <ChinanewsSpider 'chinanews' at 0x2a83d6e3908>
+[s] Useful shortcuts:
+[s]   fetch(url[, redirect=True]) Fetch URL and update local objects (by default, redirects are followed)
+[s]   fetch(req)                  Fetch a scrapy.Request and update local objects
+[s]   shelp()           Shell help (print this help)
+[s]   view(response)    View response in a browser
+```
+
+对指定 url 进行调试。
+
+```text
+response.xpath(...)
+response.css(...)
+```
+

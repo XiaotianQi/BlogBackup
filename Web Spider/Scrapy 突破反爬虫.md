@@ -1,3 +1,31 @@
+## settings 相关
+
+```text
+COOKIES_ENABLED = False
+如果目标网站不需要登录，那么设置False，防止被跟踪，减少被发现概率
+```
+
+### 限速
+
+```python
+# 设置下载延迟
+DOWNLOAD_DELAY = 5
+
+# 开始自动限速
+AUTOTHROTTLE_ENABLED = True
+# The initial download delay
+#AUTOTHROTTLE_START_DELAY = 5
+# The maximum download delay to be set in case of high latencies
+#AUTOTHROTTLE_MAX_DELAY = 60
+# The average number of requests Scrapy should be sending in parallel to
+# each remote server
+#AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# Enable showing throttling stats for every response received:
+#AUTOTHROTTLE_DEBUG = False
+```
+
+***
+
 ## USE_AGENT
 
 修改 settings 文件中
@@ -5,6 +33,53 @@
 ```python
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0'
 ```
+
+### 随机更换 USE_AGENT
+
+依赖第三方包 fake-useragent
+
+在 middleware 中：
+
+```python
+from fake_useragent import UserAgent
+
+class RandomUserAgentMiddleware(object):
+    # 随机更换 user-agent
+    def __init__(self, crawler):
+        super().__init__()
+        self.ua = UserAgent()
+        self.ua_type = crawler.settings.get('UA_TYPE', 'random')
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_request(self, request, spider):
+        def get_ua():
+            return getattr(self.ua, self.ua_type)
+        request.headers.setdefault('User-Agent', get_ua())
+```
+
+相应的 settings 文件：
+
+```python
+#随机USER_AGENT浏览器类型
+UA_TYPE = 'random'
+
+DOWNLOADER_MIDDLEWARES = {
+    #'NewsSpider.middlewares.NewsspiderDownloaderMiddleware': 543,
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'NewsSpider.middlewares.RandomUserAgentMiddleware': 1,
+}
+```
+
+增加 UA_TYPE项，便于控制生成的浏览器类型。
+
+***
+
+## IP 代理池
+
+
 
 ***
 
@@ -120,5 +195,55 @@ class SinaSpider(scrapy.Spider):
 
 ```python
 COOKIES_ENABLED = True
+```
+
+### 将 selenium 集成在 scrapy
+
+首先，在 middleware 中：
+
+```python
+from selenium import webdriver
+from scrapy.http import HtmlResponse
+
+class JSPageMiddleware(object):
+    # 通过selenium 请求动态网页
+    def process_request(self, request, spider):
+        if spider.name == "sina":
+            spider.browser.get(request.url)
+            import time
+            time.sleep(5)
+            return HtmlResponse(
+                url=spider.browser.current_url,
+                body=spider.browser.page_source,
+                encoding="utf-8",
+                request=request)
+```
+
+然后，sina.py 脚本爬虫中：
+
+```python
+from selenium import webdriver
+from scrapy import signals
+from scrapy.xlib.pydispatch import dispatcher
+
+class SinaSpider(scrapy.Spider):
+    ...
+
+    custom_settings = {
+        'DOWNLOADER_MIDDLEWARES':{
+            'NewsSpider.middlewares.JSPageMiddleware':1,
+        }
+    }
+    
+    def __init__(self):
+        self.browser = webdriver.Chrome(executable_path=r'C:\GitHub\spiders\NewsSpider\tools\chromedriver.exe')
+        super().__init__()
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
+    
+    def spider_closed(self, spider):
+        print('Spider closed')
+        self.browser.quit()
+        
+    ...
 ```
 
