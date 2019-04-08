@@ -11,7 +11,15 @@
 * linux：能够使用，shell编程列入计划 +
 * 自然语言处理：列入计划，准备中 +
 
-email：slrecollect@126.com
+***
+
+箴言：
+
+1. Beautiful is better than ugly.
+2. Explicit is better than implicit.
+3. Simple is better than complex.
+4. Complex is better than complicated.
+5. Readability counts.
 
 ***
 
