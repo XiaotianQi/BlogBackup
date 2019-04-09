@@ -89,13 +89,15 @@ Selenium 框架底层使用JavaScript模拟真实用户对浏览器进行操作�
 
 ### 通过 Chromedriver 自动打开Chrome
 
+爬虫文件：
+
 ```python
 # -*- coding: utf-8 -*-
 import scrapy
 from selenium import webdriver
 
 class SinaSpider(scrapy.Spider):
-    ...
+    # 省略...
 
     def start_requests(self):
         browser = webdriver.Chrome(executable_path=r'C:\GitHub\spiders\NewsSpider\tools\chromedriver.exe')
@@ -118,6 +120,8 @@ chrome.exe --remote-debugging-port=9222
 
 此时，通过`127.0.0.1:9222/json`，能过正确访问，就表示启动成功。
 
+爬虫文件：
+
 ```python
 # -*- coding: utf-8 -*-
 import scrapy
@@ -125,7 +129,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 class SinaSpider(scrapy.Spider):
-    ...
+    # 省略...
 
     def start_requests(self):
         chrome_option = Options()
@@ -141,7 +145,9 @@ class SinaSpider(scrapy.Spider):
 
 ### 模拟登录
 
-模拟登录
+模拟登录。
+
+爬虫文件：
 
 ```python
 # -*- coding: utf-8 -*-
@@ -150,7 +156,7 @@ import time
 from selenium import webdriver
 
 class SinaSpider(scrapy.Spider):
-    ...
+    # 省略...
 
     def start_requests(self):
         browser = webdriver.Chrome(executable_path=r'C:\GitHub\spiders\NewsSpider\tools\chromedriver.exe')
@@ -169,6 +175,8 @@ class SinaSpider(scrapy.Spider):
 
 登录成功后，存储登录后的cookies，从而实现之后访问时，自动登录
 
+爬虫文件：
+
 ```python
 # -*- coding: utf-8 -*-
 import scrapy
@@ -177,7 +185,7 @@ import time
 from selenium import webdriver
 
 class SinaSpider(scrapy.Spider):
-    ...
+    # 省略...
 
     def start_requests(self):
         ...
@@ -227,7 +235,7 @@ from scrapy import signals
 from scrapy.xlib.pydispatch import dispatcher
 
 class SinaSpider(scrapy.Spider):
-    ...
+    # 省略...
 
     custom_settings = {
         'DOWNLOADER_MIDDLEWARES':{
@@ -244,6 +252,11 @@ class SinaSpider(scrapy.Spider):
         print('Spider closed')
         self.browser.quit()
         
-    ...
+    # 省略...
 ```
 
+***
+
+参考：
+
+https://coding.imooc.com/learn/list/92.html

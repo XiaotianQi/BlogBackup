@@ -1,6 +1,6 @@
 列举一系列，python使用环境相关。
 
-## pip 使用相关
+## pip
 
 ```text
 pip list --outdate	# 检查更新
@@ -72,8 +72,6 @@ virtualenvwrapper 提供了一些便捷的命令。
 λ rmvirtualenv env27
 ```
 
-
-
 ***
 
 ## cmder
@@ -103,7 +101,7 @@ alias ll=ls -al --show-control-chars --color $*
 使用 setting sync 第三方插件，同步配置信息。
 
 ```text
-ALT+SHITF+U:长传配置
+ALT+SHITF+U:上传配置
 
 ALT+SHITF+D:下载配置
 
