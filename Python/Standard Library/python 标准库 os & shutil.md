@@ -124,6 +124,45 @@ except OSError as ex:
     print(ex)
 ```
 
+绝对路径 相对路径：
+
+`\`：绝对路径
+
+`/`：相对路径
+
+```python
+os.path.dirname(__file__)					# c:/test/path test
+os.path.abspath(os.path.dirname(__file__))	# c:\test\path test
+```
+
+```text
+''     ：当前同级目录
+'/'    ：根目录
+'./'   ：当前同级目录
+'../'  ：上级目录
+```
+
+```python
+with open('f1.txt', 'w') as f:
+    f.write('test text')
+
+with open('./f2.txt', 'w') as f:
+    f.write('test text')
+
+with open('../f3.txt', 'w') as f:
+    f.write('test text')
+```
+
+对应的目录如下：
+
+```text
+path_test\
+	f3.txt
+	test\
+		f1.txt
+		f2.txt
+```
+
 ***
 
 ### 执行命令
