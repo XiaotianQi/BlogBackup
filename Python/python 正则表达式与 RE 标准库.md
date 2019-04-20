@@ -315,7 +315,7 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 
 * `MatchObject` 可调用的方法
 
-`re.match()` 与 `re.search()` 成功匹配后返回的均是 `MatchObject`。`MatchObject` 具有以下方法：
+`re.match()` 与 `re.search()` 成功匹配后返回的均是 `Match Object`。`Match Object` 具有以下方法：
 
 |方法|作用|
 |:-|:-|
@@ -396,7 +396,17 @@ print(re.findall(r'[a-z]', test))
 ['a', 'b', 'c']
 ```
 
-findall()和match()、search()的不同之处在于，前两者都是单值匹配，找到一个就忽略后面，直接返回不再查找了。而findall是全文查找，它的返回值是一个匹配到的字符串的列表。这个列表没有group()方法，没有start、end、span，更不是一个匹配对象，仅仅是个列表！
+re.findall()和re.match()、re.search()的不同之处在于：
+
+后两者都是单值匹配，找到一个就忽略后面，直接返回不再查找了。并且，返回Match Object。
+
+re.findall()是全文查找，返回值是一个所有匹配到的字符串的列表。
+
+re.match()和re.search()的不同之处在于：
+
+re.match只匹配字符串的开始，如果字符串开始不符合正则表达式，则匹配失败，函数返回None；
+
+而re.search匹配整个字符串，直到找到一个匹配。
 
 * `re.finditer(pattern, string[, flags=0])`
 
@@ -481,7 +491,7 @@ print(re.sub(r'2', 'b', test))
 
 * `re.split(pattern, string[, maxsplit=0])`
 
-`re.split()` 用来分割字符串，re模块的split()方法和字符串的split()方法很相似，都是利用特定的字符去分割字符串。但是re模块的split()可以使用正则表达式。具体的说明和应用在这篇博文中 [python str.split() 与 re.split() 处理字符串](http://starrynight.tech/post/26/) 已说明，不再赘述。
+`re.split()` 用来分割字符串，re模块的split()方法和字符串的split()方法很相似，都是利用特定的字符去分割字符串。但是re模块的split()可以使用正则表达式。
 
 利用分组的概念，`re.split()`方法还可以保存被匹配到的分隔符，这个功能非常重要！
 
