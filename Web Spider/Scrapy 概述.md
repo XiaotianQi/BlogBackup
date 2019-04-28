@@ -1,3 +1,13 @@
+Scrapy是一种用于抓取网站和提取结构化数据的应用程序框架，例如用于数据挖掘，信息处理或历史存档。而且，scrapy 也是异步框架。
+
+Scrapy是用纯Python编写的，并且依赖于几个关键的Python包：
+
+- [lxml](http://lxml.de/)，一种高效的XML和HTML解析器
+- [parsel](https://pypi.python.org/pypi/parsel)，一个基于lxml的HTML/XML数据提取库
+- [w3lib](https://pypi.python.org/pypi/w3lib)，一款用于处理网址和网页编码的多用途帮手
+- [twisted](https://twistedmatrix.com/)，一个异步网络框架
+- [cryptography](https://cryptography.io/)和[pyOpenSSL](https://pypi.python.org/pypi/pyOpenSSL)，用来处理各种网络级安全需求
+
 ## 准备
 
 在目标路径中，创建虚拟环境：
@@ -51,7 +61,7 @@ You can start your first spider with:
 ![简单的文件结构](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-1.png)
 
 ```text
-NewsSpider/
+NewsSpider/						# 项目根目录
 	scrapy.cfg            		# 部署配置文件
     NewsSpider/
         spiders/   	  		 	# 项目的Python模块,将在这里输入代码
@@ -123,6 +133,32 @@ close_spider(spider)
 
 ## scrapy shell
 
+### 创建
+
+创建项目：
+
+```bash
+scrapy startproject NewsSpider
+```
+
+创建爬虫：
+
+在`project_dir`目录下创建
+
+```bash
+scrapy genspider sina news.sina.com.cn/roll
+
+scrapy genspider -t crawl xxx xxx
+```
+
+### 启动爬虫
+
+```bash
+scrapy crawl chinanews
+```
+
+### 调试
+
 ```text
 # 命令行模式
 scrapy shell http://www.chinanews.com/scroll-news/news1.html
@@ -143,14 +179,82 @@ scrapy shell http://www.chinanews.com/scroll-news/news1.html
 [s]   view(response)    View response in a browser
 ```
 
-对指定 url 进行调试。
+对指定 url 进行调试，用于调试CSS和XPath表达式来抓取数据，在编写或调试spider时非常有用。
 
 ```text
 response.xpath(...)
 response.css(...)
 ```
 
-爬虫的暂停与重启：
+提取信息：
+
+`.extract()` 和 `.extract_first()`
+
+```cmd
+# 返回 SelectorList 对象的列表
+In [1]: response.css('title')	
+Out[1]: [<Selector xpath='descendant-or-self::title' data='<title>Quotes to Scrape</title>'>]
+
+# 返回所有字符串列表
+In [2]: response.css('title::text').extract()
+Out[2]: ['Quotes to Scrape']
+
+# 返回列表中第一个对象	
+In [3]: response.css('title::text').extract_first()
+Out[3]: 'Quotes to Scrape'
+
+# 同上，但会发生IndexError并返回None。
+In [4]: response.css('title::text')[0].extract()
+Out[4]: 'Quotes to Scrape'
+```
+
+`.getall()` 和 `.get()`
+
+```bash
+In [5]: response.css('title::text').getall()
+Out[5]: ['Quotes to Scrape']
+
+In [6]: response.css('title::text').get()
+Out[6]: 'Quotes to Scrape'
+```
+
+`.re()`
+
+```bash
+In [7]: response.css('title::text').re(r'(\w+) to (\w+)')
+Out[7]: ['Quotes', 'Scrape']
+```
+
+`view(response)`
+
+下载该页面源码，并查看。
+
+```bash
+In [8]: view(response)
+Out[8]: True
+```
+
+除此之外，如果通过浏览器自带的 Network 找到正确的request，获得例如json或者xml数据格式，不仅获取信息方便，还避免了爬取动态网页。
+
+### 存储抓取的数据
+
+```bash
+scrapy crawl chinanews -o chinanews.json
+```
+
+将生成一个`chinanews.json`文件，其中包含所有序列化为JSON的已抓取项目。
+
+由于历史原因，Scrapy附加到给定文件而不是覆盖其内容。 如果在第二次执行该命令前未移除该文件，则会生成一个损坏的JSON文件。
+
+可以使用其他格式，如JSON Lines：
+
+```bash
+scrapy crawl chinanews -o chinanews.jsonl
+```
+
+JSON行格式非常有用，因为它类似于流，可以轻松地向其添加新记录。 当运行两次时，它不会发生和JSON相同的问题。 另外，由于每条记录都是一条独立的行，因此可以处理大文件而不必将所有内容都放在内存中。
+
+### 暂停与重启
 
 ```bash
 scrapy crawl chinanews -s JOBDIR=job_info/chinanews/001
