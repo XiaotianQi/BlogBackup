@@ -8,55 +8,7 @@ Scrapy是用纯Python编写的，并且依赖于几个关键的Python包：
 - [twisted](https://twistedmatrix.com/)，一个异步网络框架
 - [cryptography](https://cryptography.io/)和[pyOpenSSL](https://pypi.python.org/pypi/pyOpenSSL)，用来处理各种网络级安全需求
 
-## 准备
-
-在目标路径中，创建虚拟环境：
-
-```powershell
-mkvirtualenv --python=C:\Python\Python37\python.exe news
-```
-
-安装依赖：
-
-* 安装 `scrapy`
-
-可以使用豆瓣源安装：
-
-```powershell
-(news) λ pip install -i https://pypi.douban.com/simple/ scrapy
-```
-
-如果提示 `error: Microsoft Visual C++ 14.0 is required.`，那么独立安装 Twisted 包，即可解决。
-
-可以在 `https://www.lfd.uci.edu/~gohlke/pythonlibs/#twisted` 中找到 python 包。
-
-PS：虚拟环境包：
-
-* `virtualenv`
-* `virtualenvwrapper`（或者 `virtualenvwrapper-win`）
-
-***
-
-### 创建一个项目
-
-在目标路径，虚拟环境中：
-
-```cmd
-(news) λ scrapy startproject NewsSpider
-```
-
-便会出现创建成功信息：
-
-```powershell
-New Scrapy project 'NewsSpider', using template directory 'c:\python\envs\news\lib\site-packages\scrapy\templates\project', created in:
-    C:\GitHub\spiders\NewsSpider
-
-You can start your first spider with:
-    cd NewsSpider
-    scrapy genspider example example.com
-```
-
-#### 文件结构
+## 文件结构
 
 ![简单的文件结构](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-1.png)
 
@@ -74,26 +26,7 @@ NewsSpider/						# 项目根目录
                 __init__.py
 ```
 
-### 创建一个spider
-
- 根据项目创建成功信息，在`NewsSpider`文件夹中，输入提示命令：
-
-```powershell
-(news) λ cd NewsSpider\
-(news) λ scrapy genspider sina news.sina.com.cn/roll
-```
-
-`NewsSpider\NewsSpider\spiders\`文件夹中，目录新增 sina.py 文件。
-
-也可以指定模版创建：
-
-```bash
-scrapy genspider -t crawl xxx xxx
-```
-
-#### 创建 main.py 文件
-
-在`NewsSpider\`文件夹中，创建 main.py 文件，便于调试。
+为了便于调试，在`NewsSpider\`文件夹中，创建 main.py 文件。
 
 ```python
 # _*_coding:utf-8_*_
@@ -106,163 +39,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 execute(['scrapy', 'crawl', 'sina'])
 ```
 
-#### 文件结构
-
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-2.png)
 
 ***
 
-`Item`对象是自定义的python字典,可以使用标准的字典语法来获取到其每个字段的值。Spider将会将爬取到的数据以 Item 对象返回
-
-当Item在Spider中被收集之后，它将会被传递到Item Pipeline，一些组件会按照一定的顺序执行对Item的处理。
-
-```text
-process_item(item, spider)
-每个item pipeline组件都需要调用该方法
-item: 由 parse 方法返回的 Item 对象(Item对象)
-spider: 抓取到这个 Item 对象对应的爬虫对象(Spider对象)
-
-open_spider(spider)
-#当spider被开启时，这个方法被调用。
-　　
-close_spider(spider)
-当spider被关闭时，这个方法被调用，可以再爬虫关闭后进行相应的数据处理。
-```
-
-***
-
-## scrapy shell
-
-### 创建
-
-创建项目：
-
-```bash
-scrapy startproject NewsSpider
-```
-
-创建爬虫：
-
-在`project_dir`目录下创建
-
-```bash
-scrapy genspider sina news.sina.com.cn/roll
-
-scrapy genspider -t crawl xxx xxx
-```
-
-### 启动爬虫
-
-```bash
-scrapy crawl chinanews
-```
-
-### 调试
-
-```text
-# 命令行模式
-scrapy shell http://www.chinanews.com/scroll-news/news1.html
-
-# 输出如下提示
-[s] Available Scrapy objects:
-[s]   scrapy     scrapy module (contains scrapy.Request, scrapy.Selector, etc)
-[s]   crawler    <scrapy.crawler.Crawler object at 0x000002A83CC619E8>
-[s]   item       {}
-[s]   request    <GET http://www.chinanews.com/scroll-news/news1.html>
-[s]   response   <200 http://www.chinanews.com/scroll-news/news1.html>
-[s]   settings   <scrapy.settings.Settings object at 0x000002A83CC61748>
-[s]   spider     <ChinanewsSpider 'chinanews' at 0x2a83d6e3908>
-[s] Useful shortcuts:
-[s]   fetch(url[, redirect=True]) Fetch URL and update local objects (by default, redirects are followed)
-[s]   fetch(req)                  Fetch a scrapy.Request and update local objects
-[s]   shelp()           Shell help (print this help)
-[s]   view(response)    View response in a browser
-```
-
-对指定 url 进行调试，用于调试CSS和XPath表达式来抓取数据，在编写或调试spider时非常有用。
-
-```text
-response.xpath(...)
-response.css(...)
-```
-
-提取信息：
-
-`.extract()` 和 `.extract_first()`
-
-```cmd
-# 返回 SelectorList 对象的列表
-In [1]: response.css('title')	
-Out[1]: [<Selector xpath='descendant-or-self::title' data='<title>Quotes to Scrape</title>'>]
-
-# 返回所有字符串列表
-In [2]: response.css('title::text').extract()
-Out[2]: ['Quotes to Scrape']
-
-# 返回列表中第一个对象	
-In [3]: response.css('title::text').extract_first()
-Out[3]: 'Quotes to Scrape'
-
-# 同上，但会发生IndexError并返回None。
-In [4]: response.css('title::text')[0].extract()
-Out[4]: 'Quotes to Scrape'
-```
-
-`.getall()` 和 `.get()`
-
-```bash
-In [5]: response.css('title::text').getall()
-Out[5]: ['Quotes to Scrape']
-
-In [6]: response.css('title::text').get()
-Out[6]: 'Quotes to Scrape'
-```
-
-`.re()`
-
-```bash
-In [7]: response.css('title::text').re(r'(\w+) to (\w+)')
-Out[7]: ['Quotes', 'Scrape']
-```
-
-`view(response)`
-
-下载该页面源码，并查看。
-
-```bash
-In [8]: view(response)
-Out[8]: True
-```
-
-除此之外，如果通过浏览器自带的 Network 找到正确的request，获得例如json或者xml数据格式，不仅获取信息方便，还避免了爬取动态网页。
-
-### 存储抓取的数据
-
-```bash
-scrapy crawl chinanews -o chinanews.json
-```
-
-将生成一个`chinanews.json`文件，其中包含所有序列化为JSON的已抓取项目。
-
-由于历史原因，Scrapy附加到给定文件而不是覆盖其内容。 如果在第二次执行该命令前未移除该文件，则会生成一个损坏的JSON文件。
-
-可以使用其他格式，如JSON Lines：
-
-```bash
-scrapy crawl chinanews -o chinanews.jsonl
-```
-
-JSON行格式非常有用，因为它类似于流，可以轻松地向其添加新记录。 当运行两次时，它不会发生和JSON相同的问题。 另外，由于每条记录都是一条独立的行，因此可以处理大文件而不必将所有内容都放在内存中。
-
-### 暂停与重启
-
-```bash
-scrapy crawl chinanews -s JOBDIR=job_info/chinanews/001
-```
-
-***
-
-## 架构概述
+## 数据流
 
 Scrapy的体系结构，以及它的组件之间的交互。数据流如下图：
 
