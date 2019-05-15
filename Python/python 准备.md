@@ -37,6 +37,12 @@ for dist in pip.get_installed_distributions():
     call("pip install --upgrade " + dist.project_name, shell=True)
 ```
 
+在linux中，安装python3的pip时：
+
+```bash
+sudo apt install python3-pip
+```
+
 ***
 
 ## 虚拟环境
@@ -71,6 +77,63 @@ virtualenvwrapper 提供了一些便捷的命令。
 # 删除虚拟环境
 λ rmvirtualenv env27
 ```
+
+virtualenvwrapper配置：
+
+```text
+WORKON_HOME：	虚拟环境的存放位置
+PROJECT_HOME：	项目目录的存放位置（使用mkproject命令时会用到）
+source：			待载入Shell文件的路径
+```
+
+* win
+
+  设置环境变量。在系统变量中新建“变量名”：WORKON_HOME：“自定义路径”。
+
+* linux
+
+  在.bashrc加入如下代码：
+
+  ```text
+  export WORKON_HOME=$HOME/.local/Envs
+  # export PROJECT_HOME=$HOME/Devel
+  source ~/.local/bin/virtualenvwrapper.sh
+  ```
+
+  不同系统中,`virtualenvwrapper.sh`的路径可能不一样，find命令可以帮助我们找到需要的文件：
+
+  ```bash
+  find / -name virtualenvwrapper.sh
+  ```
+
+  执行 source 命令，使刚添加的代码生效：
+
+  ```bash
+  source .bashrc
+  ```
+  
+  如果出现如下错误：
+  
+  ```text
+  virtualenvwrapper.sh: There was a problem running the initialization hooks.
+  
+  If Python could not import the module virtualenvwrapper.hook_loader,
+  check that virtualenvwrapper has been installed for
+  VIRTUALENVWRAPPER_PYTHON= and that PATH is
+  set properly.
+  ```
+  
+  则，在virtualenvwrapper.sh做如下修改：
+  
+  ```text
+  # Locate the global Python where virtualenvwrapper is installed.
+  if [ "${VIRTUALENVWRAPPER_PYTHON:-}" = "" ]
+  then
+      VIRTUALENVWRAPPER_PYTHON="$(command \which python3)"
+  fi
+  ```
+  
+  将`VIRTUALENVWRAPPER_PYTHON="$(command \which python)"`修改为`VIRTUALENVWRAPPER_PYTHON="$(command \which python3)"`。
 
 ***
 
