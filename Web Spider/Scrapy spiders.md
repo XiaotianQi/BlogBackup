@@ -154,6 +154,268 @@ def process_value(value):
 
 ***
 
+## Selectors 选择器
+
+在爬取网页时，最常见的是从 HTML 中提取数据。 有几个库可以实现这一点：
+
+* BeautifulSoup：非常流行的网络抓取库，但它有一个缺点：速度很慢。
+* lxml是一个基于ElementTree的pythonic API的XML解析库（也解析HTML）。
+
+Scrapy有自己的数据提取机制。Scrapy的选择器通过XPath或CSS表达式选择的HTML文档的指定部分。
+
+Scrapy 选择器是对parsel库的一个简单的包装。parsel是一个独立的web抓取库。它在底层使用lxml库，并在lxml API之上实现一个简单的API。这意味着 Scrapy 的选择器在速度和解析精度上与lxml非常相似。
+
+### 使用选择器
+
+使用XPath和CSS查询responses非常常见，因此responses还包括另外两个快捷方式:`response.xpath()`和`response.css()`
+
+```bash
+>>> response.xpath('//span/text()').get()
+'good'
+>>> response.css('span::text').get()
+'good'
+```
+
+选择器根据输入类型自动选择最佳解析规则(XML or HTML)。
+
+对于网址：https://docs.scrapy.org/en/latest/_static/selectors-sample1.html
+
+```bash
+>>> response.xpath('//title/text()').get()
+'Example website'
+>>> response.xpath('//title/text()').getall()
+['Example website']
+```
+
+`.get()` 总是返回一个结果。如果有多个匹配项，则返回第一个匹配项。如果没有匹配项，则返回None。与`.extract_first()`作用相同。
+
+`.getall()` 返回一个包含所有结果的列表。与`.extract()`作用相同。
+
+当没有匹配项时，也可以自定义返回值：
+
+```bash
+>>> response.xpath('//div[@id="not-exists"]/text()').get()
+>>> response.xpath('//div[@id="not-exists"]/text()').get() is None
+True
+>>> response.xpath('//div[@id="not-exists"]/text()').get(default='not-found')
+'not-found'
+```
+
+作为一种快捷方式，`.attrib`也可以直接在SelectorList上使用。它返回第一个匹配元素的属性：
+
+```bash
+>>> response.css('img').attrib
+{'src': 'image1_thumb.jpg'}
+>>> response.css('img').attrib['src']
+'image1_thumb.jpg'
+>>> [img.attrib['src'] for img in response.css('img')]
+['image1_thumb.jpg', 'image2_thumb.jpg', 'image3_thumb.jpg', 'image4_thumb.jpg', 'image5_thumb.jpg']
+```
+
+#### 嵌套选择器
+
+```bash
+>>> response.xpath('//title/text()')
+[<Selector xpath='//title/text()' data='Example website'>]
+```
+
+`.xpath()`和`.css()`方法返回一个`SelectorList`实例，包含新选择器的列表。 该API可用于快速提取嵌套数据：
+
+```bash
+>>> response.css('img').xpath('@src').getall()
+['image1_thumb.jpg', 'image2_thumb.jpg', 'image3_thumb.jpg', 'image4_thumb.jpg', 'image5_thumb.jpg']
+```
+
+#### 具有正则表达式的选择器
+
+Selector还有一个`.re()` 和 `.re_first()`方法，用于使用正则表达式提取数据。不过，返回的是unicode字符串列表。
+
+```bash
+>>> response.xpath('//a[contains(@href, "image")]/text()').re(r'Name:\s*(.*)')
+['My image 1 ', 'My image 2 ', 'My image 3 ', 'My image 4 ', 'My image 5 ']
+>>> response.xpath('//a[contains(@href, "image")]/text()').re_first(r'Name:\s*(.*)')
+'My image 1 '
+```
+
+#### XPath表达式中的变量
+
+XPath允许使用`$ somevariable`语法引用XPath表达式中的变量。
+
+```text
+>>> response.xpath('//div[@id=$val]/a/text()', val='images').get()
+'Name: My image 1 '
+```
+
+#### /node[1] 和 (//node)[1] 区别
+
+/node[1] 选择首先出现在其各自父节点下的所有节点。
+
+ (//node)[1] 选择文档中的所有节点，然后只获取其中的第一个节点。
+
+```bash
+>>> from scrapy import Selector
+>>> sel = Selector(text="""
+....:     <ul class="list">
+....:         <li>1</li>
+....:         <li>2</li>
+....:         <li>3</li>
+....:     </ul>
+....:     <ul class="list">
+....:         <li>4</li>
+....:         <li>5</li>
+....:         <li>6</li>
+....:     </ul>""")
+>>> xp = lambda x: sel.xpath(x).getall()
+>>> xp("//li[1]")
+['<li>1</li>', '<li>4</li>']
+>>> xp("(//li)[1]")
+['<li>1</li>']
+>>> xp("//ul/li[1]")
+['<li>1</li>', '<li>4</li>']
+>>> xp("(//ul/li)[1]")
+['<li>1</li>']
+```
+
+#### 在条件中使用文本节点
+
+避免在XPATH中使用`contains(.//text(), 'search text')`，而是使用`contains(., 'search text')`。因为`.//text()`返回文本元素的集合（a node-set）。当节点集被转换为字符串时，即作为参数传递给contains()或starts-with()这样的字符串函数时，只会生成第一个元素的文本。
+
+```bash
+>>> from scrapy import Selector
+>>> sel = Selector(text='<a href="#">Click here to go to the <strong>Next Page</strong></a>')
+>>> xp = lambda x: sel.xpath(x).extract() # let's type this only once
+>>> xp('//a//text()') # take a peek at the node-set
+   [u'Click here to go to the ', u'Next Page']
+>>> xp('string(//a//text())')  # convert it to a string
+   [u'Click here to go to the ']
+```
+
+```bash
+ >>> xp('//a[1]') # selects the first a node
+[u'<a href="#">Click here to go to the <strong>Next Page</strong></a>']
+>>> xp('string(//a[1])') # converts it to string
+[u'Click here to go to the Next Page']
+```
+
+```bash
+>>> xp("//a[contains(., 'Next Page')]")
+[u'<a href="#">Click here to go to the <strong>Next Page</strong></a>']
+>>> xp("//a[contains(.//text(), 'Next Page')]")
+[]
+```
+
+### Built-in Selectors 
+
+#### Selector objects
+
+```text
+ class scrapy.selector.Selector(response=None, text=None, type=None, root=None, _root=None, **kwargs)
+ Selector 实例是对response的包装，用于提取其内容的特定部分。
+ 
+ response：用于选择和提取数据的HtmlResponse或XmlResponse对象.
+ 
+ text：unicode字符串或utf-8编码文本,当response 不可用时使用。同时使用文本和响应是未定义的行为。
+ 
+ type：定义了选择器类型，它可以是“html”，“xml”或None（默认）。如果type是None，那么选择器将自动根据response类型选择最佳类型。
+	    "html" for HtmlResponse type
+        "xml" for XmlResponse type
+        "html" for anything else
+如果设置了type，则选择器类型将被强制且不会进行检测。
+```
+
+* `.xpath(query, namespaces=None, **kwargs)`
+
+  查找匹配xpath查询的节点，并以SelectorList实例的形式返回结果，其中所有元素都是扁平的。列表元素也实现Selector接口。
+
+  任何附加的命名参数都可以用于在XPath表达式中传递XPath变量的值。
+
+  ```bash
+  selector.xpath('//a[href=$url]', url="http://www.example.com")
+  ```
+
+  可以简写： `response.xpath()`
+
+* `. css(query)`
+
+  采用CSS选择器，并返回一个`SelectorList`实例。
+
+  在后台，会使用cssselect库将CSS查询转换为XPath查询并运行 .xpath()方法。
+
+  可以简写： `response.css()`
+
+* `.get()`
+
+  Serialize and return the matched nodes in a single unicode string.
+  Percent encoded content is unquoted.
+
+  同`.extract_first()`
+
+* ` .getall()`
+
+  Serialize and return the matched node in a 1-element list of unicode strings.
+
+* `.attrib`
+
+  返回元素的属性字典。
+
+* `.re(regex, replace_entities=True)`
+
+  采用正则表达式，并返回匹配项的unicode字符串列表。
+
+  `regex`可以是正则表达式，也可以是使用`re.compile(egex)`编译为正则表达式的字符串
+
+* ` .re_first(regex, default=None, replace_entities=True)`
+
+  采用正则表达式，并返回匹配项的第一个unicode字符串列表。
+
+  如果没有匹配，返回默认值(如果没有提供参数，则返回None)。
+
+* `.register_namespace(prefix, uri)`
+
+  注册要在此选择器中使用的名称空间
+
+* `. remove_namespaces()`
+
+  删除所有名称空间，允许使用无名称空间xpath遍历文档。
+
+#### SelectorList objects
+
+```text
+class scrapy.selector.SelectorList
+
+SelectorList类是内置的list类的一个子类，它提供了一些额外的方法。
+```
+
+* `. xpath(xpath, namespaces=None, **kwargs)`
+
+  为这个列表中的每个元素调用`.xpath()`方法，并将它们的结果作为另一个SelectorList返回。
+
+* `. css(query)`
+
+  为这个列表中的每个元素调用`. css()`方法，并将它们的结果作为另一个SelectorList返回。
+
+* `. get(default=None)`
+
+  返回列表中第一个元素的`.get()`的结果。如果列表为空，则返回默认值。
+
+* `.getall()`
+
+  为列表中每个元素调用`.get()`方法，并将其结果展平，返回它们的unicode字符串的列表。
+
+* `. attrib`
+
+  返回第一个元素的属性字典。如果列表为空，则返回空dict。
+
+* ` .re(regex, replace_entities=True)`
+
+  对此列表中每个元素调用`.re()`方法，并将其结果展平，作为unicode字符串列表。
+
+* `. re_first(regex, default=None, replace_entities=True)`
+
+  为列表中的第一个元素调用.re()方法，并返回unicode字符串。如果列表为空，或者正则表达式不匹配任何内容，则返回默认值(如果没有提供参数，则返回None)。
+
+***
+
 ## 示例
 
 ```python
