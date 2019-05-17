@@ -224,6 +224,46 @@ JSON行格式非常有用，因为它类似于流，可以轻松地向其添加�
 scrapy crawl chinanews -s JOBDIR=job_info/chinanews/001
 ```
 
+## scrapy shell
+
+如果安装了IPython，Scrapy shell将使用它（而不是标准的Python控制台）。
+
+或者，在scrapy.cfg中定义它：
+
+```text
+[settings]
+shell = ipython
+```
+
+启动 scrapy shell
+
+```bash
+scrapy shell <url>
+```
+
+想要抓取的链接，也适用于本地文件。
+
+```text
+shelp()：打印可用对象和方法列表帮助
+
+fetch(url[, redirect=True])：从URL获取新的响应，并相应地更新相关的对象。通过redirect=False使HTTP 3xx重定向不传递
+
+fetch(request)：从请求中获取新的响应，并相应地更新相关对象。
+
+view(response)：在本地网络浏览器中打开响应，以便进行检查。 这将添加一个<base>标签便于外部链接(例如图片或样式表)正常显示. 但请注意，这将在您的计算机中创建一个临时文件，该文件不会被自动删除。
+```
+```text
+crawler：当前的Crawler对象。
+
+spider：已知处理URL的Spider,如果没有为当前URL指定Spider,则为Spider对象.
+
+request：最后获取页面的Request对象。
+
+response：最后获取页面的Response对象
+
+settings：当前Scrapy设置
+```
+
 ***
 
 参考：
