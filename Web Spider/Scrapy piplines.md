@@ -1,4 +1,103 @@
-涉及数据的存储。
+`Item`对象是自定义的python字典,可以使用标准的字典语法来获取到其每个字段的值。Spider将会将爬取到的数据以 Item 对象返回。
+
+当Item在Spider中被收集之后，它将会被传递到Item Pipeline，一些组件会按照一定的顺序执行对Item的处理。
+
+每个项目管道组件(有时仅称为Item Pipeline)都是一个Python类，实现了一个简单的方法。接收一个Item，并对其执行操作，同时还决定该Item是应该继续通过管道传输，还是应该删除并不再处理。
+
+Item管道的典型用途是：
+
+- 清理HTML数据
+- 验证抓取的数据（检查Item是否包含某些字段）
+- 检查重复项（并丢弃它们）
+- 将抓取的Item存储在数据库中
+
+## 自定义 pipline
+
+每个Item Pipeline组件都是一个Python类，必须实现以下方法：
+
+* `process_item(self, item, spider)`
+
+  每个item pipeline组件**必须实现**该方法。
+  item：由 parse 方法返回的 Item 对象(Item对象)
+  spider：抓取到这个 Item 对象对应的Spider对象
+  process_item()必须满足其中一条：
+
+  * 返回一个带数据的字典
+  * 返回一个Item（或任何后代类）对象
+  * 返回一个Twisted Deferred或抛出DropItem异常。
+  * 被丢弃的Item不会被进一步的Item组件处理。
+
+* ` open_spider(self, spider)`
+
+  当spider被开启时，这个方法被调用。
+
+* ` close_spider(self, spider)`
+
+  当spider被关闭时，这个方法被调用，可以再爬虫关闭后进行相应的数据处理。
+
+* ` from_crawler(cls, crawler)`
+
+  如果存在，则调用此类方法从`Crawler`创建管道实例。必须返回管道的一个新实例。Crawler对象提供Scrapy 的核心组件，如设置和信号。这是管道访问它们，并将其功能挂钩到Scrapy的一种方法。
+  
+* `from_settings(cls, settings) `
+
+  获取 settings.py 文件中的配置信息。
+
+## 激活 Item pipelin
+
+要激活Item Pipeline组件，必须将其类添加到`ITEM_PIPELINES`设置中，如下例所示：
+
+```python
+ITEM_PIPELINES = {
+    'myproject.pipelines.MySQLPipeline': 300,
+    'myproject.pipelines.JsonWriterPipeline': 800,
+}
+```
+
+设置中，分配给类的整数值决定了它们运行的顺序：由小到大。通常在0-1000范围内定义这些数字。
+
+***
+
+## 丢弃无用/重复 Item
+
+丢弃无用的Item：
+
+```python
+# item.py
+from scrapy.exceptions import DropItem
+
+class PricePipeline(object):
+
+    vat_factor = 1.15
+
+    def process_item(self, item, spider):
+        if item.get('price'):
+            if item.get('price_excludes_vat'):
+                item['price'] = item['price'] * self.vat_factor
+            return item
+        else:
+            raise DropItem("Missing price in %s" % item)
+```
+
+丢弃重复的Item：
+
+```python
+from scrapy.exceptions import DropItem
+
+class DuplicatesPipeline(object):
+
+    def __init__(self):
+        self.ids_seen = set()
+
+    def process_item(self, item, spider):
+        if item['id'] in self.ids_seen:
+            raise DropItem("Duplicate item found: %s" % item)
+        else:
+            self.ids_seen.add(item['id'])
+            return item
+```
+
+***
 
 ## Images
 
@@ -45,9 +144,12 @@ improt codecs
 
 class JsonPipeline(object):
     # 自定义 JSON 文件导出
-    def __init__(self):
-        self.file = codecs.open('chinanews.json', 'w', encoding='utf8')
+    #def __init__(self):
+        # self.file = codecs.open('chinanews.json', 'w', encoding='utf8')
     
+    def open_spider(self, spider):
+        self.file = codecs.open('chinanews.json', 'w', encoding='utf8')
+        
     def spider_closed(self, spider):
         self.file.close()
     
@@ -157,7 +259,8 @@ from twisted.enterprise import adbapi
 
 class MysqlTwistedPipline(object):
     # 异步
-    def __init__(self, dbpool):
+    def __init__(self, dbpool, dbparms):
+        self.dbparms = dbparms
         self.dbpool = dbpool
 
     @classmethod
@@ -170,9 +273,28 @@ class MysqlTwistedPipline(object):
             passwd = settings['MYSQL_PASSWORD'],
             charset = 'utf8',
             cursorclass = pymysql.cursors.DictCursor,
+            use_unicode = True,)  
+        return cls(dbparms)
+    
+    '''
+    from_settings() 也可以用 from_crawler()
+	@classmethod
+	def from_crawler(cls, crawler):
+		dbparms = dict(
+            host = crawler.settings.get['MYSQL_HOST'],
+            port = crawler.settings.get['MYSQL_PORT'],
+            db = crawler.settings.get['MYSQL_DBNAME'],
+            user = crawler.settings.get['MYSQL_USER'],
+            passwd = crawler.settings.get['MYSQL_PASSWORD'],
+            charset = 'utf8',
+            cursorclass = pymysql.cursors.DictCursor,
             use_unicode = True,)
         dbpool = adbapi.ConnectionPool('pymysql', **dbparms)
         return cls(dbpool)
+    '''
+    
+    def open_spider(self, spider):
+        self.dbpool = adbapi.ConnectionPool('pymysql', **self.dbparms)   
     
     def process_item(self, item, spider):
         # 使用twisted将mysql插入变成异步执行
@@ -225,5 +347,54 @@ class ChinanewsItem(scrapy.Item):
         return insert_sql, params
 ```
 
+## Feed exports
 
+### 导出文件
 
+JSON
+
+    FEED_FORMAT: json
+    Exporter used: JsonItemExporter
+    不适用大文件
+
+JSON lines
+
+    FEED_FORMAT: jsonlines
+    Exporter used: JsonLinesItemExporter
+
+CSV
+
+    FEED_FORMAT: csv
+    Exporter used: CsvItemExporter
+    指定列名和顺序使用 FEED_EXPORT_FIELDS.
+
+XML
+
+    FEED_FORMAT: xml
+    Exporter used: XmlItemExporter
+
+Pickle
+
+    FEED_FORMAT: pickle
+    Exporter used: PickleItemExporter
+
+Marshal
+
+    FEED_FORMAT: marshal
+    Exporter used: MarshalItemExporter
+### 存储
+
+使用导出文件时，可以使用URI（通过` FEED_URI`设置）定义存储文件的位置。 文件导出支持由URI方案定义的存储后端类型。
+
+* Local filesystem
+* FTP
+* S3 (requires botocore or boto)
+* Standard output
+
+***
+
+参考：
+
+https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+
+https://docs.scrapy.org/en/latest/topics/feed-exports.html
