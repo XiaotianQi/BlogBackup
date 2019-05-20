@@ -192,6 +192,61 @@ Extensions，基于信号机制。
 
 ***
 
+## 内置异常处理
+
+* DropItem
+
+```python
+ scrapy.exceptions.DropItem
+```
+
+必须由 item pipeline 阶段引发的异常，以停止处理项。
+
+* CloseSpider
+
+```text
+scrapy.exceptions.CloseSpider(reason='cancelled')
+
+reason (str) – 关闭原因
+```
+
+这个异常可以从Spider回调中抛出以请求关闭/停止Spider。 
+
+* DontCloseSpider
+
+```python
+scrapy.exceptions.DontCloseSpider
+```
+
+可以在`spider_idle`信号处理程序中引发，以防止Spider被关闭。
+
+* IgnoreRequest
+
+```python
+scrapy.exceptions.IgnoreRequest
+```
+
+Scheduler 或任何 downloader middleware 都可以引发此异常，以表明请求应被忽略。
+
+* NotConfigured
+
+```python
+scrapy.exceptions.NotConfigured
+```
+
+某些组件可能会引发此异常，以表明它们将保持禁用状态。 这些组件包括：
+
+* 扩展
+* Item pipelines
+* Downloader middlewares
+* Spider middlewares
+
+必须在组件的`__init__`方法中引发异常。
+
+***
+
 参考：
 
 https://docs.scrapy.org/en/latest/topics/architecture.html
+
+https://docs.scrapy.org/en/latest/topics/exceptions.html
