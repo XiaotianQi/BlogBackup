@@ -18,9 +18,9 @@ method(string)：请求的HTTP方法. 默认为'GET'.
 
 meta(dict)：Request.meta属性的初始值. 如果给出，在此参数中传递的字典将被浅拷贝。
 
-body(str or unicode)：请求正文。如果传递了一个unicode，那么它将被编码为相应的(默认为utf-8)str。如果未给出body，则会存储空字符串。无论此参数的类型如何，存储的最终值都将是str（不会是unicode或None）。
+body(str or unicode)：请求正文。如果传递了一个unicode，那么它将被编码为相应的(默认为utf-8)str。如果未给出body，则会存储空字符串。无论此参数的类型如何，存储的最终值都将是str(不会是unicode或None)。
 
-headers(dict)：请求的头文件。字典值可以是字符串（对于单值标题）或列表（对于多值标题）。如果将None作为值传递，则不会发送HTTP头文件。
+headers(dict)：请求的头文件。字典值可以是字符串(对于单值标题)或列表(对于多值标题)。如果将None作为值传递，则不会发送HTTP头文件。
 
 cookies(dict or list)：请求的cookies。
 	cookies={'currency': 'USD', 'country': 'UY'}
@@ -30,7 +30,7 @@ cookies(dict or list)：请求的cookies。
               'path': '/currency'}]
     后一种形式允许定制cookie的domain和path属性。这仅在cookie被保存用于以后的请求时才有用。
 
-encoding(string)：请求的编码（默认为'utf-8'）。该编码将用于对URL进行百分比编码，并将主体转换为str（如果以unicode的形式给出）。
+encoding(string)：请求的编码(默认为'utf-8')。该编码将用于对URL进行百分比编码，并将主体转换为str(如果以unicode的形式给出)。
 
 priority(int)：请求的优先级(默认为0). 调度程序使用优先级来处理请求的顺序。具有较高优先级值的请求将更早执行。允许用负值表示相对低的优先级。
 
@@ -65,7 +65,7 @@ flags(list)：发送到请求的标志,可用于日志记录或类似目的。
 
   请求的任意元数据的字典。
 
-  对于新的请求这个字典是空的，通常由不同的Scrapy组件（extensions, middlewares等）填充。
+  对于新的请求这个字典是空的，通常由不同的Scrapy组件(extensions, middlewares等)填充。
 
   当使用`copy()`或`replace()`方法克隆请求时，该字典被浅拷贝，同时也可以在Spider中通过`response.meta`属性访问。
 
@@ -75,7 +75,7 @@ flags(list)：发送到请求的标志,可用于日志记录或类似目的。
 
 * `.replace([url, method, headers, body, cookies, meta, encoding, dont_filter, callback, errback])`
 
-  返回具有相同成员的Request 对象，但指定关键字参数的新值所赋予的成员除外。属性`Request.meta`默认复制（除非在`meta`参数中给出新值）。
+  返回具有相同成员的Request 对象，但指定关键字参数的新值所赋予的成员除外。属性`Request.meta`默认复制(除非在`meta`参数中给出新值)。
 
 ### Request.meta特殊键
 
@@ -89,13 +89,13 @@ flags(list)：发送到请求的标志,可用于日志记录或类似目的。
     redirect_urls
     bindaddress
     dont_obey_robotstxt
-    download_timeout：downloader等待的时间（以秒为单位）。另请参阅：DOWNLOAD_TIMEOUT。
+    download_timeout：downloader等待的时间(以秒为单位)。另请参阅：DOWNLOAD_TIMEOUT。
     download_maxsize
     download_latency
     download_fail_on_dataloss：响应是否失败。请参阅：DOWNLOAD_FAIL_ON_DATALOSS
     proxy
-    ftp_user（更多信息参见FTP_USER）
-    ftp_password（有关更多信息，请参阅FTP_PASSWORD）
+    ftp_user(更多信息参见FTP_USER)
+    ftp_password(有关更多信息，请参阅FTP_PASSWORD)
     referrer_policy
     max_retry_times：每个请求的重试次数。初始化时，max_retry_times元键优先于RETRY_TIMES设置。
 如果出于某种原因想要避免与现有Cookie合并，可以通过在`Request.meta`中将`dont_merge_cookies`键设置为True来指示Scrapy执行此操作。不合并Cookie的请求示例：
@@ -195,9 +195,9 @@ url(string)：此响应的URL
 
 status(integer)：响应的HTTP状态。 默认为200。
 
-headers(dict)：此响应的头文件。字典值可以是字符串（对于单值头文件）或列表（对于多值头文件）。
+headers(dict)：此响应的头文件。字典值可以是字符串(对于单值头文件)或列表(对于多值头文件)。
 
-body(bytes)：响应正文。str（Python 2中的unicode）的形式解码后的文本，可以使用自适应编码的Response子类的response.text，例如TextResponse。
+body(bytes)：响应正文。str(Python 2中的unicode)的形式解码后的文本，可以使用自适应编码的Response子类的response.text，例如TextResponse。
 
 flags(list)：是包含Response.flags属性初始值的列表。如果给出，列表将被浅拷贝。
 
@@ -218,7 +218,7 @@ request(Request 对象)：Response.request属性的初始值。这表示生成�
 
   这个响应的主体。 
 
-  Response.body始终是一个字节对象。 如果想要unicode版本可以使用`TextResponse.text`（仅在`TextResponse`和子类中可用）。 
+  Response.body始终是一个字节对象。 如果想要unicode版本可以使用`TextResponse.text`(仅在`TextResponse`和子类中可用)。 
 
   该属性是只读的。 要更改Response的主体，使用`replace()`。 
 
@@ -228,13 +228,13 @@ request(Request 对象)：Response.request属性的初始值。这表示生成�
 
   当响应和请求已经通过所有Downloader Middlewares之后，在Scrapy引擎中分配此属性。 特别是，这意味着：  
 
-  * HTTP重定向会将原始请求（重定向之前的URL）分配给重定向的响应（重定向后使用最终的URL）。
+  * HTTP重定向会将原始请求(重定向之前的URL)分配给重定向的响应(重定向后使用最终的URL)。
   * Response.request.url并不总是等于Response.url
-  * 该属性仅在spider代码和Spider Middlewares中可用，但不能在Downloader Middleware中（尽管可以通过其他方式获得请求）和`response_downloaded`信号处理程序中使用.  
+  * 该属性仅在spider代码和Spider Middlewares中可用，但不能在Downloader Middleware中(尽管可以通过其他方式获得请求)和`response_downloaded`信号处理程序中使用.  
 
 * `.meta`
 
-  `Response.request`对象的`Request.meta`属性的快捷方式（即 `self.request.meta`).
+  `Response.request`对象的`Request.meta`属性的快捷方式(即 `self.request.meta`).
 
   与`Response.request`属性不同，`Response.meta`属性在重定向和重试之间传递，因此将获得Spider发送的原始`Request.meta`数据。
   
@@ -273,14 +273,14 @@ class scrapy.http.TextResponse(url[, encoding[, ...]])
 TextResponse对象为基本Response类添加了编码功能，这意味着该类仅用于二进制数据，如图像，声音或任何媒体文件。
 TextResponse对象在基础Response对象之上还添加了新的构造函数参数。其余功能与Response类相同，这里不再赘述。
 
-encoding(string):一个包含此响应编码的字符串。如果使用unicode主体创建一个TextResponse对象，它将使用此编码进行编码（记住body属性始终是一个字符串）。如果encoding为None（默认值），则将在响应头文件和正文中查找编码。
+encoding(string):一个包含此响应编码的字符串。如果使用unicode主体创建一个TextResponse对象，它将使用此编码进行编码(记住body属性始终是一个字符串)。如果encoding为None(默认值)，则将在响应头文件和正文中查找编码。
 ```
 
 * `.text`
 
   响应主体。
 
-  与`response.body.decode（response.encoding）`相同，但结果在第一次调用后被缓存，因此可以多次访问`response.text`而无需额外的开销。
+  与`response.body.decode(response.encoding)`相同，但结果在第一次调用后被缓存，因此可以多次访问`response.text`而无需额外的开销。
 
 * `.encoding`
 
@@ -321,6 +321,64 @@ HtmlResponse类是TextResponse的一个子类，添加了通过查看HTML meta h
 ```text
 class scrapy.http.XmlResponse(url[, ...])
 XmlResponse类是TextResponse的一个子类，添加了通过查看XML声明行来自动发现支持编码。 参见TextResponse.encoding。
+```
+
+***
+
+## Link Extractors
+
+链接提取器的唯一目的是从网页(`scrapy.http.Response`对象)，提取将要被follow的链接的对象。
+
+Scrapy中提供了`scrapy.linkextractors.LinkExtractor`，可以通过实现简单的接口来创建自定义链接提取器。
+
+每个链接提取器所具有的唯一公共方法是`extract_links`，它接收Response对象，并返回`scrapy.link.Link`对象的列表。 这意味着链接提取器只需要被实例化一次，它的`extract_links`方法被不同的响应多次调用，提取要follow的链接。
+
+通过一组规则，链接提取器被用在`CrawlSpider`类(在Scrapy中可用)中，即使没有继承CrawlSpider类，也可以在Spider中使用它，因为它的目的非常简单：提取链接。
+
+默认链接提取器是`LinkExtractor`，它与`LxmlLinkExtractor`相同：：
+
+```python
+from scrapy.linkextractors import LinkExtractor
+```
+
+```text
+class scrapy.linkextractors.lxmlhtml.LxmlLinkExtractor(allow=(), deny=(), allow_domains=(), deny_domains=(), deny_extensions=None, restrict_xpaths=(), restrict_css=(), tags=('a', 'area'), attrs=('href', ), canonicalize=False, unique=True, process_value=None, strip=True)
+
+LxmlLinkExtractor是推荐的链接提取器，具有方便的过滤选项。 它使用lxml的健壮HTMLParser实现。
+
+allow(a regular expression (or list of))：与正则表达式(或正则表达式列表)相匹配的(绝对)url才能被提取。如果没有给出(或空)，它将匹配所有链接。
+
+deny(a regular expression (or list of))：与正则表达式(或正则表达式列表)相匹配的(绝对)url将被排除(即. 不被提取)。 它优先于allow参数。 如果没有给出(或空)，它不会排除任何链接。
+    
+allow_domains(str or list)：包含将被考虑用于提取链接的域的单个值或字符串列表
+
+deny_domains(str or list)：包含不会被考虑用于提取链接的域的单个值或字符串列表
+
+deny_extensions(list)：包含在提取链接时应该忽略的单个值或字符串列表扩展。如果没有给出，它将默认为scrapy.linkextractors包中定义的IGNORED_EXTENSIONS列表。
+
+restrict_xpaths(str or list)：一个XPath(或XPath的列表)，它定义了应该从中提取链接的响应内区域。如果给定，只有那些XPath选择的文本才会被扫描查找链接
+
+restrict_css(str or list)：CSS选择器(或者选择器列表)，它定义了应该从中提取链接的响应内区域。具有与restrict_xpaths相同的行为。
+
+tags(str or list)：提取链接时要考虑的标记或标记列表。默认为('a', 'area')。
+
+attrs(list)：查找提取链接时应考虑的属性或属性列表(仅适用于tags参数中指定的标签)。 默认为('href',)
+    
+canonicalize(boolean)：规范化每个提取的url(使用w3lib.url.canonicalize_url)。默认为False. 请注意，canonicalize_url用于重复检查；它可以更改服务器端可见的URL，因此对于使用规范化和原始URL的请求，响应可能会有所不同。如果您使用LinkExtractor来follow链接，那么保持默认canonicalize=False会使程序更强健。
+
+unique(boolean)：是否应对抓取的链接应用重复筛选。
+
+process_value(callable)：用于接收从标签和所扫描的属性中提取的每个值，并可以修改这些值返回一个新值或对于忽略的链接返回None。如果没有给出，则process_value默认为 lambda x: x.
+    例如，要从此代码中提取链接：
+    <a href="javascript:goToPage('../other/page.html'); return false">Link text</a>
+    可以在process_value中使用以下方法：
+    def process_value(value):
+        m = re.search("javascript:goToPage\('(.*?)'", value)
+        if m:
+            return m.group(1)
+
+strip(boolean)：是否从提取的属性中去除空格。根据HTML5标准，<a>和<area>的href属性，和其他元素如<img>和<iframe> 的src属性等等的前导空白和尾随空白必须去除，因此LinkExtractor默认去除空白字符。设置strip=False可将其关闭(例如，如果您从允许前/后空格的元素或属性中提取url)。
+
 ```
 
 ***
