@@ -85,6 +85,16 @@ vertex = queue.pop()   # DFS
                 yield scrapy.Request(url, headers=self.headers, callback=self.parse)
 ```
 
+默认情况下，Scrapy使用LIFO queue 存储挂起的请求，这基本上意味着它按照DFO顺序爬行。如果确实想按真正的BFO顺序爬行，可以通过设置以下设置来实现：
+
+```python
+DEPTH_PRIORITY = 1
+SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue'
+SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue'
+```
+
+
+
 ***
 
 ## URL 去重
