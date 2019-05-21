@@ -93,6 +93,19 @@ bench--->scrapy bench
 运行快速基准测试。
 ```
 
+日志相关：
+
+```text
+--logfile FILE
+	重载 LOG_FILE
+
+--loglevel/-L LEVEL
+	重载 LOG_LEVEL
+
+--nolog
+	设置LOG_ENABLED 为 False，不启用日志
+```
+
 ## 创建
 
 创建项目：
