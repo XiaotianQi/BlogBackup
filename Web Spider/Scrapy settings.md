@@ -19,18 +19,63 @@ BASE_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.join(BASE_DIR, 'NewsSpider'))
 ```
 
-## 获取 settings.py 中的值
+获取 settings.py 中的值：
 
-* `.from_crawler(cls, settings)`
+* `from_crawler(cls, settings)`
 
+```python
+# spider.py
 
+class MyExtension(object):
+    def __init__(self, log_is_enabled=False):
+        if log_is_enabled:
+            print("log is enabled!")
 
-* `.from_settings(cls, settings)`
+    @classmethod
+    def from_crawler(cls, crawler):
+        settings = crawler.settings
+        return cls(settings.getbool('LOG_ENABLED'))
+```
 
+`from_crawler()` 在 `__init__()` 之前运行。
 
+* `from_settings(cls, settings)`
+
+```python
+# pipelines.py
+
+class MysqlTwistedPipline(object):
+    # 异步
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
+        
+	@classmethod
+    def from_settings(cls, settings):
+        dbparms = dict(
+            host = settings['MYSQL_HOST'],
+            port = settings['MYSQL_PORT'],
+            db = settings['MYSQL_DBNAME'],
+            user = settings['MYSQL_USER'],
+            passwd = settings['MYSQL_PASSWORD'],
+            charset = 'utf8',
+            cursorclass = pymysql.cursors.DictCursor,
+            use_unicode = True,)
+        dbpool = adbapi.ConnectionPool('pymysql', **dbparms)
+        return cls(dbpool)
+```
+
+`from_settings()` 现在仅能在pipelines中使用。
 
 * `from xx.settings import xxx`
 
+直接从 settings 文件中获取目标变量。
 
+内置设置参考：
 
-## 内置设置参考
+内置的变量很多，按需设置。
+
+***
+
+参考：
+
+https://docs.scrapy.org/en/latest/topics/settings.html
