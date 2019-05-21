@@ -113,49 +113,6 @@ Scrapy是使用Twisted编写的，Twisted是一种流行的Python事件驱动的
 
 ***
 
-## Request & Response
-
-```python
-class Request(object_ref):
-
-    def __init__(self, url, callback=None, method='GET', headers=None, body=None,
-                 cookies=None, meta=None, encoding='utf-8', priority=0,
-                 dont_filter=False, errback=None, flags=None):
-```
-
-```python
-class Response(object_ref):
-
-    def __init__(self, url, status=200, headers=None, body=b'', flags=None, request=None):
-```
-
-***
-
-## 数据收集器
-
-Stats Collectors
-
-```python
-# chinanews.py
-
-class ChinanewsSpider(scrapy.Spider):
-    ...
-    #收集伯乐在线所有404的url以及404页面数
-    handle_httpstatus_list = [404,]
-    
-    def __init__(self, **kwargs):
-        self.fail_urls = []
-
-    
-    def parse(self, response):
-        if response.status == 404:
-            self.fail_urls.append(response.url)
-            self.crawler.stats.inc_value("failed_url")
-    ...
-```
-
-***
-
 ## 信号
 
 Signals。middlewares 和 扩展的桥梁。
@@ -207,7 +164,7 @@ Extensions，基于信号机制。
 ```text
 scrapy.exceptions.CloseSpider(reason='cancelled')
 
-reason (str) – 关闭原因
+reason (str)：关闭原因
 ```
 
 这个异常可以从Spider回调中抛出以请求关闭/停止Spider。 
@@ -242,6 +199,247 @@ scrapy.exceptions.NotConfigured
 * Spider middlewares
 
 必须在组件的`__init__`方法中引发异常。
+
+***
+
+## 内置服务
+
+### 日志
+
+Scrapy使用 python logging标准库记录日志。日志级别、使用均与标准库相同。
+
+Scrapy为每个Spider实例提供一个logger，可以像这样访问和使用它：
+
+```python
+import scrapy
+
+class MySpider(scrapy.Spider):
+
+    name = 'myspider'
+    start_urls = ['https://scrapinghub.com']
+
+    def parse(self, response):
+        self.logger.info('Parse function called on %s', response.url)
+```
+
+该日志记录器使用spider的名称创建，也可以自定义Python日志记录器。例如：
+
+```python
+import logging
+import scrapy
+
+logger = logging.getLogger('mycustomlogger')
+
+class MySpider(scrapy.Spider):
+
+    name = 'myspider'
+    start_urls = ['https://scrapinghub.com']
+
+    def parse(self, response):
+        logger.info('Parse function called on %s', response.url)
+```
+
+日志可以开箱即用，并且可以在 settings 中进行配置。
+
+```text
+LOG_FILE		# 日志文件保存路径
+LOG_ENABLED		# 是否启用日志
+LOG_ENCODING
+LOG_LEVEL		# 过滤级别
+LOG_FORMAT		# 格式
+LOG_DATEFORMAT	# 时间格式
+LOG_STDOUT
+LOG_SHORT_NAMES
+```
+
+可用的命令行参数，使用它们来覆盖与日志记录相关的scrapy设置：
+
+```text
+--logfile FILE
+	重载 LOG_FILE
+
+--loglevel/-L LEVEL
+	重载 LOG_LEVEL
+
+--nolog
+	设置LOG_ENABLED 为 False，不启用日志
+```
+
+自定义日志：
+
+```text
+scrapy.utils.log.configure_logging(settings=None, install_root_handler=True)
+为Scrapy初始化日志默认值。
+
+settings(dict, Settings object or None)：为根记录器创建和配置处理程序的设置(默认值:None)。
+
+install_root_handler(bool)：是否使用根日志处理程序(默认值:True) 
+```
+
+```python
+import logging
+from scrapy.utils.log import configure_logging
+
+configure_logging(install_root_handler=False)
+logging.basicConfig(
+    filename='log.txt',
+    format='%(levelname)s: %(message)s',
+    level=logging.INFO
+)
+```
+
+### 信息统计
+
+Scrapy提供了一个方便的功能，以键/值的形式收集统计数据，其中值通常是计数器。可以通过Crawler API的`stats`属性进行访问。
+
+统计收集器为每个打开的Spider存放一个统计表，当Spider打开时它会自动打开，当Spider关闭时会自动关闭。
+
+通过crawler的stats属性访问stats收集器。
+
+```python
+class ExtensionThatAccessStats(object):
+
+    def __init__(self, stats):
+        self.stats = stats
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.stats)
+    
+    def parse(self, response):
+        stats.set_value('hostname', socket.gethostname()) 	# 设置值
+        stats.inc_value('custom_count')	# 增加值
+        stats.max_value('max_items_scraped', value) # 最大值
+        stats.min_value('min_free_memory_percent', value) # 最小值
+```
+
+可以在 shell 中获取值：
+
+```shell
+>>> stats.get_value('custom_count')	# 获取单个
+
+>>> stats.get_stats()	# 获取全部
+```
+
+收集所有404的url以及404页面数：
+
+```python
+# chinanews.py
+
+class ChinanewsSpider(scrapy.Spider):
+    ...
+    # 收集所有404的url以及404页面数
+    handle_httpstatus_list = [404,]
+    
+    def __init__(self, **kwargs):
+        self.fail_urls = []
+
+    
+    def parse(self, response):
+        if response.status == 404:
+            self.fail_urls.append(response.url)
+            self.crawler.stats.inc_value("failed_url")
+    ...
+```
+
+### 发送邮件
+
+虽然Python通过smtplib标准库发送电子邮件很容易，但是Scrapy提供了自己的发送电子邮件的工具，使用起来非常方便，并且使用Twisted非阻塞IO来实现，以避免干扰爬虫的非阻塞IO。它还提供了一个用于发送附件的简单API，通过一些设置，它非常容易配置。
+
+实例化 mail sender 的两种方法：
+
+```python
+from scrapy.mail import MailSender
+mailer = MailSender()
+
+# 通过Scrapy settings对象实例化它，该对象将采用这些设置
+mailer = MailSender.from_settings(settings)
+```
+
+使用：
+
+```python
+mailer.send(to=["someone@example.com"], subject="Some subject", body="Some body", cc=["another@example.com"])
+```
+
+MailSender：
+
+```text
+：class scrapy.mail.MailSender(smtphost=None, mailfrom=None, smtpuser=None, smtppass=None, smtpport=None)
+MailSender是用于从Scrapy发送电子邮件的首选类，因为它使用了Twisted非阻塞IO，就像框架的其他部分一样。
+
+smtphost(str or bytes)：发送电子邮件的SMTP主机。如果省略，将使用MAIL_HOST设置。
+
+mailfrom(tr)：用于发送电子邮件的地址(in the From: header). 如果省略，将使用MAIL_FROM设置。
+
+smtpuser：SMTP用户。如果省略，将使用MAIL_USER设置。如果没有给出，则不执行SMTP身份验证。
+
+smtppass(str or bytes)：SMTP通过身份验证。
+
+smtpport(int)：连接到的SMTP端口
+
+smtptls(boolean)：强制使用SMTP STARTTLS
+
+smtpssl(boolean)：强制使用安全SSL连接
+```
+
+* ` classmethod from_settings(settings)`
+
+  使用Scrapy settings 实例化对象
+
+  settings (scrapy.settings.Settings object) ：电子邮件收件人
+
+* ` send(to, subject, body, cc=None, attachs=(), mimetype='text/plain', charset=None)`
+
+  向指定的收件人发送电子邮件。
+
+```text
+to(str or list of str)：收件人
+
+subject(str)：主题
+
+cc(str or list of str)：抄送
+
+body(str)：正文
+
+attachs(iterable)：元组(attach name, mimetype, file object)。其中attach name是一个字符串，其名称将出现在电子邮件附件中，mimetype是附件的mimetype, file对象是一个可读的文件对象，其中包含附件的内容
+
+mimetype(str)：MIME类型
+
+charset(str)：字符编码
+```
+
+Mail settings：
+
+```text
+MAIL_FROM
+Default: 'scrapy@localhost'
+发件人
+
+MAIL_HOST
+Default: 'localhost'
+发送电子邮件的SMTP主机
+
+MAIL_PORT
+Default: 25
+发送电子邮件的SMTP端口。
+
+MAIL_USER
+Default: None
+用于SMTP身份验证的用户。如果禁用SMTP，则不会执行任何SMTP身份验证。
+
+MAIL_PASS
+Default: None
+SMTP身份验证的密码
+
+MAIL_TLS
+Default: False
+使用STARTTLS
+
+MAIL_SSL
+Default: False
+强制使用SSL加密连接
+```
 
 ***
 
