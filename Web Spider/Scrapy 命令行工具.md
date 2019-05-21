@@ -231,6 +231,24 @@ scrapy crawl chinanews -o chinanews.jsonl
 
 JSON行格式非常有用，因为它类似于流，可以轻松地向其添加新记录。 当运行两次时，它不会发生和JSON相同的问题。 另外，由于每条记录都是一条独立的行，因此可以处理大文件而不必将所有内容都放在内存中。
 
+To dump into a JSON file:
+
+```bash
+scrapy crawl myspider -o items.json
+```
+
+To dump into a CSV file:
+
+```bash
+scrapy crawl myspider -o items.csv
+```
+
+To dump into a XML file:
+
+```bash
+scrapy crawl myspider -o items.xml
+```
+
 ## 暂停与重启
 
 ```bash
