@@ -443,6 +443,42 @@ Default: False
 
 ***
 
+## 调试
+
+除了常用调试方法之外，scrapy 提供了其他的方法：
+
+### Scrapy Shell
+
+```python
+from scrapy.shell import inspect_response
+
+def parse(self, response):
+    item = response.meta.get('item', None)
+    if item:
+        # populate more `item` fields
+        return item
+    else:
+        inspect_response(response, self)
+```
+
+需要再命令行中运行爬虫，才会进入 scrapy shell 模式。
+
+### 在浏览器中打开需要调试URL
+
+```python
+from scrapy.utils.response import open_in_browser
+
+def parse(self, response):
+    if "item name" not in response.body:
+        open_in_browser(response)
+```
+
+### Scrapy 内置日志
+
+也就是上面提到的内置服务-日志。
+
+***
+
 参考：
 
 https://docs.scrapy.org/en/latest/topics/architecture.html
