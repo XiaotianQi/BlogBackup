@@ -1,8 +1,11 @@
 ## settings 相关
 
+### 禁用 cookies
+
 ```text
 COOKIES_ENABLED = False
 如果目标网站不需要登录，那么设置False，防止被跟踪，减少被发现概率
+有些网站可能使用cookie来识别机器人行为
 ```
 
 ### 限速
@@ -28,7 +31,7 @@ AUTOTHROTTLE_ENABLED = True
 
 ## USE_AGENT
 
-修改 settings 文件中
+修改 settings 文件中：
 
 ```python
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0'
@@ -77,7 +80,7 @@ DOWNLOADER_MIDDLEWARES = {
 
 ***
 
-## IP 代理池
+## IP 池
 
 ### 从西刺代理获取IP
 
@@ -158,6 +161,40 @@ class RandomProxyMiddleware(object):
     #动态设置ip代理
     def process_request(self, request, spider):
         request.meta["proxy"] = get_random_ip()
+```
+
+### crawlera代理设置
+
+crawlera [官网](https://scrapinghub.com/crawlera)
+
+[Using Crawlera with Python Requests](https://support.scrapinghub.com/support/solutions/articles/22000203567-using-crawlera-with-python)
+
+```text
+import requests
+
+url = "http://twitter.com"
+proxy = "paygo.crawlera.com:8010"
+proxy_auth = "<API KEY>"
+
+proxies = {
+    "http": "http://{0}@{1}/".format(proxy_auth, proxy)
+}
+
+r = requests.get(url, proxies=proxies, verify=False)
+```
+
+[Using Crawlera with Scrapy](https://support.scrapinghub.com/support/solutions/articles/22000188399-using-crawlera-with-scrapy)
+
+```text
+安装
+pip install scrapy-crawlera
+
+修改settings.py
+DOWNLOADER_MIDDLEWARES = {
+	'scrapy_crawlera.CrawleraMiddleware': 300
+	}
+CRAWLERA_ENABLED = True
+CRAWLERA_APIKEY = '<API key>'
 ```
 
 ***
