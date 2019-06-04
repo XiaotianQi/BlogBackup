@@ -1,4 +1,4 @@
-`Item`对象是自定义的python字典,可以使用标准的字典语法来获取到其每个字段的值。Spider将会将爬取到的数据以 Item 对象返回。
+`SItem`对象是自定义的python字典,可以使用标准的字典语法来获取到其每个字段的值。Spider将会将爬取到的数据以 Item 对象返回。
 
 当Item在Spider中被收集之后，它将会被传递到Item Pipeline，一些组件会按照一定的顺序执行对Item的处理。
 
@@ -99,7 +99,212 @@ class DuplicatesPipeline(object):
 
 ***
 
-## Images
+## 下载、处理文件和图像
+
+Scrapy提供可重用的item pipelines，用于下载附加在特定项目的文件。这些管道共享一些功能和结构(将它们称为media pipelines)，但是通常要么使用Files Pipeline，要么使用Images Pipeline。
+
+这两个管道都实现了这些特性：
+
+* 避免重新下载已下载的媒体
+* 指定媒体存储的位置
+
+Images Pipeline有一些处理图像的额外功能：
+
+* 将下载图像转换为通用格式(JPG)和模式(RGB)
+* 生成缩略图
+* 检测图像的宽/高，确保它们满足最小限制
+
+Pillow 是用来生成缩略图，并将图片归一化为JPEG/RGB格式，因此为了使用图片管道，需要安装这个库。
+
+管道还保存了需要下载的媒体url的内部队列，并将包含相同媒体的响应连接到该队列。这就避免了同一种媒体在被多个项目共享时被多次下载。
+
+### Files Pipeline
+
+使用Files Pipeline时，典型的工作流是这样的：
+
+1. 在spider中，抓取一个项，并将所需下载的的url放入`file_urls`字段中；
+2. item从spider返回，并进入 item pipeline；
+3. 当item到达`FilesPipeline`时，`file_urls`中的url被Scrapy scheduler和downloader进行调度下载 (这意味着scheduler and downloader middlewares将被重用)，但是具有更高的优先级，会在其他页面被抓取前处理。item 会在这个特定的管道阶段保持“locker”的状态，直到完成文件的下载（或者由于某些原因未完成下载）;
+4. 当文件下载完后，另一个字段(`files`)将被更新到结构中。这个组将包含一个字典列表，其中包括下载文件的信息，比如下载路径、源抓取地址（从 `file_urls` 获得）和图片的校验码(checksum)。
+   `files` 列表中的文件顺序将和源 `file_urls` 组保持一致。如果某个图片下载失败，将会记录下错误信息，图片也不会出现在 `files` 组中。
+
+从上面的过程可以看出，使用`FilesPipeline`涉及的项：
+
+1.  `Item`要包含`file_urls`和`files`两个字段；
+2. 打开`FilesPipeline`配置；
+3. 配置文件下载目录`FILE_STORE`。
+
+具体实现如下：
+
+```python
+# test.py
+import scrapy
+from NewsSpider.items import TestItem
+
+class TestSpider(scrapy.Spider):
+    name = 'test'
+    allowed_domains = ['twistedmatrix.com']
+    start_urls = ['https://twistedmatrix.com/documents/current/core/examples/']
+
+    custom_settings = {
+        'ITEM_PIPELINES' :{
+            'scrapy.pipelines.files.FilesPipeline': 1,  
+        },
+        'FILES_STORE':r'C:\test\files',
+        }
+
+    def parse(self, response):
+        urls  = response.css('a.reference.download.internal::attr(href)').extract()
+        for url in urls:
+            yield TestItem(file_urls = [response.urljoin(url)])
+```
+
+```python
+# items.py
+import scrapy
+
+class TestItem(scrapy.Item):
+    file_urls = scrapy.Field()  # 指定文件下载的连接
+    files = scrapy.Field()      # 文件下载完成后会往里面写相关的信息
+```
+
+### Images Pipeline
+
+IMagesPipeline的过程与FilePipeline差不多，参数名称和配置不一样，如下：
+
+|          | FilesPipeline                               | ImagesPipeline                              |
+| -------- | ------------------------------------------- | ------------------------------------------- |
+| Package  | scrapy.pipelines.files.FilesPipeline        | scrapy.pipelines.images.ImagesPipeline      |
+| Item     | file_urls<br/>files                         | image_urls<br/>images                       |
+| Settings | ITEM_PIPELINES<br/>FILES_STROE              | ITEM_PIPELINES<br/>IMAGES_STORE             |
+| 文件失效 | FILES_EXPIRES = 90                          | IMAGES_EXPIRES = 90                         |
+| 重新定向 | MEDIA_ALLOW_REDIRECTS = True<br/>默认 False | MEDIA_ALLOW_REDIRECTS = True<br/>默认 False |
+
+除此之外，ImagesPipeline还支持以下特别功能：
+
+1. 生成缩略图，通过配置`IMAGES_THUMBS = {'size_name': (width_size,heigh_size),}` 
+
+   当使用这个特性时，图片管道将使用下面的格式来创建各个特定尺寸的缩略图：`<IMAGES_STORE>/thumbs/<size_name>/<image_id>.jpg`
+
+2. 过滤过小图片，通过配置`IMAGES_MIN_HEIGHT`和`IMAGES_MIN_WIDTH`来过滤过小的图片。
+
+```python
+# test.py
+import scrapy
+import json
+from NewsSpider.items import TestItem
+
+class TestSpider(scrapy.Spider):
+    name = 'test'
+    custom_settings = {
+        'ITEM_PIPELINES' :{
+            'scrapy.pipelines.images.ImagesPipeline': 1,  
+        },
+        'IMAGES_STORE':r'C:\Users\bnwse\Desktop\test\files',
+        }
+    
+    def start_requests(self):
+        step = 30
+        for page in range(0,3):
+            url = self.url_pattern.format(offset = page*step)
+            yield scrapy.Request(url, callback = self.parse)
+
+    def parse(self, response):
+        ret = json.loads(response.body)
+        for row in ret['list']:
+            yield TestItem(image_urls=[row['qhimg_url']], name=row['group_title'])
+```
+
+```python
+# items.py
+
+class TestItem(scrapy.Item):
+    name = scrapy.Field()
+    image_urls = scrapy.Field()
+    images = scrapy.Field()
+```
+
+### 扩展 Media Pipelines
+
+#### FilesPipeline
+
+`class scrapy.pipelines.files.FilesPipeline`
+
+* `get_media_requests(item, info)`
+
+  在工作流程中可以看到，pipeline会得到文件的URL,并从item中下载。为了这么做，需要重写 get_media_requests() 方法，并对文件的URL返回一个Request:
+
+  ```python
+  def get_media_requests(self, item, info):
+      for file_url in item['file_urls']:
+          yield scrapy.Request(file_url)
+  ```
+
+  这些requests将被管道处理，当它们完成下载后，结果将以2元素的元组列表形式传送到 `item_completed()` 方法:每个元组包含 `(success, file_info_or_error)`:
+
+  * `success` 是一个布尔值，当图片成功下载时为 `True` ，因为某个原因下载失败为`False`
+
+  * `file_info_or_error` 是一个包含下列关键字的字典（如果成功为`True`）或者出问题时为 
+
+    Twisted Failure
+
+    - `url` - 文件下载的url。这是从 `get_media_requests()`) 方法返回请求的url。
+    - `path` - 图片存储的路径（类似 `FILES_STORE`）
+    - `checksum` - 图片内容的 MD5 hash
+
+* ` item_completed(results, items, info)`
+
+  当一个单独项目中的所有图片请求完成时（要么完成下载，要么因为某种原因下载失败）， FilesPipeline.item_completed() 方法将被调用。
+
+  接收的元组列表需要保证与 get_media_requests() 方法返回请求的顺序相一致。
+
+  将下载的图片路径（传入到results中）存储到 `file_paths` 项目组中，如果其中没有图片，我们将丢弃项目:
+
+  ```python
+  from scrapy.exceptions import DropItem
+  
+  def item_completed(self, results, item, info):
+      file_paths = [x['path'] for ok, x in results if ok]
+      if not file_paths:
+          raise DropItem("Item contains no files")
+      item['file_paths'] = file_paths
+      return item
+  ```
+
+  默认情况下， `item_completed()` 方法返回项目。
+
+#### ImagesPipeline
+
+与 FilesPipeline 相同：
+
+```text
+class scrapy.pipeline.images.ImagesPipeline
+
+    get_media_requests(item, info)
+
+    item_completed(results, items, info)
+```
+
+```python
+import scrapy
+from scrapy.pipeline.images import ImagesPipeline
+from scrapy.exceptions import DropItem
+
+class MyImagesPipeline(ImagesPipeline):
+
+    def get_media_requests(self, item, info):
+        for image_url in item['image_urls']:
+            yield scrapy.Request(image_url)
+
+    def item_completed(self, results, item, info):
+        image_paths = [x['path'] for ok, x in results if ok]
+        if not image_paths:
+            raise DropItem("Item contains no images")
+        item['image_paths'] = image_paths
+        return item
+```
+
+或者如下：
 
 ```python
 # pipelines.py
@@ -398,3 +603,5 @@ Marshal
 https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 https://docs.scrapy.org/en/latest/topics/feed-exports.html
+
+https://www.jianshu.com/p/a412c0277f8a

@@ -66,6 +66,16 @@ class MysqlTwistedPipline(object):
 
 `from_settings()` 现在仅能在pipelines中使用。
 
+或者如 [stack overflow](https://stackoverflow.com/questions/25063117/how-do-scrapy-from-settings-and-from-crawler-class-methods-work)中：
+
+```python
+@classmethod
+def from_crawler(cls, crawler):
+    obj = cls.from_settings(crawler.settings)
+    obj.do_something_on_me_with_crawler(crawler)
+    return obj
+```
+
 * `from xx.settings import xxx`
 
 直接从 settings 文件中获取目标变量。
