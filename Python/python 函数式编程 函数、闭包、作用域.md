@@ -453,7 +453,7 @@ l[0]: 5
 
 Python 程序执行至 `lambda` 的时候，并没有执行 `lambda` 中的代码，而是直接保存到 `l1` 列表中。随着外侧循环的结束，`x` 的值已经变成4，此时再调用保存在 `l1` 中的 `lambda` 函数，`x` 变量获取到的就是当前已经变成 4 的这个值。
 
-这与在闭包中提到的 `for` 循环带来的问题相同。
+这与在闭包中提到的 `for` 循环带来的问题相同。返回函数不要引用任何循环变量，或者后续会发生变化的变量。
 
 可以修改为：
 
@@ -465,6 +465,15 @@ def outer():
             l.append(i+1)
         return l
     return inner
+
+# 区别于
+def outer():
+    l = []
+    for i in range(4):
+        def inner():
+            l.append(i+1)
+            return l
+    return inner
 ```
 
 或者：
@@ -474,6 +483,13 @@ l = []
 for i in range(4):
     def func(x = i):
         return x+1
+    l.append(func)
+    
+# 区别于：
+l = []
+for i in range(4):
+    def func():
+        return i+1
     l.append(func)
 ```
 
