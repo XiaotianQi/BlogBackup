@@ -23,7 +23,7 @@ Python对协程的支持是通过generator实现的。
 
 在generator中，我们不但可以通过`for`循环来迭代，还可以不断调用`next()`函数获取由`yield`语句返回的下一个值。但是Python的`yield`不但可以返回一个值，它还可以接收调用者发出的参数。当协程执行到yield关键字时，会暂停在那一行，等到主线程调用send方法发送了数据，协程才会接到数据继续执行。
 
-每个生成器都可以执行send()方法，为生成器内部的yield语句发送数据。此时yield语句不再只是`yield xxxx`的形式，还可以是`var = yield xxxx`的赋值形式。它同时具备两个功能，一是暂停并返回函数，二是接收外部send()方法发送过来的值，重新激活函数，并将这个值赋值给var变量！
+每个生成器都可以执行send()方法，为生成器内部的yield语句发送数据。此时yield语句不再只是`yield xxxx`的形式，还可以是`var = yield xxxx`的赋值形式。它同时具备两个功能，一是暂停并返回函数，二是接收外部send()方法发送过来的值，重新激活函数，并将这个值赋值给var变量！从逻辑上讲，用于实现协程的 yield 除了用于和调用者互相传递数据外，主要用于控制代码流程 。
 
 协程可以处于下面四个状态中的一个。当前状态可以导入inspect模块，使用inspect.getgeneratorstate(...) 方法查看，该方法会返回下述字符串中的一个。
 
@@ -31,6 +31,8 @@ Python对协程的支持是通过generator实现的。
 - 'GEN_RUNNING'　　协程正在执行。
 - 'GEN_SUSPENDED'  在yield表达式处暂停。
 - 'GEN_CLOSED' 　　执行结束。
+
+刚刚创建的协程处于 `GEN_CREATED` 状态中，调用者需要使用 `next(my_coro)` 或者`my_coro.send(None)` 启动/激活这个协程，被激活的协程开始运行，直到第一个 `yield` 表达式，之后这个协程就准备好作用活跃的协程使用了（这一步通常称为 “预激” 协程）。
 
 ```python
 >>> def coroutine():
@@ -114,6 +116,8 @@ yield from 其实就是等待另外一个协程的返回。主要解决的就是
 * 让嵌套生成器不必通过循环迭代`yield`，而是直接`yield from`。`yield from iterable`本质上是`for item in iterable: yield item`的缩写版  。
 * 在子生成器和委派生成器的调用者之间打开双向通道，两者可以直接通信。
 
+生成器可以使用 `yield from` 句法将部分操作委托给另一个生成器，也就是说，可以将包含 `yield` 的代码逻辑重构为另一个生成器。 `yield from` 句法会创建一个「通道」，把内层生成器（子生成器）与外层生成器的客户端联系起来，这样二者可以直接发送和产出值，还可以直接传入异常。这样一来，就省去了之前把生成器的工作委托给子生成器所需要的大量样板代码。
+
 ```python
 def gen():
     yield from subgen()
@@ -147,10 +151,12 @@ def main():
 
 ### Coroutine与Generator
 
+由于两者在语言层面并没有明显的区别，将生成器函数视为迭代器还是协程，完全依赖使用场景和上下文。
+
 最重要的区别：
 
-- generator总是生成值，一般是迭代的序列
-- coroutine关注的是消耗值，是数据(data)的消费者
+- generator生成供迭代的数据
+- coroutine数据(data)的消费者
 - coroutine不会与迭代操作关联，而generator会
 - coroutine强调协同控制程序流，generator强调保存状态和产生数据
 
@@ -392,6 +398,8 @@ loop.close()
 
 清晰优雅的协程可以说实现异步的最优方案之一。**事件驱动**模型就是异步编程的重中之重。
 
+异步框架就是建立在非阻塞和事件循环两个特征之上的, 这就在单线程中实现了并发操作。事件循环是高效并发I/O的，因为并没有为每一条连接都分配线程资源。在Python中，像我们所创建的事件循环，在处理数量不大但交互频繁的连接时，要比多线程方式慢。在没有全局解释器锁(Global Interpreter Lock)的运行时环境下，多线程同样表现得更出色。而异步I/O的真正用武之处在于，充满大量慢连接和不频繁事件的应用场景。
+
 ***
 
 参考：
@@ -407,3 +415,7 @@ http://aju.space/2017/07/31/Drive-into-python-asyncio-programming-part-1.html
 https://zhuanlan.zhihu.com/p/25228075
 
 http://www.cnblogs.com/zhaof/p/5932461.html
+
+https://ialloc.org/blog/into-python3-asyncio/
+
+http://kissg.me/2016/06/01/a-web-crawler-with-asyncio-coroutines/

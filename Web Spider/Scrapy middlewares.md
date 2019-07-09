@@ -1,8 +1,16 @@
-downloader middleware 和 spider middleware 在scrapy框架中的位置。二者都可以被视为 scrapy 的扩展。
+ downloader middleware 和 spider middleware 在scrapy框架中的位置。二者都可以被视为 scrapy 的扩展。
 
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/Scrapy%20Data%20flow.png)
 
 ## downloader middleware
+
+它是处于 `Engine` 和 `Downloader` 之间的组件，可以用于处理从 `Engine` 传递给 `Downloader` 的 request和从 `Downloader` 传递给 `Engine` 的 response。它一般可用于：
+
+* 处理即将发到网络上的请求；
+* 修改传递即将给 Spider 的响应数据；
+* 丢掉响应数据，然后生成一个新的请求；
+* 根据请求凭空构造一个响应（并不发出实际的请求）；
+* 丢弃某些请求等等。
 
 settings.py 中的相关设置：
 
@@ -66,6 +74,12 @@ class NewsspiderDownloaderMiddleware(object):
 ***
 
 ## spider middleware
+
+处于 `Engine` 和 `Spider` 之间的组件，可以用于处理 `Spider` 的输入（response）和输出（item和 request）。它一般可以用于：
+
+* 处理 Spider 回调函数的输出，可以用于修改、增加和删除 request  或者 item；
+* 处理 `Spider.start_requests()` 函数生成的 request；
+* 捕捉 Spider 回调函数抛出的异常等等。
 
 settings.py 中的相关设置：
 

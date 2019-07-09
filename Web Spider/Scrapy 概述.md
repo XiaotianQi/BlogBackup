@@ -143,7 +143,13 @@ class ChinanewsSpider(scrapy.Spider):
 
 ***
 
-## 扩展
+## 可扩展组件
+
+Spider Middleware：处于 `Engine` 和 `Spider` 之间的组件，可以用于处理 `Spider` 的输入（response）和输出（item和 request）。
+
+Downloader Middleware：处于 `Engine` 和 `Downloader` 之间的组件，可以用于处理从 `Engine` 传递给 `Downloader` 的 request和从 `Downloader` 传递给 `Engine` 的 response。
+
+Item Pipeline：用于处理 Spider 生成的 item，对其进行清理、验证、持久化等处理。
 
 Extensions，基于信号机制。
 
