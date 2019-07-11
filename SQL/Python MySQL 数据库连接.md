@@ -6,11 +6,9 @@ Python 与 MySQL 交互的基本流程如下图：
 
 ***
 
-## 相关函数说明
+## 连接数据库
 
-### `pymysql.connect()`
-
-创建与数据库的连接。
+在 python 中想要操作数据库必须得先创建对应的数据库连接，并且使用数据库连接来创建游标（cursor）对象。通过游标对象来执行相应的 sql语句来实现与数据库的数据通信。
 
 ```python
 connect = pymysql.connect(
@@ -30,7 +28,7 @@ connect = pymysql.connect("localhost", 3310, "root"，"xxx", "TESTDB", "utf8"
 )
 ```
 
-### `connection` 对象支持的方法
+### connection 对象
 
 | 方法 | 作用 |
 | ------ | :------- |
@@ -39,7 +37,7 @@ connect = pymysql.connect("localhost", 3310, "root"，"xxx", "TESTDB", "utf8"
 | `.rollback()` | 回滚当前事务 |
 | `.close()` | 关闭连接 |
 
-### `cursor` 对象支持的方法和属性
+### cursor 对象
 
 | 方法 | 作用 |
 | ------ | :------- |
@@ -55,11 +53,10 @@ connect = pymysql.connect("localhost", 3310, "root"，"xxx", "TESTDB", "utf8"
 |`.lastrowid`| 只读属性，获取所最后数据的主键 `id`，且 `id` 必须是 `AUTO_INCREMENT` |
 | `.rowcount` | 只读属性，并返回执行 `execute()` 方法后影响的行数 |
 
-#### `.execute()`
+***
 
 ```python
 cursor.execute(operation, params=None, multi=False)
-iterator = cursor.execute(operation, params=None, multi=True)
 ```
 
 由其可以执行 MySQL 的命令。
@@ -81,7 +78,7 @@ select = 'SELECT * FROM student WHERE age = %(age)s'
 cursor.execute(select, {'age': 23})
 ```
 
-#### `.executemany()`
+***
 
 ```python
 cursor.executemany(operation, seq_of_params)
@@ -106,9 +103,9 @@ INSERT INTO student (name, birthday, age)
 VALUES ('Alice', '1995-01-05', 23), ('Bob', '1995-02-15', 23), ('Cur', '1995-03-25', 23)
 ```
 
-#### `.fetchone()`
+***
 
-返回一个 `tuple`，一行查询结果。如果没有，则返回 `None`。
+`.fetchone()`返回一个 `tuple`，一行查询结果。如果没有，则返回 `None`。
 
 还有以下拓展用法：
 
@@ -128,7 +125,9 @@ for row in cursor:
 
 ***
 
-## 创建数据库表
+## 操作数据库
+
+### 创建数据库表
 
 ```python
 # _*_coding:utf-8_*_
@@ -157,7 +156,9 @@ db.close()
 
 ***
 
-## 添加数据
+### 操作数据
+
+#### 增加
 
 ```python
 # _*_coding:utf-8_*_
@@ -188,7 +189,7 @@ db.close()
 
 ***
 
-## 查询数据
+#### 查询
 
 ```python
 # _*_coding:utf-8_*_
@@ -224,7 +225,7 @@ fname=Mac,lname=Mohan,age=20,sex=M,income=2000
 
 ***
 
-## 更新数据
+#### 修改
 
 ```python
 # _*_coding:utf-8_*_
@@ -251,7 +252,7 @@ db.close()
 
 ***
 
-## 删除数据
+#### 删除
 
 ```python
 # _*_coding:utf-8_*_
@@ -276,4 +277,4 @@ db.close()
 
 参考：
 
-[cursor.MySQLCursor Class](https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor.html)
+[PyMySQL](https://github.com/PyMySQL/PyMySQL)，PyMySQL
