@@ -5,13 +5,11 @@
 >* `urllib.parse` for parsing URLs;
 >* `urllib.robotparser` for parsing `robots.txt` files.
 
-现在，简要介绍其中与爬虫有关的常用函数，其他不在深入。
-
-## `urllib.request`
+## 发送  HTTP 请求
 
 `urllib.request` 模块提供了最基本的构造 HTTP 请求的方法，可以模拟浏览器请求发起过程，同时还可以处理授权验证（authenticaton）、重定向（redirection)、浏览器Cookies以及其他内容。
 
-### `urllib.request.urlopen`
+### urllib.request.urlopen
 
 ```python
 urllib.request.urlopen(url, data=None, [timeout, ]*, cafile=None, capath=None, cadefault=False, context=None)
@@ -19,7 +17,7 @@ urllib.request.urlopen(url, data=None, [timeout, ]*, cafile=None, capath=None, c
 
 除了第一个 `url` 参数是必选参数，其他都是可选。如果传递了 `data` 参数，那么请求方式就不再是 `GET`，而是 `POST`。`timeout` 参数设置请求超时时间，单位为秒。如果请求超出了设置时间，还没有得到响应，就会抛出异常。如果不指定该参数，就使用全局默认时间。
 
-返回 `HTTPResponse` 对象，主要包含 `read()`、`readinto()`、`getheader(name)`、`getheaders()`、`fileno()` 等方法，以及`.msg`、`.version`、`.status`、`.reason`、`.debuglevel`、`.closed` 等属性。
+返回 `HTTPResponse` 对象，主要包含 `.read()`、`.readinto()`、`.getheader(name)`、`.getheaders()`、`.fileno()` 等方法，以及`.msg`、`.version`、`.status`、`.reason`、`.debuglevel`、`.closed` 等属性。
 
 ```python
 In [33]: response = urllib.request.urlopen('https://www.python.org')
@@ -52,9 +50,7 @@ Out[36]:
  ('Strict-Transport-Security', 'max-age=63072000; includeSubDomains')]
 ```
 
-### `urllib.request.Request`
-
-虽然 `urlopen()` 方法可以发起最基本请求，但不足以构建一个完整的请求。请求如果需要加入 `Headers` 等信息，就可以利用的 `Request` 类。
+### urllib.request.Request
 
 ```python
 In [37]: request = urllib.request.Request('https://python.org')
@@ -86,7 +82,9 @@ Out[41]:
  ('Strict-Transport-Security', 'max-age=63072000; includeSubDomains')]
 ```
 
-虽然仍然使用 `urlopen()` 方法来发送请求，但是这次参数不再是 `URL`，而是一个 `Request` 类型的对象。通过构造`Request` 对象，可以将请求独立成一个对象，并自定义配置参数。
+虽然仍然使用 `urlopen()` 方法来发送请求，但是这次参数不再是 `URL`，而是一个 `Request` 对象。
+
+如果请求需要加入 `Headers` 等信息，就可以使用的 `urllib.request.Request` 。通过构造`Request` 对象，可以将请求独立成一个对象，并自定义配置参数。
 
 ```python
 class urllib.request.Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None
@@ -144,11 +142,11 @@ req.add_header('User-Agent', 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)')
 
 ***
 
-## `urllib.parse`
+## URL 处理
 
-### 解析
+### URL 拆分
 
-#### `urllib.parse.urlparse`
+#### urllib.parse.urlparse
 
 ```python
 urllib.parse.urlparse(urlstring, scheme='', allow_fragments=True)
@@ -180,7 +178,7 @@ In [65]: parsed[1]
 Out[65]: 'netloc'
 ```
 
-#### `urllib.parse.urlsplit`
+#### urllib.parse.urlsplit
 
 和 `urlparse()` 方法非常相似，只不过它不再单独解析params这一部分，只返回 5 个结果，不再有 `params` 属性。
 
@@ -197,9 +195,9 @@ In [75]: parsed
 Out[75]: SplitResult(scheme='http', netloc='netloc', path='/path;param', query='query=arg', fragment='frag')
 ```
 
-### 拼接
+### URL 拼接
 
-#### `urllib.parse.urlunparse`
+#### urllib.parse.urlunparse
 
 ```python
 urllib.parse.urlunparse(parts)
@@ -215,11 +213,11 @@ In [67]: parse.urlunparse(parsed)
 Out[67]: 'http://netloc/path;param?query=arg#frag'
 ```
 
-#### `urllib.parse.urlunsplit`
+#### urllib.parse.urlunsplit
 
 与 `urlsplit` 对应，传入参数长度必须是 5。
 
-#### `urllib.parse.urljoin`
+#### urllib.parse.urljoin
 
 ```python
 urllib.parse.urljoin(base, url, allow_fragments=True)
@@ -244,7 +242,7 @@ In [73]: parse.urljoin('www.baidu.com#comment', '?category=2')
 Out[73]: 'www.baidu.com?category=2'
 ```
 
-#### `geturl`
+#### geturl
 
 只对 `urlparse` 或 `urlsplit` 返回的对象有效。
 
@@ -257,6 +255,6 @@ Out[76]: 'http://netloc/path;param?query=arg#frag'
 
 参考：
 
-[urllib — URL handling modules](https://docs.python.org/3/library/urllib.html)
+[urllib — URL handling modules](https://docs.python.org/3/library/urllib.html)，官方文档
 
-[Python3网络爬虫开发实战 3.1.1-发送请求](https://cuiqingcai.com/5500.html)
+[Python3网络爬虫开发实战 3.1.1-发送请求](https://cuiqingcai.com/5500.html)，崔庆才
