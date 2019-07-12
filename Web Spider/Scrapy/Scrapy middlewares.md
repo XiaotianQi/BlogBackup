@@ -12,6 +12,11 @@
 * 根据请求凭空构造一个响应（并不发出实际的请求）；
 * 丢弃某些请求等等。
 
+其中最主要的方法便是：process_request 和 process_response
+
+* process_request：当每个request通过下载中间件时，该方法被调用
+* process_response：当下载器完成http请求，传递响应给引擎的时候调用
+
 settings.py 中的相关设置：
 
 ```python

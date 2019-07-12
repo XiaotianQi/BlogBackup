@@ -1,3 +1,9 @@
+在使用 XML 时，最想了解的三个问题是：
+
+* 有一个XML文件，如何解析
+* 解析后，如果查找、定位某个标签
+* 定位后如何操作标签，比如访问属性、文本内容等
+
 使用正则来处理 HTML、XML 文档来说比较麻烦，一般来说处理 HTML、XML 文档都是使用 Xpath。Xpath 可以用来查找HTML、XML节点或元素，是一门在 HTML、XML 文档中查找信息的语言。
 
 Element 是 XML 处理的核心类，Element 对象可以直观的理解为 XML 的节点，大部分 XML 节点的处理都是围绕该类进行的。
@@ -110,9 +116,3 @@ element.itersiblings( preceding=False )
 element.iterdescendants( tag=None )
 同 iterancestors()
 ```
-
-***
-
-参考：
-
-https://wangxin1248.github.io/python/2018/08/python3-spider-4.html

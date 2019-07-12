@@ -110,13 +110,13 @@ Note：不能重载`parse(self, response)`方法，因为CrawlSpider已将其重
 ```text
 class scrapy.spiders.Rule(link_extractor, callback=None, cb_kwargs=None, follow=None, process_links=None, process_request=None)
 
-link_extractor：LinkExtractor对象，定义从当前网页获取新的链接的规则。
+link_extractor：LinkExtractor对象，定义从当前网页获取新的链接的规则，确定响应中的哪些链接是需要被提取。
 
 callback：回调函数。处理按照link_extractor提取URL的response。该回调函数接收response作为其第一个参数，并返回Item或Request。同时，不要使用parse()作为回调函数。
 
 cb_kwargs：字典参数，并传递给回调函数。
 
-follow：bool类型，用于指定是否要继续从当前规则解析出的Response中，继续提取url。如果callback是None，则follow默认为True，否则默认为False。
+follow：bool类型，表明是否对网页进行深度爬取。如果callback是None，则follow默认为True，否则默认为False。
 
 process_links：回调函数，用于进一步处理那些用规则提取的url。
 

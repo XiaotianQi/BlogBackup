@@ -8,6 +8,15 @@ Scrapy是用纯Python编写的，并且依赖于几个关键的Python包：
 - [twisted](https://twistedmatrix.com/)，一个异步网络框架
 - [cryptography](https://cryptography.io/)和[pyOpenSSL](https://pypi.python.org/pypi/pyOpenSSL)，用来处理各种网络级安全需求
 
+创建一个 scrapy 爬虫项目的主要流程：
+
+1. 创建项目
+2. 配置 settings 文件
+3. 分析网页数据，编写 items 文件
+4. 编写爬虫脚本
+5. 编写 pipeline 文件，处理 item 数据
+6. 启动项目
+
 ## 文件结构
 
 ![简单的文件结构](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/scrapy%20files-1.png)
@@ -487,6 +496,4 @@ def parse(self, response):
 
 参考：
 
-https://docs.scrapy.org/en/latest/topics/architecture.html
-
-https://docs.scrapy.org/en/latest/topics/exceptions.html
+[Scrapy 1.6 documentation](https://docs.scrapy.org/en/latest/topics/architecture.html)，Scrapy官方文档
