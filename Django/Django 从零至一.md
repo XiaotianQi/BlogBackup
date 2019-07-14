@@ -2,20 +2,9 @@
 
 ***
 
-### **Virtualenv 虚拟环境**
+## 目录结构
 
-Virtualenv 是一个 Python 工具，它可以创建一个独立的 Python 环境。这个独立环境与原来的 Python 环境隔离，用以解决依赖、版本以及间接权限问题。同时，每个环境都是独立，这个环境不与其他虚拟环境共享库, 能够方便的管理 Python 版本和 Python 库。
-
-```shell
-# 指定 Python 版本
-virtualenv ENV --python=python3.6
-# 打包虚拟环境所安装 Python 库
-pip freeze > requirements.txt
-```
-
-***
-
-### **Project 目录结构**
+### Project 目录结构
 
 进入终端
 
@@ -47,7 +36,7 @@ blogproject/
 
 ***
 
-### **App 目录结构**
+### App 目录结构
 
 在 Django 中，每一个应用都是一个 Python 包。在每个应用目录中，都可以发现 \_\_init\_\_.py 文件。
 > 项目和应用有什么区别？  
@@ -81,7 +70,7 @@ blog/
 
 ***
 
-### **Project 和 App 之间区别**
+### Project 和 App 之间区别
 
 * Project 的作用是提供配置文件，例如 App 安装列表，数据库连接信息、url 配置、Template 配置等。
 * 一个 App 是一套 Django 功能的集合，通常包括模型和视图，并以 Python 的包结构的方式存在。
@@ -90,13 +79,7 @@ blog/
 
 ***
 
-### **Django 简洁工作流程**
-
-运行服务器
-
-```shell
-python manage.py runserver
-```
+## Django 简洁工作流程
 
 Django 简单易懂工作流程
 
@@ -106,13 +89,55 @@ Django 简单易懂工作流程
 1. Views 通过操控 Models 和 Template 得到 Response
 1. Response返回到浏览器，呈现用户
 
-流程图如下：
-<div align="center">
-<img src="https://wx2.sinaimg.cn/mw690/af9e9c30ly1fmnbupcq4gj20m80j2q7p.jpg" width = "350" height = "300" alt="图片名称" align=center />
-</div>
+具体流程图如下：
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Django/Django%20data%20flow.png)
+
+```text
+1. 用户通过浏览器请求一个页面
+2. 请求到达Request Middlewares，中间件对request做一些预处理或者直接response请求
+3. URLConf通过urls.py文件和请求的URL找到相应的View
+4. View Middlewares被访问，它同样可以对request做一些处理或者直接返回response
+5. 调用View中的函数
+6. View中的方法可以选择性的通过Models访问底层的数据
+7. 所有的Model-to-DB的交互都是通过manager完成的
+8. 如果需要，Views可以使用一个特殊的Context
+9. Context被传给Template用来生成页面
+a. Template使用Filters和Tags去渲染输出
+b. 输出被返回到View
+c. HTTPResponse被发送到Response Middlewares
+d. 任何Response Middlewares都可以丰富response或者返回一个完全不同的response
+e. Response返回到浏览器，呈现给用户
+```
+
 ***
 
-### **MVC 设计模式**
+### Middleware
+
+在Django中，Middleware可以渗入处理流程的四个阶段：request，view，response和exception。相应的，在每个Middleware类中都有rocess_request，process_view，process_response 和 process_exception这四个方法。可以定义其中任意一个或者多个方法，这取决于希望该Middleware作用于哪个阶段。每个方法都可以直接返回response对象。
+
+Middleware是在Django BaseHandler的load_middleware方法执行时加载的，加载之后会建立四个列表作为处理器的实例变量：
+
+```text\
+_request_middleware：process_request方法的列表
+_view_middleware：process_view方法的列表
+_response_middleware：process_response方法的列表
+_exception_middleware：process_exception方法的列表
+```
+
+中间件出现的顺序非常重要：在request和view的处理阶段，Django按照MIDDLEWARE_CLASSES中出现的顺序来应用中间件，而在response和exception异常处理阶段，Django则按逆序来调用它们。也就是说，Django将MIDDLEWARE_CLASSES视为view函数外层的顺序包装子：在request阶段按顺序从上到下穿过，而在response则反过来。以下两张图可以更好地帮助你理解：
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Django/Django%20middleware.png)
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Django/Django%20middleware%201.png)
+
+### URLConf(URL映射)
+
+如果处理request的中间件都没有直接返回response，那么Django会去解析用户请求的URL。URLconf就是Django所支撑网站的目录。它的本质是URL模式以及要为该URL模式调用的视图函数之间的映射表。通过这种方式可以告诉Django，对于这个URL调用这段代码，对于那个URL调用那段代码。具体的，在Django项目的配置文件中有ROOT_URLCONF常量，这个常量加上根目录"/"，作为参数来创建django.core.urlresolvers.RegexURLResolver的实例，然后通过它的resolve方法解析用户请求的URL，找到第一个匹配的view。
+
+***
+
+## MVC 设计模式
 
 MVC 设计模式是把数据存取逻辑、业务逻辑和表现逻辑组合在一起的概念。这种设计模式关键的优势在于各种组件都是**松散结合**。
 
@@ -132,7 +157,7 @@ MVC是三个单词的首字母缩写，它们是Model（模型）、View（视�
 
 ***
 
-### **MTV 设计模式**
+## MTV 设计模式
 
 Django 有意弱化 Controller ,更注重 Template（模板）。这便是 Model 、Template 和 Views，即 MTV 设计模式。
 
@@ -142,4 +167,6 @@ Django 有意弱化 Controller ,更注重 Template（模板）。这便是 Model
 
 参考：
 
-http://www.ruanyifeng.com/blog/2007/11/mvc.html
+[谈谈MVC模式](http://www.ruanyifeng.com/blog/2007/11/mvc.html)，阮一峰
+
+[[Django运行方式及处理流程总结](https://segmentfault.com/a/1190000002399134)，WuXianglong                                                                                         
