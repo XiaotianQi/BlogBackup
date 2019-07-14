@@ -467,6 +467,67 @@ Out[15]: False
 
 当 `a`、`b` 赋值相同时，其标识亦相同。当 `b` 进行运算，其值与 `e` 相同时，二者的标识也相同。
 
+不过，需要注意以下情况：
+
+```python
+a = 257
+
+
+def main():
+	b = 257  # 第6行
+	c = 257  # 第7行
+	print(b is c)  # True
+	print(a is b)  # False
+	print(a is c)  # False
+
+
+if __name__ == "__main__":
+	main()
+```
+
+代码块是程序的一个最小的基本执行单位，一个模块文件、一个函数体、一个类、交互式命令中的单行代码都叫做一个代码块。上面的代码由两个代码块构成，`a = 257`是一个代码块，`main`函数是另外一个代码块。Python内部为了进一步提高性能，凡是在一个代码块中创建的整数对象，如果值不在`small_ints`缓存范围之内，但在同一个代码块中已经存在一个值与其相同的整数对象了，那么就直接引用该对象，否则创建一个新的对象出来，这条规则对不在`small_ints`范围的负数并不适用，对负数值浮点数也不适用，但对非负浮点数和字符串都是适用的，这一点读者可以自行证明。所以 `b is c`返回了`True`，而`a`和`b`不在同一个代码块中，虽然值都是257，但却是两个不同的对象，`is`运算的结果自然是`False`了。
+为了验证刚刚的结论，我们可以借用`dis`模块（听名字就知道是进行反汇编的模块）从字节码的角度来看看这段代码。
+
+```python
+import dis
+
+dis.dis(main)
+```
+
+代码的执行结果如下图所示。可以看出代码第6行和第7行，也就是`main`函数中的257是从同一个位置加载的，因此是同一个对象；而代码第9行的`a`明显是从不同的地方加载的，因此引用的是不同的对象。
+
+```bash
+In [3]: dis.dis(main)                                
+  7           0 LOAD_CONST               1 (257)     
+              2 STORE_FAST               0 (b)       
+                                                     
+  8           4 LOAD_CONST               1 (257)     
+              6 STORE_FAST               1 (c)       
+                                                     
+  9           8 LOAD_GLOBAL              0 (print)   
+             10 LOAD_FAST                0 (b)       
+             12 LOAD_FAST                1 (c)       
+             14 COMPARE_OP               8 (is)      
+             16 CALL_FUNCTION            1           
+             18 POP_TOP                              
+                                                     
+ 10          20 LOAD_GLOBAL              0 (print)   
+             22 LOAD_GLOBAL              1 (a)       
+             24 LOAD_FAST                0 (b)       
+             26 COMPARE_OP               8 (is)      
+             28 CALL_FUNCTION            1           
+             30 POP_TOP                              
+                                                     
+ 11          32 LOAD_GLOBAL              0 (print)   
+             34 LOAD_GLOBAL              1 (a)       
+             36 LOAD_FAST                1 (c)       
+             38 COMPARE_OP               8 (is)      
+             40 CALL_FUNCTION            1           
+             42 POP_TOP                              
+             44 LOAD_CONST               0 (None)    
+             46 RETURN_VALUE                         
+```
+
 ***
 
 ### 2.可哈希(hashable)和不可变(immutable)
@@ -550,4 +611,6 @@ Out[25]: 1612093971528
 
 参考：
 
-[glossary](https://docs.python.org/3/glossary.html#term-hashable)
+[glossary](https://docs.python.org/3/glossary.html#term-hashable) ，官方文档
+
+[那些年我们踩过的那些坑](https://github.com/jackfrued/Python-100-Days/blob/master/那些年我们踩过的那些坑.md)，骆昊
