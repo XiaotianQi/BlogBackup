@@ -40,33 +40,58 @@ Python代码在执行过程中，遵循下面的基本原则：
 
 ## 条件判断
 
-条件判断是通过一条或多条判断语句的执行结果（True或者False）来决定执行的代码块。
+一条一条语句顺序执行的Python代码，这种代码结构通常称之为顺序结构。
+
+条件判断是通过一条或多条判断语句的执行结果（True或者False）来决定执行的代码块。将这种结构称之为“分支结构”或“选择结构”。
 
 在Python语法中，使用if、elif和else三个关键字来进行条件判断。
 
 顺序判断每一个分支，任何一个分支首先被命中并执行，则其后面的所有分支被忽略，直接跳过！
 
+输入三条边长如果能构成三角形就计算周长和面积：
+
+```python
+import math
+
+a = float(input('a = '))
+b = float(input('b = '))
+c = float(input('c = '))
+if a + b > c and a + c > b and b + c > a:
+    print('周长: %f' % (a + b + c))
+    p = (a + b + c) / 2
+    area = math.sqrt(p * (p - a) * (p - b) * (p - c))
+    print('面积: %f' % (area))
+else:
+    print('不能构成三角形')
+```
+
 ## 循环控制
 
-Python用关键字for和while来进行循环控制。
+在Python中构造循环结构有两种做法，一种是`for-in`循环，一种是`while`循环。
 
-### while 语句
+### for 循环
 
-while循环用伪代码描述就是：当条件满足的时候，就一直运行while所管理的代码块，当条件不满足的时候，就结束while循环。
-
-while循环还可以增加一个else从句。当while循环正常执行完毕，会执行else语句。但如果是被break等机制强制提前终止的循环，不会执行else语句。
-
-### for 语句
+如果明确的知道循环执行的次数或者要对一个容器进行迭代（后面会讲到），那么推荐使用`for-in`循环。
 
 for循环通常用来遍历可迭代的对象，`for ... in ....`属于固定套路。
 
 与while一样，for循环也可以有else子句。同样是正常结束循环时，else子句执行。被中途break时，则不执行。
 
-### break 语句
+### while 循环
+
+while循环用伪代码描述就是：当条件满足的时候，就一直运行while所管理的代码块，当条件不满足的时候，就结束while循环。
+
+如果要构造不知道具体循环次数的循环结构，推荐使用`while`循环。`while`循环通过一个能够产生或转换出`bool`值的表达式来控制循环，表达式的值为`True`循环继续，表达式的值为`False`循环结束。
+
+while循环还可以增加一个else从句。当while循环正常执行完毕，会执行else语句。但如果是被break等机制强制提前终止的循环，不会执行else语句。
+
+### 循环控制
+
+#### break
 
 break只能用于循环体内。其效果是直接结束并退出**当前**循环，剩下的未循环的工作全部被忽略和取消。注意当前两个字，Python的break只能退出一层循环，对于多层嵌套循环，不能全部退出。
 
-### continue 语句
+#### continue
 
 与break不同，continue语句用于跳过当前循环的剩余部分代码，直接开始下一轮循环。它不会退出和终止循环，只是提前结束当前轮次的循环。同样的，continue语句只能用在循环内。
 
@@ -157,8 +182,142 @@ for n in range(2, 10):
         print(n, 'is a prime number')
 ```
 
+## 构造程序逻辑
+
+分支和循环结构会帮助我们将程序中逻辑建立起来，将来我们的程序无论简单复杂，都是由顺序结构、分支结构、循环结构构成的。
+
+## 练习
+
+素数判断：
+
+```python
+def is_prime(num):
+    end = int(sqrt(num))
+    is_prime = True
+    for x in range(2, end + 1):
+        if num % x == 0:
+            is_prime = False
+            break
+    if is_prime and num != 1:
+        print('%d是素数' % num)
+    else:
+        print('%d不是素数' % num)
+```
+
+输入两个正整数，计算最大公约数和最小公倍数:
+
+```python
+x = int(input('x = '))
+y = int(input('y = '))
+if x > y:
+    x, y = y, x
+for factor in range(x, 0, -1):
+    if x % factor == 0 and y % factor == 0:
+        print('%d和%d的最大公约数是%d' % (x, y, factor))
+        print('%d和%d的最小公倍数是%d' % (x, y, x * y // factor))
+        break
+```
+
+输出三角形：
+
+```python
+for i in range(row):
+    for _ in range(row - i - 1):
+        print(' ', end='')
+    for _ in range(2 * i + 1):
+        print('*', end='')
+    print()
+```
+
+水仙花数：
+
+```python
+for num in range(100, 1000):
+    x, y, z = str(num)
+    nar_num = int(x)**3 + int(y)**3 + int(z)**3
+    if num == nar_num:
+        print(num)
+```
+
+完全数：
+
+```python
+import math
+
+for num in range(1, 10000):
+    sum = 0
+    for factor in range(1, int(math.sqrt(num)) + 1):
+        if num % factor == 0:
+            sum += factor
+            if factor > 1 and num / factor != factor:
+                sum += num / factor
+    if sum == num:
+        print(num)
+```
+
+百鸡百钱：
+
+```python
+for x in range(0, 20):
+    for y in range(0, 33):
+        z = 100 - x - y
+        if 5 * x + 3 * y + z / 3 == 100:
+            print('公鸡{0}只，母鸡{1}只，雏鸡{2}只'.format(x, y, z))
+```
+
+斐波那契数列：
+
+```python
+def fib(num):
+    a, b = 0, 1
+    for i in range(num):
+        yield a
+        a, b = b, a+b
+```
+
+Craps赌博游戏：
+
+```python
+from random import randint
+
+money = 1000
+while money > 0:
+    print('你的总资产为:', money)
+    needs_go_on = False
+    while True:
+        debt = int(input('请下注: '))
+        if debt > 0 and debt <= money:
+            break
+    first = randint(1, 6) + randint(1, 6)
+    print('玩家摇出了%d点' % first)
+    if first == 7 or first == 11:
+        print('玩家胜!')
+        money += debt
+    elif first == 2 or first == 3 or first == 12:
+        print('庄家胜!')
+        money -= debt
+    else:
+        needs_go_on = True
+
+    while needs_go_on:
+        current = randint(1, 6) + randint(1, 6)
+        print('玩家摇出了%d点' % current)
+        if current == 7:
+            print('庄家胜')
+            money -= debt
+            needs_go_on = False
+        elif current == first:
+            print('玩家胜')
+            money += debt
+            needs_go_on = False
+
+print('你破产了, 游戏结束!')
+```
+
 ***
 
-摘抄自：
+参考：
 
-http://www.liujiangblog.com/course/python/25
+[流程控制](http://www.liujiangblog.com/course/python/25)，刘江
+
+[分支结构](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/03.%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84.md)，骆昊

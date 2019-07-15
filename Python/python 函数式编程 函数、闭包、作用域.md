@@ -22,6 +22,20 @@
 
 `*args` 是将来一个**非键值对**的可变数量的参数列表传递给函数。接收的是一个 `tuple`。既可以直接传入：`func(1, 2, 3)`，又可以先组装 `list` 或 `tuple`，再通过 `*args` 传入：`func(*(1, 2, 3))`。
 
+```python
+def add(*args):
+    total = 0
+    for val in args:
+        total += val
+    return total
+
+print(add())
+print(add(1))
+print(add(1, 2))
+print(add(1, 2, 3))
+print(add(1, 3, 5, 7, 9))
+```
+
 ### 关键字参数 `**kwargs`
 
 `**kwargs` 允许将不定长度的**键值对**作为参数传递给函数。接收的是一个 `dict`。既可以直接传入：`func(a=1, b=2)`，又可以先组装 `dict`，再通过 `**kwargs` 传入：`func(**{'a': 1, 'b': 2})`。
@@ -384,7 +398,7 @@ def test():
 test()
 ```
 
-上述代码会报错。因为：
+上述代码 ，`a += 1`报错。因为：
 
 Python的规则是，如果在函数内部要修改一个变量，那么这个变量需要是内部变量，除非你用global声明了它是外部变量。很明显，我们没有在函数内部定义变量a，所以会弹出局部变量在未定义之前就引用的错误。
 

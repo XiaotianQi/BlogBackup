@@ -1,4 +1,4 @@
-内容基本选自 阮一峰博客。示例代码用的并不python，但并不影响理解函数式编程。
+内容基本选自 阮一峰博客。示例代码用的并不是python，但并不影响理解函数式编程。
 
 ## 定义
 
@@ -177,4 +177,4 @@ var s3 = concat(s1, s2);
 
 参考：
 
-http://www.ruanyifeng.com/blog/2012/04/functional_programming.html
+[函数式编程初探](http://www.ruanyifeng.com/blog/2012/04/functional_programming.html)，阮一峰
