@@ -259,6 +259,44 @@ if __name__ == "__main__":
 
 ***
 
+## 嵌套列表
+
+```python
+lst = [[0] * 3] * 5
+lst[0] = [1, 1, 1]
+lst[0][0] = 'a'
+lst[1][1] = 2
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/list.png)
+
+对列表进行`[[0] * 3] * 5`操作时，仅仅是将`[0, 0, 0]`这个列表的地址进行了复制，并没有创建新的列表对象，所以容器中虽然有5个元素，但是这5个元素引用了同一个列表对象，这一点可以通过`id`函数检查`scores[0]`和`scores[1]`的地址得到证实。
+
+```python
+lst = [[0] * 3 for _ in range(5)]
+lst[0] = [1, 1, 1]
+lst[0][0] = 'a'
+lst[1][1] = 2
+```
+
+
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/list1.png)
+
+```python
+scores = [[]] * 5
+lst = [[0] * 3 for _ in range(5)]
+lst[0] = [1, 1, 1]
+lst[0][0] = 'a'
+# lst[1][1] = 2	# 报错
+```
+
+
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/list2.png)
+
+***
+
 ## 赋值、浅复制、深复制
 
 赋值是将变量指向某个对象，浅复制是复制出第一层结构，深复制就是完全在新位置重造一个对象。赋值不会新建对象，浅复制和深复制均会新建一个对象。对象包含其他对象的时候，复制操作就会出现问题。
