@@ -4,7 +4,7 @@
 * class method
 * static method
 
-## instance method
+## 实例方法
 
 ```python
 class I_method:
@@ -37,13 +37,13 @@ test
 
 ***
 
-## class method
+## 类方法
 
 `@classmethod`:
 
 返回函数的类方法。
 
-对应的函数不需要实例化，不需要 `self` 参数，但第一个参数需要是表示自身类的 `cls` 参数，可以来调用类的属性，类的方法，实例化对象等。
+Python还可以在类中定义类方法，类方法的第一个参数约定名为`cls`，它代表的是当前类相关的信息的对象（类本身也是一个对象，有的地方也称之为类的元数据对象）。通过这个参数，可以获取和类相关的信息并且可以创建出类的对象。
 
 ```python
 class C_method:
@@ -81,9 +81,57 @@ DATA test
 
 只在类中运行而不在实例中运行的方法。使用`@classmethod`后，不管这个方式是从实例调用还是从类调用，它都把类作为第一个参数传递进来。
 
+```python
+from time import time, localtime, sleep
+
+
+class Clock(object):
+    """数字时钟"""
+
+    def __init__(self, hour=0, minute=0, second=0):
+        self._hour = hour
+        self._minute = minute
+        self._second = second
+
+    @classmethod
+    def now(cls):
+        ctime = localtime(time())
+        return cls(ctime.tm_hour, ctime.tm_min, ctime.tm_sec)
+
+    def run(self):
+        """走字"""
+        self._second += 1
+        if self._second == 60:
+            self._second = 0
+            self._minute += 1
+            if self._minute == 60:
+                self._minute = 0
+                self._hour += 1
+                if self._hour == 24:
+                    self._hour = 0
+
+    def show(self):
+        """显示时间"""
+        return '%02d:%02d:%02d' % \
+               (self._hour, self._minute, self._second)
+
+
+def main():
+    # 通过类方法创建对象并获取系统时间
+    clock = Clock.now()
+    while True:
+        print(clock.show())
+        sleep(1)
+        clock.run()
+
+
+if __name__ == '__main__':
+    main()
+```
+
 ***
 
-## static method
+## 静态方法
 
 `@staticmethod`:
 
@@ -123,13 +171,13 @@ test
 
 适用于：
 
-> Often there is some functionality that relates to the class, but does  not need the class or any instance(s) to do some work. Perhaps something like setting environmental variables, changing an attribute in another class, etc. In these situation we can also use a function, however doing so also spreads the interrelated code which can cause maintenance  issues later.
+Often there is some functionality that relates to the class, but does  not need the class or any instance(s) to do some work. Perhaps something like setting environmental variables, changing an attribute in another class, etc. In these situation we can also use a function, however doing so also spreads the interrelated code which can cause maintenance  issues later.
 
-> 如果在方法中不需要访问任何实例方法和属性，纯粹地通过传入参数并返回数据的功能性方法，那么它就适合用静态方法来定义，它节省了实例化对象的开销成本，往往这种方法放在类外面的模块层作为一个函数存在也是没问题的，而放在类中，仅为这个类服务。
+如果在方法中不需要访问任何实例方法和属性，纯粹地通过传入参数并返回数据的功能性方法，那么它就适合用静态方法来定义，它节省了实例化对象的开销成本，往往这种方法放在类外面的模块层作为一个函数存在也是没问题的，而放在类中，仅为这个类服务。
 
-值得注意是：
+## 类方法 vs 静态方法
 
-> 如果希望在方法里面调用静态方法，那么把方法定义成类方法是合适的。因为要是定义成静态方法，那么你就要显示地引用类，这对继承来说可不是一件好事情。
+如果希望在方法里面调用静态方法，那么把方法定义成类方法是合适的。因为要是定义成静态方法，那么你就要显示地引用类，这对继承来说可不是一件好事情。
 
 ```python
 class A:
@@ -147,13 +195,8 @@ class B(A):
 ```python
 a = A.get_data(123)
 b = B.get_data(123)
-print(a.__class__)
-print(b.__class__)
-```
-
-```text
-<class '__main__.A'>
-<class '__main__.A'>
+print(a.__class__)	# <class '__main__.A'>
+print(b.__class__)  # <class '__main__.A'>
 ```
 
 纵然，`B` 继承 `A`，但使用 `@staticmethod`后，`B` 中的 `get_data` 所属类是 `A`类，产生硬编码。所以此时，应使用 `@classmethod`。
@@ -169,6 +212,46 @@ class A:
 
 class B(A):
     pass
+```
+
+我们定义一个“三角形”类，通过传入三条边长来构造三角形，并提供计算周长和面积的方法，但是传入的三条边长未必能构造出三角形对象，因此我们可以先写一个方法来验证三条边长是否可以构成三角形，这个方法很显然就不是对象方法，因为在调用这个方法时三角形对象尚未创建出来（因为都不知道三条边能不能构成三角形），所以这个方法是属于三角形类而并不属于三角形对象的。我们可以使用静态方法来解决这类问题，代码如下所示:
+
+```python
+from math import sqrt
+
+
+class Triangle(object):
+
+    def __init__(self, a, b, c):
+        self._a = a
+        self._b = b
+        self._c = c
+
+    @staticmethod
+    def is_valid(a, b, c):
+        return a + b > c and b + c > a and a + c > b
+
+    def perimeter(self):
+        return self._a + self._b + self._c
+
+    def area(self):
+        half = self.perimeter() / 2
+        return sqrt(half * (half - self._a) *
+                    (half - self._b) * (half - self._c))
+
+
+def main():
+    a, b, c = 3, 4, 5
+    if Triangle.is_valid(a, b, c):
+        t = Triangle(a, b, c)
+        print(t.perimeter())
+        print(t.area())
+    else:
+        print('无法构成三角形.')
+
+
+if __name__ == '__main__':
+    main()
 ```
 
 ***
@@ -217,8 +300,10 @@ True
 
 参考：
 
-[Class vs static methods in Python](https://www.pythoncentral.io/difference-between-staticmethod-and-classmethod-in-python/)
+[Class vs static methods in Python](https://www.pythoncentral.io/difference-between-staticmethod-and-classmethod-in-python/)，Arun Tigeraniya 
 
-[Meaning of @classmethod and @staticmethod for beginner?](https://stackoverflow.com/questions/12179271/meaning-of-classmethod-and-staticmethod-for-beginner)
+[Meaning of @classmethod and @staticmethod for beginner?](https://stackoverflow.com/questions/12179271/meaning-of-classmethod-and-staticmethod-for-beginner)，StackOverflow
 
-[正确理解Python中的 @staticmethod@classmethod方法](https://zhuanlan.zhihu.com/p/28010894)
+[正确理解Python中的 @staticmethod@classmethod方法](https://zhuanlan.zhihu.com/p/28010894)，刘志军
+
+[静态方法和类方法](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/09.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%BF%9B%E9%98%B6.md)，骆昊

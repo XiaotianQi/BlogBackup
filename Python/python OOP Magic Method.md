@@ -32,7 +32,27 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
 * `__slots__(self,[...])`
 
-  限制该 `class` 实例能添加的属性。告诉 Python 不要使用字典，而且只给一个固定集合的属性分配空间，为内存减轻负担。
+  限制该 `class` 实例能添加的属性。
+
+  通常，动态语言允许我们在程序运行时给对象绑定新的属性或方法，当然也可以对已经绑定的属性和方法进行解绑定。但是如果需要限定自定义类型的对象只能绑定某些属性，可以通过在类中定义`__slots__`变量来进行限定。需要注意的是`__slots__`的限定只对当前类的对象生效，对子类并不起任何作用。
+
+  ```python
+  class Person(object):
+  
+      # 限定Person对象只能绑定_name, _age和_gender属性
+      __slots__ = ('_name', '_age', '_gender')
+  
+      def __init__(self, name, age):
+          self._name = name
+          self._age = age
+  
+  
+  if __name__ == '__main__':
+      person = Person('王大锤', 12)
+      person._city = 'BJ'	# AttributeError: 'Person' object has no attribute '_city'
+  ```
+
+  
 
 * `__new__(cls,[...)`
 

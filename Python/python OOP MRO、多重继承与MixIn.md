@@ -148,7 +148,7 @@ E --> D1 --> D2 --> A --> B --> C --> Object
 
 ***
 
-## `super()`
+## super() 函数
 
 在子类中如果有与父类同名的成员，那就会覆盖掉父类里的成员。那如果你想强制调用父类的成员呢？使用super()函数！这是一个非常重要的函数，最常见的就是通过super调用父类的实例化方法`__init__`！
 
@@ -187,6 +187,41 @@ B
 C
 A
 ```
+
+在如下例子中：
+
+```python
+class A:
+    def test(self):
+        print('A.test')
+
+class TestMixin:
+    def test(self):
+        print('TestMixin.test')
+        super().test()
+
+class B(TestMixin, A):
+    def test(self):
+        print('B.test')
+        super().test()
+
+
+b = B()
+b.test()
+
+```
+
+TestMixin中的test函数中通过super调到了A中的test函数，但是A不是TestMixin的父类。在这个继承体系中，A和TestMixin都是B的父类，但是A和TestMixin没有任何继承关系。为什么TestMixin中的super会调到A中的test函数呢？
+
+其实super不是针对调用父类而设计的，它的本质是在一个由多个类组成的有序集合中搜寻一个特定的类，并找到这个类中的特定函数，将一个实例绑定到这个函数上，生成一个绑定方法(bound method)，并返回这个bound method。
+
+其mro为：
+
+```python
+(<class '__main__.B'>, <class '__main__.TestMixin'>, <class '__main__.A'>, <class 'object'>)
+```
+
+可见B的mro为`(B, TestMixin, A, object)`。这个列表的意义是B的实例b在调用一个函数时，首先在B类中找这个函数，如果B中调用了`super`，则需要从B的下一个类(即TestMixin)中找函数，如果在TestMixin中又调用了`super`，则从TestMixin的下一个类(即A)中找函数。
 
 除此之外，`super()`也经常用于防止递归调用：
 
@@ -290,3 +325,5 @@ class Post(Model, TagMixin):
 [Mixin是什么概念?](https://www.zhihu.com/question/20778853)
 
 [What is a mixin, and why are they useful?](https://stackoverflow.com/questions/533631/what-is-a-mixin-and-why-are-they-useful)
+
+[深度解析并实现python中的super](https://blog.csdn.net/zhangjg_blog/article/details/83033210)，张纪刚

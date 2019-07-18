@@ -430,9 +430,9 @@ print("Balance is %s" % ba.balance)
 
 ### 1.`@property`、`property()`
 
-`property` 让我们将自定义的代码与变量的访问/修改联系在了一起，同时保持一个简单的访问属性的接口。
+虽然不建议将属性设置为私有的，但是如果直接将属性暴露给外界也是有问题的，比如没有办法检查赋给属性的值是否有效。之前的建议是将属性命名以单下划线开头，通过这种方式来暗示属性是受保护的，不建议外界直接访问，那么如果想访问属性可以通过属性的getter和setter方法进行对应的操作。如果要做到这点，就可以考虑使用@property包装器来包装getter和setter方法，使得对属性的访问既安全又方便。
 
-除此之外，在 python 中，所有的属性都是公共的。即使用双下划线声明的属性，也无法阻止将其获取并使用。
+`property` 让我们将自定义的代码与变量的访问/修改联系在了一起，同时保持一个简单的访问属性的接口。
 
 使用 `property` 不仅可以便捷的设置属性可读、可读写，从而隐藏并保护其不受其他代码影响，还可以在不需要更改客户代码的情况下，对属性进行修改，获得更好的兼容性。
 
@@ -441,14 +441,13 @@ print("Balance is %s" % ba.balance)
 ```python
 class Celsius:
     def __init__(self, temperature = 0):
-        self.temperature = temperature
+        self._temperature = temperature
 
     def to_fahrenheit(self):
-        return self.temperature*1.8 + 32
+        return self._temperature*1.8 + 32
 
     @property
     def temperature(self):
-        """I'm the 'temperature' property."""
         print("Getting value")
         return self._temperature
     
@@ -465,10 +464,10 @@ class Celsius:
 ```python
 class Celsius:
     def __init__(self, temperature = 0):
-        self.temperature = temperature
+        self._temperature = temperature
 
     def to_fahrenheit(self):
-        return self.temperature*1.8 + 32
+        return self._temperature*1.8 + 32
 
     def get_temperature(self):   # 相对于 @property，需要实现 getter 方法
         print("Getting value")
@@ -487,7 +486,6 @@ class Celsius:
 
 ```python
 In [107]: t = Celsius()
-Setting value
 
 In [108]: t.temperature = 20
 Setting value
@@ -501,26 +499,7 @@ Getting value
 Out[110]: 68.0
 ```
 
-其中：
-
-```python
-def to_fahrenheit(self):
-	return self.temperature*1.8 + 32
-
-def to_fahrenheit(self):
-	return self._temperature*1.8 + 32
-```
-
-这两种写法结果不同。
-
-```python
-Getting value     # self.temperature*1.8 + 32 
-Out[115]: 68.0
-
-Out[116]: 68.0    # self._temperature*1.8 + 32
-```
-
-`self.temperature` 会调用 `temperature()`函数。
+如果只定义getter方法，不定义setter方法，那么就是一个只读属性。
 
 PS:
 
@@ -700,14 +679,12 @@ ABC
 
 参考：
 
-[Properties vs. Getters and Setters](https://www.python-course.eu/python3_properties.php)
+[Properties vs. Getters and Setters](https://www.python-course.eu/python3_properties.php)，Python 3 Tutorial
 
-[有效的python属性管理: 描述符的使用](https://zhuanlan.zhihu.com/p/24305162)
+[有效的python属性管理: 描述符的使用](https://zhuanlan.zhihu.com/p/24305162)，PytLab酱
 
-[Descriptor HowTo Guide](https://docs.python.org/3/howto/descriptor.html#id1)
+[Descriptor HowTo Guide](https://docs.python.org/3/howto/descriptor.html#id1)，官方文档
 
-[Difference between `__getattr__` vs `__getattribute__`](https://stackoverflow.com/questions/3278077/difference-between-getattr-vs-getattribute)
+[Difference between `__getattr__` vs `__getattribute__`](https://stackoverflow.com/questions/3278077/difference-between-getattr-vs-getattribute)，StackOverflow
 
-[Python Descriptors Demystified](http://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb)
-
-[深度解析并实现python中的super](https://blog.csdn.net/zhangjg_blog/article/details/83033210)
+[Python Descriptors Demystified](http://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb)，Chris Beaumont

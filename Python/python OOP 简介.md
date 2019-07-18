@@ -1,4 +1,4 @@
-面向对象编程（Object Oriented Programming），简称 OOP，是一种程序设计思想。OOP 把对象作为程序的基本单元，一个对象包含了数据和操作数据的函数。
+面向对象编程（Object Oriented Programming），简称 OOP，是一种程序设计思想。OOP 把对象作为程序的基本单元，一个对象包含了数据和操作数据的函数。把一组数据结构和处理它们的方法组成对象（object），把相同行为的对象归纳为类（class），通过类的封装（encapsulation）隐藏内部细节，通过继承（inheritance）实现类的特化（specialization）和泛化（generalization），通过多态（polymorphism）实现基于对象类型的动态分派。
 
 将计算机程序视为一组对象的集合，对象之间可以互动，接受、处理和反馈彼此之间传递的信息，计算机程序的执行就是一系列消息在各个对象之间传递。
 
@@ -6,26 +6,33 @@
 
 ## 概述
 
-面向对象最重要的概念就是类（**Class**）和实例（**Instance**）。类是一种数据类型。类与实例之间的关系，类似生物中种属关系。类是创建实例的模板，而实例则是一个具体的对象，各个实例拥有的数据都互相独立，互不影响。方法就是与实例绑定的函数，和普通函数不同，方法可以直接访问实例的数据。通过在实例上调用方法，我们就直接操作了对象内部的数据，但无需知道方法内部的实现细节。
+### 类和对象
 
-### 一个简单的面向对象的程序
+类是抽象的概念，而对象是具体的东西。对象都有属性和行为，每个对象都是独一无二的，而且对象一定属于某个类（型）。当把一大堆拥有共同特征的对象的静态特征（属性）和动态特征（行为）都抽取出来后，就可以定义出一个叫做“类”的东西。
+
+### 定义类
 
 以存储动物名称和数量信息为例，说明类的创建，以及类与实例的关系。
 
-采用面向对象的程序设计思想，我们首选思考的不是程序的执行流程，而是 Animals 这个数据类型应该被视为对象。而后，`Animals` 这个对象需要含有 `name`(名称) 和 `qty`(数量)两个属性（**Property**）。最后，给对象发一个 `print_qty` 消息，把自己的数据打印出来。
+采用面向对象的程序设计思想，我们首选思考的不是程序的执行流程，而是 Animals 这个数据类型应该被视为对象。而后，`Animals` 这个对象需要含有 `name`(名称) 和 `qty`(数量)两个属性（Property）。最后，给对象发一个 `print_qty` 消息，把自己的数据打印出来。
 
 ```python
-# 定义类
 class Animals(object):
-    # 类的方法
+    # __init__是一个特殊方法用于在创建对象时进行初始化操作
+    # 通过这个方法我们可以为动物对象绑定name和qty两个属性
     def __init__(self, name, qty):
-        # 类的属性
         self.name = name
         self.qty = qty
     # 方法
     def print_qty(self):
         print("{}:{}".format(self.name, self.qty))
+```
 
+`class` 后面紧接着是类名，通常是首字符大写。紧接着是 `(object)`，表示该类是从哪个类继承下来的，若没有继承，则使用 `object` 类，这是所有类最终都会继承的类。
+
+### 创建和使用实例
+
+```python
 # 实例化
 cat = Animals('cat', 2)
 dog = Animals('dog', 3)
@@ -36,21 +43,25 @@ dog.print_qty()
 
 Class 是一种抽象概念，也具有模版的作用。实例（Instance）则是根据类创建出来的一个具体的“对象”，每个对象都拥有相同的方法，但各自的数据可能不同。
 
-比如：`Animals` 就是个抽象的概念，`cat` 和 `dog` 是两个具体的 `Animals`。给对象发消息实际上就是调用对象对应的关联函数，我们称之为对象的方法（**Method**）。
+比如：`Animals` 就是个抽象的概念，`cat` 和 `dog` 是两个具体的 `Animals`。给对象发消息实际上就是调用对象对应的关联函数，我们称之为对象的方法（Method）。
 
 类支持两种操作：属性引用和实例化。属性引用使用和 Python 中所有的属性引用一样的标准语法：`obj.name`。各个实例拥有的数据都互相独立，互不影响。
+
+### 类和实例
+
+面向对象最重要的概念就是类（Class）和实例（Instance）。类是一种数据类型。类与实例之间的关系，类似生物中种属关系。类是创建实例的模板，而实例则是一个具体的对象，各个实例拥有的数据都互相独立，互不影响。方法就是与实例绑定的函数，和普通函数不同，方法可以直接访问实例的数据。通过在实例上调用方法，我们就直接操作了对象内部的数据，但无需知道方法内部的实现细节。
 
 ### 相关概念
 
 - 类(Class): 用来描述具有相同的属性和方法的对象的集合。它定义了该集合中实例共有的属性和方法
-- 数据成员：类变量、实例变量、方法、类方法、静态方法和属性等的统称
+- 数据成员：类变量、实例变量、方法、类方法和静态方法等的统称
 - 类变量：类变量是所有实例公有的变量。类变量定义在类中，但在方法体之外。类变量通常不作为实例变量使用
 - 类属性：类中变量和方法都可被称作类属性，也可单指类变量
 - 方法：类中定义的函数
 - 静态方法：不需要实例化就可以由类执行的方法
 - 类方法：类方法是将类本身作为对象进行操作的方法
 - 方法重写：如果从父类继承的方法不能满足子类的需求，可以对其进行改写，这个过程叫方法的覆盖（override），也称为方法的重写
-- 实例：也称对象。通过类定义的初始化方法，赋予具体的值
+- 实例：也称对象。
 - 实例化：创建一个类的实例，类的具体对象
 - 实例变量：定义在方法中的变量，只作用于当前实例
 - `self`：实例，其下属性是实例私有
@@ -58,67 +69,7 @@ Class 是一种抽象概念，也具有模版的作用。实例（Instance）则
 - 继承：即一个派生类（derived class）继承基类（base class），从而获得继承基类的属性和方法。继承也允许把一个派生类的对象作为一个基类对象对待
 - 多态：根据对象类型的不同以不同的方式进行处理。
 
-## Duck Typing
 
-> In duck typing, an object's suitability is determined by **the *presence of certain* *methods and properties*** (with appropriate meaning), rather than the actual type of the object. 
->
-> The actual Apparel of an entity doesn't matter if the entity does all the intended things.
->
-> In other words, don't check whether it IS-A duck,check whether it QUACKS-like-a duck, WALKS-like-a duck, etc. depending on exactly what subset of duck-like behavior you  need for your program.
-
-```python
-class Duck:
-    def quack(self):
-        print("Quack Quack")
-    def fly(self):
-        print ("Flap,Flap!")
-
-class Hawk:
-    def fly(self):
-        print ("I am Fast.")
-
-class Person:
-    quackcount = 0
-    def quack(self):
-        Person.quackcount+=1
-        print("QQQQUUUUAACCCCK!!!!!")
-    def fly(self):
-        print(Person.quackcount)
-
-def is_a_duck(check):
-    try:
-        check.quack()
-        check.fly()
-    except(AttributeError,TypeError):
-        print("If it can’t quack and fly then it’s not a Duck")
-```
-
-```python
-is_a_duck(Duck())
-is_a_duck(Person())
-is_a_duck(Hawk())
-```
-
-```text
-Quack Quack
-Flap,Flap!
-QQQQUUUUAACCCCK!!!!!
-1
-If it can’t quack and fly then it’s not a Duck
-```
-
-显而易见，`Hawk` 中没有实现 `quack`，所以`Hawk` 并不是 `Duck`。
-
-而，`Person`实现了`quack`、`fly`，虽然 `Person`不是`Duck`，但是 `Person`也是 `Duck`。
-
-## 定义类
-
-```python
-class Animals(object):
-    pass
-```
-
-`class` 后面紧接着是类名，通常是首字符大写。紧接着是 `(object)`，表示该类是从哪个类继承下来的，若没有继承，则使用 `object` 类，这是所有类最终都会继承的类。
 
 ------
 
@@ -126,9 +77,7 @@ class Animals(object):
 
 在类中，无论变量或者方法，都可以被称作属性。
 
-类属性是类固有属性，不会因为实例不同而改变。因此，多实例时，能够减少所创造出来的内存空间，加快运行速度。
-
-类、类的所有方法以及类变量在内存中只有一份，所有的实例共享它们。而每一个实例都在内存中独立的保存自己和自己的实例变量。
+类属性是类固有属性，不会因为实例不同而改变。因此，多实例时，能够减少所创造出来的内存空间，加快运行速度。类、类的所有方法以及类变量在内存中只有一份，所有的实例共享它们。而每一个实例都在内存中独立的保存自己和自己的实例变量。
 
 ### 变量
 
@@ -153,11 +102,7 @@ class Test(object):
 
 `_attrs` 单下划线开头的变量，标明是一个受保护的变量，原则上不允许直接访问，但外部类还是可以访问到这个。只是一个约定，用于警告说明这是一个私有变量，外部类不要去访问它。
 
-一般情况下，使用 `__private_attrs` 两个下划线开头，声明该属性为私有，不能在类地外部被使用或直接访问。在类内部的方法中使用时 `self.__private_attrs`。
-
-无法通过 `实例变量.__private_attrs` 这个访问定义属性。实际上， Python 中是没有提供私有属性等功能的。但是 Python 对属性的访问控制是靠程序员自觉的。
-
-可以说，python 中的属性都是公开的。
+一般情况下，使用 `__private_attrs` 两个下划线开头，声明该属性为私有，不能在类地外部被使用或直接访问。无法通过 `实例变量.__private_attrs` 这个访问定义属性。在实际开发中，并不建议将属性设置为私有的，因为这会导致子类无法访问。通常遵循一种命名惯例就是让属性名以单下划线开头来表示属性是受保护的，本类之外的代码在访问这样的属性时应该要保持慎重。
 
 ```python
 class Animals(object):
@@ -173,7 +118,7 @@ if __name__ == '__main__':
     cats = Animals('cat', 2, 123456)
     print(dir(cats))
     print(cats._qty)
-    # 打印构造函数中的属性
+    # 构造函数中的属性
     print(cats.__dict__)
     print(cats.get_id())
     # 用于验证双下划线是否是真正的私有属性
@@ -189,6 +134,10 @@ if __name__ == '__main__':
 ```
 
 仅定义了 `__id`，但打印结果中，它的名字改为了 `_Animals__id`。不能直接访问 `__id` 是因为 Python 解释器对外把 `__id` 变量改成了 `_Animals__id`，所以，仍然可以通过 `_Animals__id` 来访问 `__id` 变量。
+
+实际上， Python 中是没有提供私有属性等功能的。但是 Python 对属性的访问控制是靠程序员自觉的。
+
+可以说，python 中的属性都是公开的。
 
 #### 类变量VS实例变量
 
@@ -268,7 +217,7 @@ print(Test.prt)
 
 #### 静态方法
 
-静态方法由类调用，无默认参数。将实例方法参数中的self去掉，然后在方法定义上方加上@staticmethod，就成为静态方法。它属于类，和实例无关。建议只使用类名.静态方法的调用方式。（虽然也可以使用实例名.静态方法的方式调用）
+静态方法由类调用，无默认参数。将实例方法参数中的self去掉，然后在方法定义上方加上`@staticmethod`，就成为静态方法。它属于类，和实例无关。建议只使用`类名.静态方法`的调用方式。（虽然也可以使用`实例名.静态方法`的方式调用）
 
 ```python
 class Foo:
@@ -308,17 +257,135 @@ Python没有这个机制，Python利用变量和方法名字的变化，实现�
 
 ------
 
-## 数据封装
+## 面向对象的支柱
 
-封装是指将数据与具体操作的实现代码放在某个对象内部，使这些代码的实现细节不被外界发现，外界只能通过接口使用该对象，而不能通过任何形式修改对象内部实现，正是由于封装机制，程序在使用某一对象时不需要关心该对象的数据结构细节及实现操作的方法。使用封装能隐藏对象实现细节，使代码更易维护，同时因为不能直接调用、修改对象内部的私有信息，在一定程度上保证了系统安全性。类通过将函数和变量封装在内部，实现了比函数更高一级的封装。通过在实例上调用方法，就直接操作了对象内部的数据，而无需知道方法内部的实现细节。
+面向对象有三大支柱：封装、继承和多态。OOP 的特点就是 数据封装和归一化，由此产生 继承和多态。目的是对 数据和逻辑 封装，提供用户简单的接口。
+
+### 数据封装
+
+封装是指将数据与具体操作的实现代码放在某个对象内部，使这些代码的实现细节不被外界发现，外界只能通过接口使用该对象，而不能通过任何形式修改对象内部实现。隐藏一切可以隐藏的实现细节，只向外界暴露（提供）简单的编程接口。
+
+在类中定义的方法其实就是把数据和对数据的操作封装起来，在创建对象之后，只需要调用对象方法就可以执行方法中的代码，也就是说只需要知道方法的名字和传入的参数，而不需要知道方法内部的实现细节。
+
+正是由于封装机制，程序在使用某一对象时不需要关心该对象的数据结构细节及实现操作的方法。使用封装能隐藏对象实现细节，使代码更易维护，同时因为不能直接调用、修改对象内部的私有信息，在一定程度上保证了系统安全性。类通过将函数和变量封装在内部，实现了比函数更高一级的封装。通过在实例上调用方法，就直接操作了对象内部的数据，而无需知道方法内部的实现细节。
+
+示例：
+
+```python
+from time import sleep
+
+
+class Clock(object):
+    """数字时钟"""
+
+    def __init__(self, hour=0, minute=0, second=0):
+        """初始化方法
+
+        :param hour: 时
+        :param minute: 分
+        :param second: 秒
+        """
+        self._hour = hour
+        self._minute = minute
+        self._second = second
+
+    def run(self):
+        """走字"""
+        self._second += 1
+        if self._second == 60:
+            self._second = 0
+            self._minute += 1
+            if self._minute == 60:
+                self._minute = 0
+                self._hour += 1
+                if self._hour == 24:
+                    self._hour = 0
+
+    def show(self):
+        """显示时间"""
+        return '%02d:%02d:%02d' % \
+               (self._hour, self._minute, self._second)
+
+
+def main():
+    clock = Clock(23, 59, 58)
+    while True:
+        print(clock.show())
+        sleep(1)
+        clock.run()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+```python
+from math import sqrt
+
+
+class Point(object):
+
+    def __init__(self, x=0, y=0):
+        """初始化方法
+        
+        :param x: 横坐标
+        :param y: 纵坐标
+        """
+        self.x = x
+        self.y = y
+
+    def move_to(self, x, y):
+        """移动到指定位置
+        
+        :param x: 新的横坐标
+        "param y: 新的纵坐标
+        """
+        self.x = x
+        self.y = y
+
+    def move_by(self, dx, dy):
+        """移动指定的增量
+        
+        :param dx: 横坐标的增量
+        "param dy: 纵坐标的增量
+        """
+        self.x += dx
+        self.y += dy
+
+    def distance_to(self, other):
+        """计算与另一个点的距离
+        
+        :param other: 另一个点
+        """
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return sqrt(dx ** 2 + dy ** 2)
+
+    def __str__(self):
+        return '(%s, %s)' % (str(self.x), str(self.y))
+
+
+def main():
+    p1 = Point(3, 5)
+    p2 = Point()
+    print(p1)
+    print(p2)
+    p2.move_by(-1, 2)
+    print(p2)
+    print(p1.distance_to(p2))
+
+
+if __name__ == '__main__':
+    main()
+```
 
 ------
 
-## 继承与多态
+### 继承
 
-在OOP程序设计中，当我们定义一个新类的时候，新的类称为子类（Subclass），而被继承的类称为基类、父类或超类（Base class、Super class）。继承最大的好处是子类获得了父类的全部变量和方法的同时，又可以根据需要进行修改、拓展。
+在已有类的基础上创建新类，这其中的一种做法就是让一个类从另一个类那里将属性和方法直接继承下来，从而减少重复代码的编写，而被继承的类称为基类、父类或超类（Base class、Super class）。得到继承信息的我们称之为子类，也叫派生类或衍生类。继承最大的好处是子类获得了父类的全部变量和方法的同时，又可以根据需要进行修改、拓展。
 
-### 调用父类的方法
+#### 调用父类的方法
 
 一个类继承了父类后，可以直接调用父类的方法的。
 
@@ -335,7 +402,7 @@ class Dogs(Animals):
     pass
 ```
 
-### 父类方法的重写
+#### 父类方法的重写
 
 ```python
 class Animals(object):
@@ -355,7 +422,7 @@ class Dogs(Animals):
 DOGS:Husky-3
 ```
 
-### 继承关系
+#### 继承关系
 
 继承关系，类似生物中种属关系。判断 `class` 类型，可以观察出。
 
@@ -384,6 +451,8 @@ True
 ### 多态
 
 有了继承，才有了多态。继承的另一个好处：多态。
+
+子类在继承了父类的方法后，可以对父类已有的方法给出新的实现版本，这个动作称之为方法重写（override）。通过方法重写可以让父类的同一个行为在子类中拥有不同的实现版本，当调用这个经过子类重写的方法时，不同的子类对象会表现出不同的行为，这个就是多态（poly-morphism）。
 
 ```python
 class Animals(object):
@@ -419,6 +488,109 @@ print_twice(siamese)
 - 对扩展开放：允许新增子类；
 - 对修改封闭：不需要修改依赖 class 类型的方法等函数。
 
+## 抽象类
+
+```python
+from abc import ABCMeta, abstractmethod
+
+
+class Pet(object, metaclass=ABCMeta):
+    """宠物"""
+
+    def __init__(self, nickname):
+        self._nickname = nickname
+
+    @abstractmethod
+    def make_voice(self):
+        """发出声音"""
+        pass
+
+
+class Dog(Pet):
+    """狗"""
+
+    def make_voice(self):
+        print('%s: 汪汪汪...' % self._nickname)
+
+
+class Cat(Pet):
+    """猫"""
+
+    def make_voice(self):
+        print('%s: 喵...喵...' % self._nickname)
+
+
+def main():
+    pets = [Dog('旺财'), Cat('凯蒂'), Dog('大黄')]
+    for pet in pets:
+        pet.make_voice()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+在上面的代码中，将`Pet`类处理成了一个抽象类，所谓抽象类就是不能够创建对象的类，这种类的存在就是专门为了让其他类去继承它。Python从语法层面并没有像Java或C#那样提供对抽象类的支持，但是可以通过`abc`模块的`ABCMeta`元类和`abstractmethod`包装器来达到抽象类的效果，如果一个类中存在抽象方法那么这个类就不能够实例化（创建对象）。上面的代码中，`Dog`和`Cat`两个子类分别对`Pet`类中的`make_voice`抽象方法进行了重写并给出了不同的实现版本，当我们在`main`函数中调用该方法时，这个方法就表现出了多态行为（同样的方法做了不同的事情）。
+
+抽象类是不完整的，它只能用作基类。在面向对象方法中，抽象类主要用来进行类型隐藏和充当全局变量的角色。目的就是让别的类继承它并实现特定的抽象方法。
+
+***
+
+## Duck Typing
+
+In duck typing, an object's suitability is determined by **the *presence of certain* *methods and properties*** (with appropriate meaning), rather than the actual type of the object. 
+
+The actual Apparel of an entity doesn't matter if the entity does all the intended things.
+
+In other words, don't check whether it IS-A duck,check whether it QUACKS-like-a duck, WALKS-like-a duck, etc. depending on exactly what subset of duck-like behavior you  need for your program.
+
+```python
+class Duck:
+    def quack(self):
+        print("Quack Quack")
+    def fly(self):
+        print ("Flap,Flap!")
+
+class Hawk:
+    def fly(self):
+        print ("I am Fast.")
+
+class Person:
+    quackcount = 0
+    def quack(self):
+        Person.quackcount+=1
+        print("QQQQUUUUAACCCCK!!!!!")
+    def fly(self):
+        print(Person.quackcount)
+
+def is_a_duck(check):
+    try:
+        check.quack()
+        check.fly()
+    except(AttributeError,TypeError):
+        print("If it can’t quack and fly then it’s not a Duck")
+```
+
+```python
+is_a_duck(Duck())
+is_a_duck(Person())
+is_a_duck(Hawk())
+```
+
+```text
+Quack Quack
+Flap,Flap!
+QQQQUUUUAACCCCK!!!!!
+1
+If it can’t quack and fly then it’s not a Duck
+```
+
+显而易见，`Hawk` 中没有实现 `quack`，所以`Hawk` 并不是 `Duck`。
+
+而，`Person`实现了`quack`、`fly`，虽然 `Person`不是`Duck`，但是 `Person`也是 `Duck`。
+
+***
+
 ## 多态和鸭子类型
 
 **Is it same like Polymorphism???** 
@@ -445,7 +617,7 @@ print to_string example2
 print to_string example3
 ```
 
-在样例中，每次对`calculate`的调用都使用的对象（数字、列表和字符串）在继承关系中没有联系。只要对象支持“+”和“*”方法，操作就能成功。例如，翻译成jpython语言，运行结果应该是： 
+在样例中，每次对`calculate`的调用都使用的对象（数字、列表和字符串）在继承关系中没有联系。只要对象支持“+”和“*”方法，操作就能成功。例如，翻译成python语言，运行结果应该是： 
 
 ```pyton
 9
@@ -489,88 +661,14 @@ def game():
 game()
 ```
 
-“换言之，不要检查它**是不是**一个鸭子：检查它**像不像**一个鸭子地**叫**，等等。取决于你需要哪个像鸭子的行为的子集来使用语言。”---Alex Martelli
-
-***
-
-综上，OOP 的特点就是 数据封装和归一化，由此产生 继承和多态。目的是对 数据和逻辑 封装，提供用户简单的接口。
-
-------
-
-PS:
-
-`getattr()`、`setattr()` 以及 `hasattr()`
-
-`getattr()` 函数用于返回一个对象属性值。
-
-```python
-getattr(object, name[, default])
-```
-
-- `object` -- 对象。
-- `name` -- 字符串，对象属性。
-- `default` -- 默认返回值，如果不提供该参数，在没有对应属性时，将触发 `AttributeError`。
-
-`setattr()` 函数对应函数 `getatt()`，用于设置属性值，该属性必须存在。
-
-```python
-setattr(object, name, value)
-```
-
-- `object` -- 对象。
-- `name` -- 字符串，对象属性。
-- `value` -- 属性值。
-
-`hasattr()` 函数用于判断对象是否包含对应的属性。
-
-```python
-hasattr(object, name)
-```
-
-- `object` -- 对象。
-- `name` -- 字符串，属性名。
-
-如果对象有该属性返回 True，否则返回 False。
-
-具体应用如下：
-
-```python
-class Animals(object):
-    def __init__(self):
-        self.name = 'Animals'
-        self.qty = 100
-
-    def print_qty(self):
-        print("{}:{}".format(self.name, self.qty))
-
-
-animals = Animals()
-if hasattr(animals, 'name'):
-    print(getattr(animals, 'name'))
-print(getattr(animals, 'id', 404))
-if hasattr(animals, 'id') == False:
-    setattr(animals, 'id', '001')
-    print(getattr(animals, 'id'))
-if hasattr(animals, 'print_qty'):
-    print(getattr(animals, 'print_qty'))
-    fn = getattr(animals, 'print_qty')
-    fn()
-```
-
-```bash
-Animals
-404
-001
-<bound method Animals.print_qty of <__main__.Animals object at 0x000001CC095FCE10>>
-Animals:100
-```
-
 ------
 
 参考:
 
-[廖雪峰](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431865288798deef438d865e4c2985acff7e9fad15e3000)
+[继承和多态](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001431865288798deef438d865e4c2985acff7e9fad15e3000)，廖雪峰
 
-[What is duck typing?](https://www.quora.com/What-is-duck-typing)
+[What is duck typing?](https://www.quora.com/What-is-duck-typing)，Sujit Ingale
 
-https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B
+[鸭子类型](https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B)，wiki
+
+[面向对象编程基础](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/08.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80.md)，骆昊
