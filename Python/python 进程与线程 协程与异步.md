@@ -275,6 +275,8 @@ loop.close()
 
 ## 协程
 
+在Python语言中，单线程+异步I/O的编程模型称为协程。协程最大的优势就是极高的执行效率，因为子程序切换不是线程切换，而是由程序自身控制，因此，没有线程切换的开销。协程的第二个优势就是不需要多线程的锁机制，因为只有一个线程，也不存在同时写变量冲突，在协程中控制共享资源不用加锁，只需要判断状态就好了，所以执行效率比多线程高很多。如果想要充分利用CPU的多核特性，最简单的方法是多进程+协程，既充分利用多核，又充分发挥协程的高效率，可获得极高的性能。
+
 几乎所有的异步框架都将异步编程模型简化：一次只允许处理一个事件。故而有关异步的讨论几乎都集中在了单线程内。如果某事件处理程序需要长时间执行，所有其他部分都会被阻塞。所以，一旦采取异步编程，每个异步调用必须"足够小"，不能耗时太久。如何拆分异步任务成了难题。
 
 - 程序下一步行为往往依赖上一步执行结果，如何知晓上次异步调用已完成并获取结果？
@@ -396,6 +398,8 @@ loop.close()
 
 ## 异步
 
+现代操作系统对I/O操作的改进中最为重要的就是支持异步I/O。如果充分利用操作系统提供的异步I/O支持，就可以用单进程单线程模型来执行多任务。
+
 清晰优雅的协程可以说实现异步的最优方案之一。**事件驱动**模型就是异步编程的重中之重。
 
 异步框架就是建立在非阻塞和事件循环两个特征之上的, 这就在单线程中实现了并发操作。事件循环是高效并发I/O的，因为并没有为每一条连接都分配线程资源。在Python中，像我们所创建的事件循环，在处理数量不大但交互频繁的连接时，要比多线程方式慢。在没有全局解释器锁(Global Interpreter Lock)的运行时环境下，多线程同样表现得更出色。而异步I/O的真正用武之处在于，充满大量慢连接和不频繁事件的应用场景。
@@ -404,18 +408,14 @@ loop.close()
 
 参考：
 
-https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001432090171191d05dae6e129940518d1d6cf6eeaaa969000
+[协程](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/001432090171191d05dae6e129940518d1d6cf6eeaaa969000)，廖雪峰
 
-https://zhuanlan.zhihu.com/p/25228075
+[从0到1，Python异步编程的演进之路](https://zhuanlan.zhihu.com/p/25228075)，tonnie
 
-https://ialloc.org/blog/into-python3-asyncio/
+[编程语言 - Python 3 的 AsyncIO 库](https://ialloc.org/blog/into-python3-asyncio/)
 
-http://aju.space/2017/07/31/Drive-into-python-asyncio-programming-part-1.html
+[深入理解Python异步编程](http://aju.space/2017/07/31/Drive-into-python-asyncio-programming-part-1.html)，aju
 
-https://zhuanlan.zhihu.com/p/25228075
+[多进程、协程、事件驱动及select poll epoll](http://www.cnblogs.com/zhaof/p/5932461.html)
 
-http://www.cnblogs.com/zhaof/p/5932461.html
-
-https://ialloc.org/blog/into-python3-asyncio/
-
-http://kissg.me/2016/06/01/a-web-crawler-with-asyncio-coroutines/
+[[译]基于异步协程的网络爬虫](http://kissg.me/2016/06/01/a-web-crawler-with-asyncio-coroutines/)，kissg

@@ -1,3 +1,5 @@
+序列化（serialization）在计算机科学的数据处理中，是指将数据结构或对象状态转换为可以存储或传输的形式，这样在需要的时候能够恢复到原先的状态，而且通过序列化的数据重新获取字节时，可以利用这些字节来产生原始对象的副本（拷贝）。与这个过程相反的动作，即从一系列字节中提取数据结构的操作，就是反序列化（deserialization）
+
 ## pickle
 
 json作为一种通用的数据交换格式和Python的持久化方式之一，只能对基本的一些内置数据类型（并且不是所有的）进行持久化。
@@ -8,12 +10,12 @@ json作为一种通用的数据交换格式和Python的持久化方式之一，�
 
 与json模块一模一样的方法名。但是在pickle中dumps()和loads()操作的是bytes类型，而不是json中的str类型；在使用dump()和load()读写文件时，要使用rb或wb模式，也就是只接收bytes类型的数据。
 
-| 方法                       | 功能                                             |
-| -------------------------- | ------------------------------------------------ |
-| pickle.dump(obj, file)     | 将Python数据转换并保存到pickle格式的文件内       |
-| pickle.dumps(obj)          | 将Python数据转换为pickle格式的bytes字串          |
-| pickle.load(file)          | 从pickle格式的文件中读取数据并转换为python的类型 |
-| pickle.loads(bytes_object) | 将pickle格式的bytes字串转换为python的类型        |
+| 方法                         | 功能                                             |
+| ---------------------------- | ------------------------------------------------ |
+| `pickle.dump(obj, file)`     | 将Python数据转换并保存到pickle格式的文件内       |
+| `pickle.dumps(obj)`          | 将Python数据转换为pickle格式的bytes字串          |
+| `pickle.load(file)`          | 从pickle格式的文件中读取数据并转换为python的类型 |
+| `pickle.loads(bytes_object)` | 将pickle格式的bytes字串转换为python的类型        |
 
 ```text
 pickle.dump(obj, file[, protocol])
@@ -126,4 +128,4 @@ shelve在默认情况下是不会记录对持久化对象的任何后续修改�
 
 参考
 
-http://www.liujiangblog.com/course/python/67
+[shelve](http://www.liujiangblog.com/course/python/67)，刘江

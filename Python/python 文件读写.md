@@ -1,6 +1,10 @@
-Python中，所有具有read和write方法的对象，都可以归类为file类型。而所有的file类型对象都可以使用open方法打开，close方法结束和被with上下文管理器管理。
+计算机的文件系统是一种存储和组织计算机数据的方法，它使得对其访问和查找变得容易，文件系统使用文件和树形目录的抽象逻辑概念代替了硬盘和光盘等物理设备使用数据块的概念，用户使用文件系统来保存数据不必关心数据实际保存在硬盘（或者光盘）的地址为多少的数据块上，只需要记住这个文件的所属目录和文件名。在写入新数据之前，用户不必关心硬盘上的那个块地址没有被使用，硬盘上的存储空间管理（分配和释放）功能由文件系统自动完成，用户只需要记住数据被写入到了哪个文件中。 
+
+严格地说，文件系统是一套实现了数据的存储、分级组织、访问和获取等操作的抽象数据类型（Abstract data type）。 
 
 ## 文件对象
+
+Python中，所有具有`read`和`write`方法的对象，都可以归类为file类型。而所有的file类型对象都可以使用`open`方法打开，`close`方法结束以及被with上下文管理器管理。
 
 ### `open()`
 
@@ -16,29 +20,31 @@ open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, clo
 
   | `mode` | 说明                                                         |
   | ------ | ------------------------------------------------------------ |
-  | `r`    | open for reading (default)——只读，默认方式                   |
+  | `r`    | open for reading (default)——读取 （默认）                    |
   | `w`    | open for writing, truncating the file first——写入，会覆盖源文件内容 |
   | `x`    | create a new file and open it for writing——创建新文件，并写入内容，如果文件已存在，将会报错：FileExistsError |
   | `a`    | open for writing, appending to the end of the file if it exists——写入，如果文件有内容，则在末尾追加写入 |
   | `b`    | binary mode——二进制模式                                      |
-  | `t`    | text mode (default)——文本模式                                |
+  | `t`    | text mode (default)——文本模式（默认）                        |
   | `+`    | open a disk file for updating (reading and writing)——更新磁盘文件，读写 |
   | `U`    | universal newline mode (deprecated)——在paython3中已经弃用    |
 
-  对于w+模式，在读写之前都会清空文件的内容，建议不要使用！
+  ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/file%20open%20mode.png)
 
-  对于a+模式，永远只能在文件的末尾写入，有局限性，建议不要使用！
+  对于`w+`模式，在读写之前都会清空文件的内容，建议不要使用！
 
-  对于r+模式，也就是读写模式，配合seek()和tell()方法，可以实现更多操作。
+  对于`a+`模式，永远只能在文件的末尾写入，有局限性，建议不要使用！
+
+  对于`r+`模式，也就是读写模式，配合seek()和tell()方法，可以实现更多操作。
 
   Python区分二进制和文本I/O。
 
-  * 以二进制模式打开的文件（包括 *mode* 参数中的 `'b'` ）返回的内容为 `bytes`对象，不进行任何解码。
-  * 在文本模式下（默认情况下，或者在 *mode* 参数中包含 ``’t’` ）时，文件内容返回为 `str` ，首先使用指定的 *encoding* （如果给定）或者使用平台默认的的字节编码解码。
+  * 以二进制模式打开的文件（包括 mode 参数中的 `'b'` ）返回的内容为 `bytes`对象，不进行任何解码。
+  * 在文本模式下（默认情况下，或者在 mode 参数中包含 `’t’` ）时，文件内容返回为 `str` ，首先使用指定的 encoding （如果给定）或者使用平台默认的的字节编码解码。
 
 * `buffering`：用于设置缓存策略。
 
-* `encoding`：编码或者解码方式。只在文本模式下使用，默认编码方式依赖平台（`locale.getpreferredencoding()`）。
+* `encoding`：编码或者解码方式。只在文本模式下使用。如果不指定，默认值是None，那么在读取文件时使用的是操作系统默认的编码（`locale.getpreferredencoding()`）。如果不能保证保存文件时使用的编码方式与encoding参数指定的编码方式是一致的，那么就可能因无法解码字符而导致读取失败。
 
 * `errors`：可选的字符串参数，，用于指定如何处理编码和解码错误，并且不能用于二进制模式，可以通过 `codecs.Codec` 获得编码错误字符串。
 
@@ -54,7 +60,210 @@ The type of file object returned by the `open()` function depends on the mode.
 * When `open()` is used to open a file in a text mode (`'w'`, `'r'`, `'wt'`, `'rt'`, etc.), it returns a subclass of `io.TextIOBase` (specifically `io.TextIOWrapper`). 
 * When used to open a file in a binary mode with buffering, the returned class is a subclass of `io.BufferedIOBase`. The exact class varies: in read binary mode, it returns an `io.BufferedReader`; in write binary and append binary modes, it returns an `io.BufferedWriter`, and in read/write mode, it returns an `io.BufferedRandom`. When buffering is disabled, the raw stream, a subclass of `io.RawIOBase`,`io.FileIO`, is returned.
 
-### B模式
+如果`open`函数指定的文件并不存在或者无法打开，那么将引发异常状况导致程序崩溃。为了让代码有一定的健壮性和容错性，我们可以使用Python的异常机制对可能在运行时发生状况的代码进行适当的处理，如下所示。
+
+```python]
+def main():
+    f = None
+    try:
+        f = open('致橡树.txt', 'r', encoding='utf-8')
+        print(f.read())
+    except FileNotFoundError:
+        print('无法打开指定的文件!')
+    except LookupError:
+        print('指定了未知的编码!')
+    except UnicodeDecodeError:
+        print('读取文件时解码错误!')
+    finally:
+        if f:
+            f.close()
+
+def main():
+    try:
+        with open('致橡树.txt', 'r', encoding='utf-8') as f:
+            print(f.read())
+    except FileNotFoundError:
+        print('无法打开指定的文件!')
+    except LookupError:
+        print('指定了未知的编码!')
+    except UnicodeDecodeError:
+        print('读取文件时解码错误!')
+
+```
+
+## 文件对象方法
+
+每当使用`open`方法打开一个文件时，将返回一个文件对象。这个对象内置了很多操作方法。
+
+测试文件：
+
+```txt
+title
+1:a
+2:b
+3:c
+4:e
+5:d
+end
+```
+
+### 读取内容
+
+几种不同的读取和遍历文件的方法比较：
+
+- 如果文件很小，`read()`一次性读取最方便；
+- 如果不能确定文件大小，反复调用`read(size)`比较保险；
+- 如果是配置文件，调用`readlines()`最方便。
+- 普通情况，使用`for`循环更好，速度更快。
+
+```python
+import time
+
+
+def main():
+    # 一次性读取整个文件内容
+    with open('致橡树.txt', 'r', encoding='utf-8') as f:
+        print(f.read())
+
+    # 通过for-in循环逐行读取
+    with open('致橡树.txt', mode='r') as f:
+        for line in f:
+            print(line, end='')
+            time.sleep(0.5)
+    print()
+
+    # 读取文件按行读取到列表中
+    with open('致橡树.txt') as f:
+        lines = f.readlines()
+    print(lines)
+    
+
+if __name__ == '__main__':
+    main()
+```
+
+
+
+`f.read(size)`读取一定大小的数据, 然后作为字符串或字节对象返回。size是一个可选的数字类型的参数，用于指定读取的数据量。当`size`被忽略了或者为负值，那么该文件的所有内容都将被读取并且返回。
+
+`readline(size)` 方法用于从文件读取整行，包括 `\n` 字符。如果返回一个空字符串，说明已经已经读取到最后一行。这种方法，通常是读一行，处理一行，并且不能回头，只能前进，读过的行不能再读了。如果指定了一个非负数的参数，则返回指定大小的字节数，包括 `\n` 字符。
+
+* 返回值：返回从字符串中读取的字节
+* size：从文件中读取的字节数，默认为一整行
+* 读取最多为一整行，即至第一个`\n`为止，且包含此`\n`。
+
+```python
+# -*- coding: UTF-8 -*-
+
+
+f = open("test.txt", "r+")
+print ("文件名为: ", f.name)
+
+line = f.readline()
+print("读取的数据1为: %s" % (line))
+line = f.readline(10)
+print("读取的数据2为: %s" % (line))
+line = f.readline(3)
+print("读取的数据3为: %s" % (line))
+print("全部内容：", f.read())
+
+f.close()
+```
+
+```bash
+文件名为:  test.txt
+读取的数据1为: title
+
+读取的数据2为: 1:a
+
+读取的数据3为: 2:b
+全部内容：
+3:c
+4:e
+5:d
+end
+```
+
+`f.readlines()`将文件中所有的行，一行一行全部读入一个列表内，按顺序一个一个作为列表的元素，并返回这个列表。`readlines`方法会一次性将文件全部读入内存，所以也存在一定的风险。但是它有个好处，每行都保存在列表里，可以随意存取。
+
+```python
+with open('test.txt') as f:
+    text = f.readlines()
+    print(text)
+```
+
+```text
+['title\n', '1:a\n', '2:b\n', '3:c\n', '4:e\n', '5:d\n', 'end']
+```
+
+实际上，更多的时候，我们将文件对象作为一个迭代器来使用。
+
+```python
+with open('test.txt') as f:
+    text = f.read()
+    for line in text:
+        print(line, end='')
+```
+
+```text
+title
+1:a
+2:b
+3:c
+4:e
+5:d
+end
+```
+
+这个方法很简单, 不需要将文件一次性读出，但是同样没有提供一个很好的控制，与`readline`方法一样只能前进，不能回退。
+
+### 写入内容
+
+要将文本信息写入文件文件也非常简单，在使用`open`函数时指定好文件名并将文件模式设置为`'w'`即可。注意如果需要对文件内容进行追加式写入，应该将模式设置为`'a'`。
+
+`write()`将字符串或bytes类型的数据写入文件内。`write()`动作可以多次重复进行，其实都是在内存中的操作，并不会立刻写回硬盘，直到执行`close()`方法后，才会将所有的写入操作反映到硬盘上。
+
+```python
+from math import sqrt
+
+
+def is_prime(n):
+    """判断素数的函数"""
+    assert n > 0
+    for factor in range(2, int(sqrt(n)) + 1):
+        if n % factor == 0:
+            return False
+    return True if n != 1 else False
+
+
+def main():
+    filenames = ('a.txt', 'b.txt', 'c.txt')
+    fs_list = []
+    try:
+        for filename in filenames:
+            fs_list.append(open(filename, 'w', encoding='utf-8'))
+        for number in range(1, 10000):
+            if is_prime(number):
+                if number < 100:
+                    fs_list[0].write(str(number) + '\n')
+                elif number < 1000:
+                    fs_list[1].write(str(number) + '\n')
+                else:
+                    fs_list[2].write(str(number) + '\n')
+    except IOError as ex:
+        print(ex)
+        print('写文件时发生错误!')
+    finally:
+        for fs in fs_list:
+            fs.close()
+    print('操作完成!')
+
+
+if __name__ == '__main__':
+    main()
+```
+
+### 读写二进制文件
 
 二进制模式，通常用来读取图片、视频等二进制文件。注意，它在读写的时候是以bytes类型读写的，因此获得的是一个bytes对象而不是字符串。在这个读写过程中，需要自己指定编码格式。在使用带b的模式时一定要注意传入的数据类型，确保为bytes类型。
 
@@ -95,124 +304,28 @@ with open(filename. 'rb') as f:
     f = f.decode('该文件的编码方式')
 ```
 
-***
-
-## 文件对象方法
-
-每当我们用open方法打开一个文件时，将返回一个文件对象。这个对象内置了很多操作方法。
-
-测试文件：
-
-```txt
-title
-1:a
-2:b
-3:c
-4:e
-5:d
-end
-```
-
-### `f.read(size)`
-
-读取一定大小的数据, 然后作为字符串或字节对象返回。size是一个可选的数字类型的参数，用于指定读取的数据量。当size被忽略了或者为负值，那么该文件的所有内容都将被读取并且返回。
-
-***
-
-### `f.readline()`
-
-readline() 方法用于从文件读取整行，包括 "\n" 字符。从文件中读取一行n内容，换行符为'\n'。如果返回一个空字符串，说明已经已经读取到最后一行。这种方法，通常是读一行，处理一行，并且不能回头，只能前进，读过的行不能再读了。如果指定了一个非负数的参数，则返回指定大小的字节数，包括 "\n" 字符。
-
-* 返回值：返回从字符串中读取的字节
-* size -- 从文件中读取的字节数，默认为一整行
-* 读取最多为一整行，即至第一个 \n 为止，且包含此 \n。
+下面的代码实现了复制图片文件的功能。
 
 ```python
-# -*- coding: UTF-8 -*-
+def main():
+    try:
+        with open('guido.jpg', 'rb') as fs1:
+            data = fs1.read()
+            print(type(data))  # <class 'bytes'>
+        with open('吉多.jpg', 'wb') as fs2:
+            fs2.write(data)
+    except FileNotFoundError as e:
+        print('指定的文件无法打开.')
+    except IOError as e:
+        print('读写文件时出现错误.')
+    print('程序执行结束.')
 
 
-f = open("test.txt", "r+")
-print ("文件名为: ", f.name)
-
-line = f.readline()
-print("读取的数据1为: %s" % (line))
-line = f.readline(10)
-print("读取的数据2为: %s" % (line))
-line = f.readline(3)
-print("读取的数据3为: %s" % (line))
-print("全部内容：", f.read())
-
-f.close()
-```
-
-```bash
-文件名为:  test.txt
-读取的数据1为: title
-
-读取的数据2为: 1:a
-
-读取的数据3为: 2:b
-全部内容：
-3:c
-4:e
-5:d
-end
-```
-
-* readline()、readline(10)、readline(3) 之间均有换行符，说明默认或者全部读取均最多读取至 第一个 \n，且包含此换行符；
-* readline(3) 和 read() 之间无换行符，说明 readline(3) 读取的那一行文本的 \n 由 read() 读取。所以这二者之间的无空白行；
-* read() 首先读取到的是 \n，所以“全部内容”与“3:c”之间换行，否则应为“全部内容：3:c”。
-
-***
-
-### `f.readlines()`
-
-将文件中所有的行，一行一行全部读入一个列表内，按顺序一个一个作为列表的元素，并返回这个列表。readlines方法会一次性将文件全部读入内存，所以也存在一定的风险。但是它有个好处，每行都保存在列表里，可以随意存取。
-
-```python
-with open('test.txt') as f:
-    text = f.readlines()
-    print(text)
-```
-
-```text
-['title\n', '1:a\n', '2:b\n', '3:c\n', '4:e\n', '5:d\n', 'end']
+if __name__ == '__main__':
+    main()
 ```
 
 ------
-
-### 文件遍历
-
-实际上，更多的时候，我们将文件对象作为一个迭代器来使用。
-
-```python
-with open('test.txt') as f:
-    text = f.read()
-    for line in text:
-        print(line, end='')
-```
-
-```text
-title
-1:a
-2:b
-3:c
-4:e
-5:d
-end
-```
-
-这个方法很简单, 不需要将文件一次性读出，但是同样没有提供一个很好的控制，与readline方法一样只能前进，不能回退。
-
-几种不同的读取和遍历文件的方法比较：如果文件很小，read()一次性读取最方便；如果不能确定文件大小，反复调用read(size)比较保险；如果是配置文件，调用readlines()最方便。普通情况，使用for循环更好，速度更快。
-
-***
-
-### `write()`
-
-将字符串或bytes类型的数据写入文件内。write()动作可以多次重复进行，其实都是在内存中的操作，并不会立刻写回硬盘，直到执行close()方法后，才会将所有的写入操作反映到硬盘上。
-
-***
 
 ### `seek()`
 
@@ -273,20 +386,21 @@ end
 
 ## fileinput 标准库
 
-fileinput模块用于对标准输入或多个文件进行逐行遍历。这个模块的使用非常简单，相比open()方法批量处理文件，fileinput模块可以对文件、行号进行一定的控制。
+fileinput模块用于对标准输入或多个文件进行逐行遍历。这个模块的使用非常简单，相比`open()`方法批量处理文件，fileinput模块可以对文件、行号进行一定的控制。
 
 ```python
 fileinput.input(files=None, inplace=False, backup='', bufsize=0, mode='r', openhook=None)
 创建并返回一个FileInput类的实例
-files指定要处理的文件，可以是一个多元元组，表示按顺序批量处理元组内文件
-inplace参数最关键，可设置是否对源文件进行修改
-backup则用于指定对源文件进行备份的后缀名
-mode用于指定文件读写方式，和open()方法的定义一样， 默认为只读‘r’。
+
+files:指定要处理的文件，可以是一个多元元组，表示按顺序批量处理元组内文件
+inplace:否对源文件进行修改
+backup:源文件进行备份的后缀名
+mode:文件读写方式，和open()方法的定义一样， 默认为只读‘r’。
 ```
 
-input()函数有点类似文件readlines()方法，区别在于:
+`input()`函数有点类似文件`readlines()`方法，区别在于:
 
-* 前者是一个迭代对象，即每次只生成一行，需要用for循环迭代。
+* 前者是一个迭代对象，即每次只生成一行，需要用`for`循环迭代。
 
 * 后者是一次性读取所有行。在碰到大文件的读取时，前者无疑效率更高效。
 
@@ -298,7 +412,7 @@ with fileinput.input(files=('spam.txt', 'eggs.txt')) as f:
         process(line)
 ```
 
-## 主要属性
+主要属性：
 
 ```python
 fileinput.filename()
@@ -373,12 +487,14 @@ r = chardet.detect(text_gbk)
 print(r)	# {'encoding': 'GB2312', 'confidence': 0.7407407407407407, 'language': 'Chinese'}
 ```
 
-
-
 ***
 
 参考：
 
-http://www.liujiangblog.com/course/python/41
+[文件系统](https://zh.wikipedia.org/wiki/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F)，wiki
 
-https://docs.python.org/3/tutorial/inputoutput.html
+[文件读写](http://www.liujiangblog.com/course/python/41)，刘江
+
+[7. Input and Output](https://docs.python.org/3/tutorial/inputoutput.html)，官方文档
+
+[文件和异常](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/11.%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8.md)，骆昊
