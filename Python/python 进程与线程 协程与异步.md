@@ -194,6 +194,54 @@ def main():
 - 基于生成器的协程函数（代码用于 *asyncio* 时，需用 `asyncio.coroutine` ）内部可以使用 `yield from 原生协程` 句法。
 - `inspect.isgenerator()` 函数和 `inspect.isgeneratorfunction()` 函数作用于原生协程时，返回 `False` 。
 
+```python
+from time import sleep
+
+# 生成器 - 数据生产者
+def countdown_gen(n, consumer):
+    consumer.send(None)
+    while n > 0:
+        consumer.send(n)
+        n -= 1
+    consumer.send(None)
+
+
+# 协程 - 数据消费者
+def countdown_con():
+    while True:
+        n = yield
+        if n:
+            print(f'Countdown {n}')
+            sleep(1)
+        else:
+            print('Countdown Over!')
+
+
+def main():
+    countdown_gen(5, countdown_con())
+
+
+if __name__ == '__main__':
+    main()
+```
+
+上面代码中`countdown_gen`函数中的第1行`consumer.send(None)`是为了激活生成器，通俗的说就是让生成器执行到有`yield`关键字的地方挂起，当然也可以通过`next(consumer)`来达到同样的效果。如果不愿意每次都用这样的代码来“预激”生成器，可以写一个包装器来完成该操作，代码如下所示。
+
+```python
+from functools import wraps
+
+
+def coroutine(fn):
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        gen = fn(*args, **kwargs)
+        next(gen)
+        return gen
+
+    return wrapper
+```
+
 下面观察一个asyncio中Future的例子：
 
 ```python
@@ -419,3 +467,5 @@ loop.close()
 [多进程、协程、事件驱动及select poll epoll](http://www.cnblogs.com/zhaof/p/5932461.html)
 
 [[译]基于异步协程的网络爬虫](http://kissg.me/2016/06/01/a-web-crawler-with-asyncio-coroutines/)，kissg
+
+[并发下载](https://github.com/jackfrued/Python-100-Days/blob/master/Day66-75/69.%E5%B9%B6%E5%8F%91%E4%B8%8B%E8%BD%BD.md)，骆昊
