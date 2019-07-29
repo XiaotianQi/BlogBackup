@@ -54,21 +54,9 @@ execute(['scrapy', 'crawl', 'sina'])
 
 ## 数据流
 
-Scrapy的体系结构，以及它的组件之间的交互。数据流如下图：
+### 组件
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/Scrapy%20Data%20flow.png)
-
-Scrapy中的数据流由执行引擎控制，如下所示：
-
-1. Engine 从Spider中获取初始Requests，并进行爬取。
-2. Engine通过Scheduler调度请求，并 asks for the next Requests to crawl。
-3. Scheduler将下一个Requests返回给Engine。
-4. Engine通过Downloader Middlewares将Requests发送到Downloader。
-5. 一旦页面下载完成，Downloader就会生成一个该页面Response，并通过Downloader Middlewares将其发送到Engine（参见`process_response() `）。
-6. Engine接收由Downloader发送来的Response，并将该Response通过Spider Middleware发送至Spider，进行处理（参见`process_spider_input()`）。
-7. Spider处理Response后，通过Spider Middleware，将已抓取的Item和一个新Requests返回Engine (参阅`process_spider_output()`）。
-8. Engine将已处理的Item发送到Item Pipelines，然后将处理后的新Requests发送到Scheduler，并asks for possible next Requests to crawl。
-9. 重复这个过程（由步骤1开始），直到 there are no more requests from the Scheduler.
+Scrapy的体系结构，以及它的组件之间的交互。
 
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/Scrapy%20Data%20flow-1.png)
 
@@ -78,7 +66,7 @@ Scrapy中的数据流由执行引擎控制，如下所示：
 
 **Scheduler**：
 
-接收来自引擎的请求，并对它们排入队列，以便稍后Engine请求它们时返回。
+从Scrapy引擎接受请求并排序列入队列，并在Scrapy引擎发出请求后返还给它们。
 
 **Downloader**：
 
@@ -86,7 +74,7 @@ Scrapy中的数据流由执行引擎控制，如下所示：
 
 **Spiders**：
 
-Spider是由用户编写的自定义类，用于解析responses ，并从中提取Item，或追加额外的requests 。
+Spider是由用户编写解析网页并抓取特定URL的自定义类，用于解析responses ，并从中提取Item，或追加额外的requests 。
 
 **Item Pipeline**：
 
@@ -119,6 +107,22 @@ requests)。
 **Event-driven networking**：
 
 Scrapy是使用Twisted编写的，Twisted是一种流行的Python事件驱动的网络框架。因此，Scrapy使用非阻塞(即异步)代码实现并发。
+
+### 数据流
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Web%20Spider/Scrapy%20Data%20flow.png)
+
+Scrapy中的数据流由执行引擎控制，如下所示：
+
+1. Engine 从Spider中获取初始Requests，并进行爬取。
+2. Engine通过Scheduler调度请求，并 asks for the next Requests to crawl。
+3. Scheduler将下一个Requests返回给Engine。
+4. Engine通过Downloader Middlewares将Requests发送到Downloader。
+5. 一旦页面下载完成，Downloader就会生成一个该页面Response，并通过Downloader Middlewares将其发送到Engine（参见`process_response() `）。
+6. Engine接收由Downloader发送来的Response，并将该Response通过Spider Middleware发送至Spider，进行处理（参见`process_spider_input()`）。
+7. Spider处理Response后，通过Spider Middleware，将已抓取的Item和一个新Requests返回Engine (参阅`process_spider_output()`）。
+8. Engine将已处理的Item发送到Item Pipelines，然后将处理后的新Requests发送到Scheduler，并asks for possible next Requests to crawl。
+9. 重复这个过程（由步骤1开始），直到 there are no more requests from the Scheduler.
 
 ***
 
