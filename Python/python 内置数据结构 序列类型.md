@@ -557,7 +557,7 @@ Out[14]: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
   Out[44]: 'A string example: 3g 5g e.g.'
   ```
 
-#### 2.连接&分隔
+#### 2.连接&分割
 
 * `str.join(iterable)`
 
@@ -579,19 +579,93 @@ Out[14]: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
   Return a list of the words in the string, using *sep* as the delimiter string.
 
-  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
+  - `str`：分隔符，默认为所有的空字符，包括空格、换行(`\n`)、制表符(`\t`)等。
+  - `maxsplit`：分割次数。
+
+  返回分割后的字符串列表。
+
+  通过指定分隔符对字符串进行切片，如果参数 `maxsplit` 有指定值，则分裂器会分裂出 `maxsplit + 1` 个元素。如果未给值，或者给了 -1 作为值，那就表示没有分裂数量限制。
+
+  ```python
+  test_str = "a:b::c:d"
+  print(test_str.split(':', maxsplit=2))	# ['a', 'b', ':c:d']
+  print(test_str.split(':', maxsplit=-1))	# ['a', 'b', '', 'c', 'd']
+  print(test_str.split(':'))				# ['a', 'b', '', 'c', 'd']
+  ```
+
+  - 配合 `*args` 分割字符串：
+
+  ```python
+  In [10]: line = 'nobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false'
+  
+  In [11]: uname, *fields, homedir, sh =line.split(':')
+  
+  In [12]: uname
+  Out[12]: 'nobody'
+  
+  In [13]: homedir
+  Out[13]: '/var/empty'
+  
+  In [14]: sh
+  Out[14]: '/usr/bin/false'
+  ```
+
+  - 提取字典中的数值
+
+  ```python
+  # 提取'author'的值
+  test_dict = "{'title':'XXX', 'author':'A, B, C', 'journal':'abc, CHINA', 'year':'2000'}"
+  for i in test_dict.split('\','):
+      if 'author' in i:
+          print(i)
+          for j in i.split(':\'')[1].split(','):
+              print(j.replace(' ', ''))
+  
+  
+  输出结果：
+  'author':'A, B, C
+   A
+   B
+   C
+  ```
+
+  或者如下：
+
+  ```python
+  test_str = "{'title':'XXX', 'author':'A, B, C', 'journal':'abc, CHINA', 'year':'2000'}"
+  s = test_str.replace('{', '').replace('}', '').replace(' ', '').replace('\',\'', ';').replace('\'', '')
+  # print(s)
+  test_dict = dict(a.split(':') for a in s.split(';'))
+  # print(test_dict)
+  print(test_dict['author'])	# A,B,C
+  ```
+
+  - 解析 json
+
+  ```python
+  test_json = '{"a":1,"b":2,"c":3,"d":4,"e":5}'
+  s = test_json.replace('{', '').replace('}', '').replace('\"', '')
+  # print(s)
+  test_dict = dict(a.split(':') for a in s.split(','))
+  print(test_dict)	# {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5'}
+  ```
+
+  - 替代正则表达式
+
+  ```python
+  test_str = "<p>a</p>"
+  print(test_str.split('>')[1].split('<')[0])	# a
+  ```
 
 * `str.rsplit(sep=None, maxsplit=-1)`
 
   Splitting from the right.
 
-  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
-
 * `str.splitlines([keepends])`
 
   Return a list of the lines in the string, breaking at line boundaries.  Line breaks are not included in the resulting list unless keepends is given and true.
 
-  此方法在文章《python str.split() 与 re.split() 处理字符串》有详细说明。
+  按照行`\r`, `\r\n`, `\n`)分隔，返回一个包含各行作为元素的列表，如果参数 keepends 为 False，不包含换行符，如果为 True，则保留换行符。
 
 * `str.partition(sep)`
 
