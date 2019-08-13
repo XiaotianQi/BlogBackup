@@ -1,8 +1,45 @@
-装饰器(Decorators)是 Python 的一个重要部分。简单地说：他们是修改其他函数的功能的函数。在被装饰函数自身代码不变的情况下，增添一些**具有普适性的功能**。最大程度的减少改动，尽可能做到以不变应万变。装饰器有很多种，有函数的装饰器，也有类的装饰器。装饰器在很多语言中的名字也不尽相同，它体现的是设计模式中的装饰模式，强调的是开放封闭原则。
+装饰器(Decorators)是 Python 的一个重要部分。装饰器的理念是对原函数、对象的加强，相当于重新封装，所以一般装饰器函数都被命名为wrapper()，意义在于包装。在被装饰函数自身代码不变的情况下，增添一些**具有普适性的功能，为已经存在的函数或对象添加额外的功能。**最大程度的减少改动，尽可能做到以不变应万变。装饰器有很多种，有函数的装饰器，也有类的装饰器。装饰器在很多语言中的名字也不尽相同，它体现的是设计模式中的装饰模式，强调的是开放封闭原则。
 
 装饰器是可调用对象，其参数是被装饰的函数/类。装饰器处理并返回被装饰的函数，或者替换成另一个可调用对象，以某种方式增强函数。
 
 ## 函数装饰器
+
+一个简单的装饰器如下：
+
+```python
+def debug(func):
+    print('OUTER')
+    def wrapper():
+        print('INNER')
+        return func()
+    return wrapper
+
+@debug
+def say_hello():
+    print("hello!")
+```
+
+函数`say_hello()`使用装饰器魔法糖时，与以下代码功能相同：
+
+```python
+def debug(func):
+    print('OUTER')
+    def wrapper():
+        print('INNER')
+        return func()
+    return wrapper
+
+def say_hello():
+    print("hello!")
+
+say_hello = debug(say_hello)
+```
+
+此时，即使没有调用`say_hello()`函数，仍会输出 `OUTER`。
+
+只有，调用`say_hello()`函数后，才会输出`INNER`。
+
+***
 
 ### 装饰器调用顺序
 
@@ -124,6 +161,59 @@ def register(func):
     return inner
 ```
 
+#### NOTE：位置错误的代码
+
+```python
+def html_tags(tag_name):
+    print('begin outer function.')
+    def inner(func):
+        print("begin inner function.")
+        def wrapper(*args, **kwargs):
+            content = func(*args, **kwargs)
+            print("<{tag}>{content}</{tag}>".format(tag=tag_name, content=content))
+        print('end inner function.')
+        return wrapper
+    print('end outer function')
+    return inner
+
+@html_tags('b')
+def hello(name='Toby'):
+    return('Hello {}!'.format(name))
+```
+
+因为装饰器的规定，及时没有调用`hello()`函数，就会出现以下输出：
+
+```bash
+begin outer function.
+end outer function
+begin inner function.
+end inner function.
+```
+
+在装饰器函数之外添加逻辑功能，容易让装饰器就不受控制。当对函数调用时：
+
+```python
+@html_tags('b')
+def hello(name='Toby'):
+    return('Hello {}!'.format(name))
+
+print('-----')
+hello()
+hello('abc')
+```
+
+会出现以下结果：
+
+```python
+begin outer function.
+end outer function
+begin inner function.
+end inner function.
+-----
+<b>Hello Toby!</b>
+<b>Hello abc!</b>
+```
+
 ***
 
 ### 给被装饰函数传入参数
@@ -237,29 +327,34 @@ wrapper
 每次函数调用，都会在屏幕中打印日志信息。
 
 ```python
-import functools, logging
+def logging(level):
+    def wrapper(func):
+        def inner_wrapper(*args, **kwargs):
+            print("[{level}]: enter function {func}()".format(
+                level=level,
+                func=func.__name__))
+            return func(*args, **kwargs)
+        return inner_wrapper
+    return wrapper
 
-def logit(func):
-    @functools.wraps(func)
-    def wrapped_function(*args, **kwargs):
-        logging.warn("%s was called" % func.__name__)
-        return func(*args, **kwargs)
-    return wrapped_function
-```
+@logging(level='INFO')
+def say(something):
+    print("say {}!".format(something))
 
-```python
-@logit
-def foo(x):
-    print('its foo')
-    return x+x
+@logging(level='DEBUG')
+def do(something):
+    print("do {}...".format(something))
 
-print(foo(2))
+if __name__ == '__main__':
+    say('hello')
+    do("my work")
 ```
 
 ```bash
-WARNING:root:foo was called
-its foo
-4
+[INFO]: enter function say()
+say hello!
+[DEBUG]: enter function do()
+do my work...
 ```
 
 装饰器本质上是一个 Python 函数或类，它可以让其他函数或类在不需要做任何代码修改的前提下增加额外功能，装饰器的返回值也是一个函数/类对象。可以抽离出大量与函数功能本身无关的雷同代码到装饰器中并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。典型的行为：把被装饰的函数替换成新函数，二者接受相同的参数，而且返回被装饰函数本该返回的值，同时还会做些而外的操作。
@@ -425,6 +520,8 @@ if __name__ == '__main__':
 
 ## 类装饰器
 
+装饰器函数其实是这样一个接口约束，它必须接受一个callable对象作为参数，然后返回一个callable对象。在Python中一般callable对象都是函数，但也有例外。只要某个对象重载了`__call__()`方法，那么这个对象就是callable的。
+
 相比函数装饰器，类装饰器具有灵活度大、高内聚、封装性等优点。使用类装饰器主要依靠类的`__call__`方法，当使用 @ 形式将装饰器附加到函数上时，就会调用此方法。
 
 ```python
@@ -454,8 +551,30 @@ WARNING:root:bar stopped
 
 ***
 
+### 带参数的类装饰器
+
+```python
+class logging(object):
+    def __init__(self, level='INFO'):
+        self.level = level
+        
+    def __call__(self, func): # 接受函数
+        def wrapper(*args, **kwargs):
+            print("[{level}]: enter function {func}()".format(
+                level=self.level,
+                func=func.__name__))
+            func(*args, **kwargs)
+        return wrapper  #返回函数
+
+@logging(level='INFO')
+def say(something):
+    print("say {}!".format(something))
+```
+
+***
+
 参考：
 
-[刘志军](https://foofish.net/python-decorator.html)
+[理解 Python 装饰器](https://foofish.net/python-decorator.html)，刘志军
 
-http://www.liujiangblog.com/course/python/39
+[装饰器](http://www.liujiangblog.com/course/python/39)，刘江
