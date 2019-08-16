@@ -322,6 +322,30 @@ wrapper
 
 ### 示例
 
+#### `call()`
+
+这个装饰器会把传入的参数送给目标函数然后直接执行。
+
+```python
+def call(*args, **kwargs):
+    def call_fn(fn):
+        return fn(*args, **kwargs)
+    return call_fn
+```
+
+```python
+@call(5)
+def table(n):
+    value = []
+    for i in range(n):
+        value.append(i*i)
+    return value
+
+print(len(table), table[3])	# 5 9
+```
+
+`@call()`装饰器适用于任何函数，传入的参数会被直接使用然后结果赋值给同名函数。这样避免了重新定义一个变量来存储结果。
+
 #### 简单的日志
 
 每次函数调用，都会在屏幕中打印日志信息。
@@ -571,6 +595,29 @@ def say(something):
     print("say {}!".format(something))
 ```
 
+### ptest
+
+[ptest](https://pypi.python.org/pypi/ptest)中的`@TestClass()`用于声明一个测试类，其源代码大致如此。
+
+```python
+def TestClass(enabled=True, run_mode="singleline"):
+    def tracer(cls):
+        cls.__pd_type__ ='test'
+        cls.__enabled__ = enabled
+        cls.__run_mode__ = run_mode.lower()
+        return cls
+    return tracer
+
+@TestClass()
+class TestCases(object):
+    pass
+
+print(TestCases.__dict__)
+# {'__module__': '__main__', '__dict__': <attribute '__dict__' of 'TestCases' objects>, '__weakref__': <attribute '__weakref__' of 'TestCases' objects>, '__doc__': None, '__pd_type__': 'test', '__enabled__': True, '__run_mode__': 'singleline'}
+```
+
+当装饰器在被使用时，`TestClass()`函数会马上被执行并返回一个装饰器函数，这个函数是一个闭包函数，保存了`enabled`和`run_mode`两个变量。另外它还接受一个类作为参数，并使用之前保存的变量为这个类添加属性，最后返回。所以经过`@TestClass()`装饰过的类都会带上`__enabled__`、`__pd_type__`以及`__run_mode__`的属性。
+
 ***
 
 参考：
@@ -578,3 +625,6 @@ def say(something):
 [理解 Python 装饰器](https://foofish.net/python-decorator.html)，刘志军
 
 [装饰器](http://www.liujiangblog.com/course/python/39)，刘江
+
+[Python装饰器的另类用法](https://segmentfault.com/a/1190000007408026)，betacat
+

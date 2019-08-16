@@ -151,10 +151,6 @@ class MonthEnum(Enum):
 
 ***
 
-## `@lru_cache`
-
-***
-
 ## `@classmethod`
 
 类方法
@@ -170,3 +166,37 @@ class MonthEnum(Enum):
 ## `@contextmanager`
 
 上下文管理器
+
+***
+
+## `@list`
+
+`call`这个装饰器会把传入的参数送给目标函数然后直接执行。
+
+```python
+def call(*args, **kwargs):
+    def call_fn(fn):
+        return fn(*args, **kwargs)
+    return call_fn
+```
+
+有一个这样一个生成器函数:
+
+```python
+def table(n):
+    for i in range(n):
+        yield i
+```
+
+直接将其转换成列表。
+
+```python
+@list
+@call(5)
+def table(n):
+    for i in range(n):
+        yield i
+
+print(table)	# [0, 1, 2, 3, 4]
+```
+

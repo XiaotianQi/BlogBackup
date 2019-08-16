@@ -251,6 +251,19 @@ print(regEx.findall(test))
 [('123456789012', '2')]
 ```
 
+* 替换文本
+
+```python
+import re
+
+s = "Tom is talking to Jerry."
+name1 = "Tom"
+name2 = "Jerry"
+
+pattern = r'(.*)({0})(.*)({1})(.*)'.format(name1, name2)
+print(re.sub(pattern, r'\1\4\3\2\5', s))
+```
+
 ***
 
 ## 断言/环视

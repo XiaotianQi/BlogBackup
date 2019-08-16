@@ -338,21 +338,78 @@ for i in range(4):
 
 闭包(closure)和类(class)有相通之处，带有面向对象的封装思维。而面向对象编程正是为了更佳的可读性和更关键的可移植性。
 
+* 添加标签
+
+```python
+def tag(tag_name):
+    def add_tag(content):
+        return "<{0}>{1}</{0}>".format(tag_name, content)
+    return add_tag
+
+content = 'Hello'
+
+add_tag = tag('a')
+print(add_tag(content))	# <a>Hello</a>
+add_tag = tag('b')
+print(add_tag(content))	# <b>Hello</b>
+```
+
+* 线性代数
+
+```python
+def line_conf(a, b):
+    def line(x):
+        return a*x + b
+    return line
+
+line1 = line_conf(1, 1)
+line2 = line_conf(1, 2)
+print(line1(5))	# 6
+print(line2(5)) # 7
+```
+
+### 使用
+
+Python中的装饰器Decorator，假如需要写一个带参数的装饰器，那么一般都会生成闭包。
+
+将上边的添加标签函数重写：
+
+```python
+def html_tags(tag_name):
+    def wrapper_(func):
+        def wrapper(*args, **kwargs):
+            content = func(*args, **kwargs)
+            return "<{tag}>{content}</{tag}>".format(tag=tag_name, content=content)
+        return wrapper
+    return wrapper_
+
+@html_tags('b')
+def hello(name='Toby'):
+    return 'Hello {}!'.format(name)
+
+print(hello())  # <b>Hello Toby!</b>
+print(hello('world'))  # <b>Hello world!</b>
+```
+
+***
+
+### 注意事项
+
 ```python
 def outer():
     fs = []
     for i in range(4):
-        print("Outer:{}; i:{}".format(id(i), i))
+        print("Outer i:{}".format(i))
         def inner():
-            print("{} --> {}".format(id(i), i))
+            print(i)
             return i
         fs.append(inner)
     return fs
 ```
 
-调用外层函数时，执行至内层 `def inner()` 语句，仅仅是完成对内层函数 `inner` 的定义，而不会调用内层函数，除非在嵌套函数之后又显式的对其进行调用。仅仅是返回却不调用，因此通过调用函数 `outer`，可以得到内嵌函数 `inner` 的一个引用。
+调用外层`outer()`函数时，执行至内层 `def inner()` 语句时，仅仅是完成对内层函数 `inner` 的定义，而不会调用内层函数，除非在嵌套函数之后又显式的对其进行调用。仅仅是返回却不调用，因此通过调用函数 `outer`，可以得到内嵌函数 `inner` 的一个引用。
 
-`fs.append(inner)` 使得 `fs` 列表中添加的是 `inner` 函数，而不是 `inner` 函数的调用结果。
+`fs.append(inner)` 使得 `fs` 列表中添加的是 `inner` 函数，而不是 `inner` 函数的调用结果。其实闭包函数相对与普通函数会多出一个`__closure__`的属性，里面定义了一个元组用于存放所有的`cell`对象，每个`cell`对象一一保存了这个闭包中所有的外部变量。
 
 ```python
 fun1 = outer()
@@ -361,20 +418,18 @@ print([i() for i in fun1])
 ```
 
 ```bash
-Outer:1973510336; i:0
-Outer:1973510368; i:1
-Outer:1973510400; i:2
-Outer:1973510432; i:3
-
-[(<cell at 0x00000201618852E8: int object at 0x0000000075A16120>,),
- (<cell at 0x00000201618852E8: int object at 0x0000000075A16120>,),
- (<cell at 0x00000201618852E8: int object at 0x0000000075A16120>,),
- (<cell at 0x00000201618852E8: int object at 0x0000000075A16120>,)]
-
-1973510432 --> 3
-1973510432 --> 3
-1973510432 --> 3
-1973510432 --> 3
+Outer i:0
+Outer i:1
+Outer i:2
+Outer i:3
+[(<cell at 0x000002289E3E5DF8: int object at 0x00007FFB4E3762D0>,), 
+(<cell at 0x000002289E3E5DF8: int object at 0x00007FFB4E3762D0>,), 
+(<cell at 0x000002289E3E5DF8: int object at 0x00007FFB4E3762D0>,), 
+(<cell at 0x000002289E3E5DF8: int object at 0x00007FFB4E3762D0>,)]
+3
+3
+3
+3
 [3, 3, 3, 3]
 ```
 
@@ -384,27 +439,18 @@ Outer:1973510432; i:3
 
 当修改 `fs.append(inner)` 为 `fs.append(inner())` 时：
 
-```python
-fun1 = outer()
-```
-
 ```bash
-Outer:1973510336; i:0
-1973510336 --> 0
-Outer:1973510368; i:1
-1973510368 --> 1
-Outer:1973510400; i:2
-1973510400 --> 2
-Outer:1973510432; i:3
-1973510432 --> 3
-[0, 1, 2, 3]
+Outer i:0
+0
+Outer i:1
+1
+Outer i:2
+2
+Outer i:3
+3
 ```
 
 `fs.append(inner())` 就是显性调用，使得 `fs` 存储的是 `f` 函数的调用结果。每次循环，`inner` 函数都会进行调用，`i` 也会跟随循环传递至函数 `inner`。所以结果呈现出 `0, 1, 2, 3`。
-
-***
-
-### 注意事项
 
 * 闭包使用 `for` 循环时，临时变量 `i` 带了的问题，如上面使用的代码。`for` 循环内的变量可以在 `for` 循环结束后继续被访问。Python中的 `for` 循环并没有引入作用域(scope)的概念，但函数定义有引入作用域。
 
@@ -451,7 +497,7 @@ def outer():
 
 错误信息：`UnboundLocalError: local variable 'fs' referenced before assignment`。
 
-使用 `nonlocal`，该语句显式的指定 `a` 不是闭包的局部变量：
+使用 `nonlocal`，该语句显式的指定 `fs` 不是闭包的局部变量：
 
 ```python
 def outer():
@@ -474,26 +520,8 @@ def outer():
     return inner
 ```
 
-### 线性方程
-
-```python
-def line_conf(a, b):
-    def line(x):
-        return a*x + b
-    return line
-```
-
-```python
-line1 = line_conf(1, 1)
-line2 = line_conf(1, 2)
-print(line1(5))
-print(line2(5))
-```
-
-```bash
-6
-7
-```
-
 ***
 
+参考：
+
+[Python中的闭包 - Closure](https://segmentfault.com/a/1190000007321972)，betacat

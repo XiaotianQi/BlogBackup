@@ -53,6 +53,52 @@ logging模块定义了下表所示的日志级别，按事件严重程度由低�
 5. 写日志
 ```
 
+logging最基本的用法:
+
+```python
+# _*_coding:utf-8_*_
+import logging
+import sys
+
+# 获取logger实例，如果参数为空则返回root logger
+logger = logging.getLogger("AppName")
+
+# 指定logger输出格式
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s: %(message)s')
+
+# 文件日志
+file_handler = logging.FileHandler("test.log")
+file_handler.setFormatter(formatter)  # 可以通过setFormatter指定输出格式
+
+# 控制台日志
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.formatter = formatter  # 也可以直接给formatter赋值
+
+# 为logger添加的日志处理器
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# 指定日志的最低输出级别，默认为WARN级别
+logger.setLevel(logging.INFO)
+
+# 输出不同级别的log
+logger.debug('this is debug info')
+logger.info('this is information')
+logger.warning('this is warning message')
+logger.error('this is error message')
+logger.fatal('this is fatal message, it is same as logger.critical')
+logger.critical('this is critical message')
+
+# 2019-08-14 18:03:59,183 INFO    : this is information
+# 2019-08-14 18:03:59,184 WARNING : this is warning message
+# 2019-08-14 18:03:59,184 ERROR   : this is error message
+# 2019-08-14 18:03:59,184 CRITICAL: this is fatal message, it is same as logger.critical
+# 2019-08-14 18:03:59,185 CRITICAL: this is critical message
+
+# 移除一些日志处理器
+logger.removeHandler(file_handler)
+```
+
 ***
 
 ## 五种对象
@@ -71,7 +117,7 @@ logging模块的日志功能是基于Logger类实现的。logger对象有三重�
 logger = logging.getLogger(name=None)
 ```
 
-Logger是一个树形层级结构，在使用debug()，info()，warn()，error()，critical()等方法之前**必须先**创建一个Logger的实例，即创建一个记录器。
+这是最基本的入口。Logger是一个树形层级结构，在使用debug()，info()，warn()，error()，critical()等方法之前**必须先**创建一个Logger的实例，即创建一个记录器。
 
 * 如果提供了name参数，那么它就是这个`Logger`实例的名称。可以通过`Logger`实例的name属性，来查看`Logger`实例的名称。
 * 如果没提供name参数，那么这个`Logger`实例的名称是root，即`root logger`并应用默认的日志级别(WARN)，默认的处理器Handler(StreamHandler，即将日志信息打印在标准输出上)，和默认的格式化器Formatter。
@@ -104,7 +150,7 @@ logger对象可以使用`addHandler()`方法，添加零个或多个handler对�
 handler提供了下面的配置方法：   
 
 -  `setLevel(level)`
-  - handler对象的`setLevel()`方法，与logger对象的`setLevel()`方法一样，也是用于设置一个日志级别，如果日志的级别低于setLevel()方法设置的值，那么handler不会处理它。 
+  - handler对象的`setLevel()`方法，与logger对象的`setLevel()`方法一样，也是用于设置一个日志级别，如果日志的级别低于`setLevel()`方法设置的值，那么handler不会处理它。 
   - 那为什么要设置两层日志级别呢？logger对象的日志级别是全局性的，对所有handler都有效，相当于默认等级。而handlers的日志级别只对自己接收到的logger传来的日志有效，进行了更深一层的过滤。
 - `setFormatter(fmt)`
   * 设置当前handler对象使用的消息格式
@@ -146,7 +192,7 @@ logging模块使用较多的handlers有两个，`StreamHandler`和`FileHandler`�
 
 ### Formatters
 
-Formatter对象用来最终设置日志信息的顺序、结构和内容。其构造方法为：
+Formatter对象定义了log信息的顺序、结构和内容。其构造方法为：
 
 ```text
 ft = logging.Formatter(fmt=None, datefmt=None, style=’%’)
@@ -248,7 +294,7 @@ fh.addFilter(filter)
 | *style*    | If *format* is specified, use this style for the format string. One of `'%'`, `'{'` or `'$'` for `printf-style`, `str.format()` or `string.Template` respectively. Defaults to `'%'`. |
 | *level*    | Set the root logger level to the specified level.            |
 | *stream*   | Use the specified stream to initialize the StreamHandler. Note that this argument is incompatible with *filename* - if both are present, a `ValueError` is raised. |
-| *handlers* | If specified, this should be an iterable of already created handlers to add to the root logger. Any handlers which don’t already have a formatter set will be assigned the default formatter created in this function. Note that this argument is incompatible with *filename* or *stream* - if both are present, a `ValueError` is raised. |
+| *handlers* | If specified, this should be an iterable of already **created handlers** to add to the root logger. Any handlers which don’t already have a formatter set will be assigned the default formatter created in this function. Note that this argument is incompatible with *filename* or *stream* - if both are present, a `ValueError` is raised. |
 
 `Logger.debug(msg, *args, **kwargs)`, `Logger.info(msg, *args, **kwargs)`, `Logger.warning(msg, *args, **kwargs)`, `Logger.error(msg, *args, **kwargs)`, `and Logger.critical(msg, *args, **kwargs)`：
 
@@ -262,9 +308,107 @@ fh.addFilter(filter)
 
 创建整数级别的日志。
 
+## 配置方法
+
+logging的配置大致有下面几种方式。
+
+* 通过代码进行完整配置，主要是通过`getLogger`方法实现。
+* 通过代码进行简单配置，主要是通过`basicConfig`方法实现。
+* 通过配置文件，主要是通过 `logging.config.fileConfig(filepath)`
+
+### getLogger方法
+
+开头的例子就是采用这种方法进行配置。
+
+### basicConfig方法
+
+`basicConfig()`提供了非常便捷的方式配置logging模块并马上开始使用，可以参考下面的例子。
+
+```
+import logging
+
+logging.basicConfig(filename='example.log',level=logging.DEBUG)
+logging.debug('This message should go to the log file')
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.debug('This message should appear on the console')
+
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.warning('is when this event was logged.')
+```
+
+备注： 其实甚至可以什么都不配置直接使用默认值在控制台中打log，用这样的方式替换print语句对日后项目维护会有很大帮助。
+
+### 使用配置文件
+
+```python
+import logging
+import logging.config
+
+logging.config.fileConfig("logging.conf")
+
+if __name__ == "__main__":
+    logger = logging.getLogger("test_logging.sublogger")
+    logger.info("info")
+```
+
+`logging.conf`如下： 
+
+```conf
+[loggers]
+keys = root,logger
+
+[handlers]
+keys = stream_handler
+
+[formatters]
+keys = formatter
+
+[logger_root]
+handlers = stream_handler
+
+[logger_logger]
+handlers = stream_handler
+level = DEBUG
+propagate = 1 
+qualname = test_logging
+
+[handler_stream_handler]
+class = StreamHandler
+args = (sys.stdout,)
+formatter = formatter
+level = DEBUG
+
+[formatter_formatter]
+format = %(asctime)s|%(name)-12s|%(message)s
+datefmt = %F %T
+```
+
 ***
 
 ## 示例
+
+### 格式化输出日志
+
+```python
+service_name = "Booking"
+logger.error('%s service is down!' % service_name)  # 使用python自带的字符串格式化，不推荐
+logger.error('%s service is down!', service_name)  # 使用logger的格式化，推荐
+logger.error('%s service is %s!', service_name, 'down')  # 多参数格式化
+logger.error('{} service is {}'.format(service_name, 'down')) # 使用format函数，推荐
+```
+
+### 记录异常信息
+
+当使用logging模块记录异常信息时，不需要传入该异常对象，只要直接调用`logger.error()` 或者 `logger.exception()`就可以将当前异常记录下来。
+
+```python
+try:
+    1 / 0
+except:
+    # 等同于error级别，但是会额外记录当前抛出的异常堆栈信息
+    logger.exception('this is an exception message')
+```
 
 ### 屏幕输出日志
 
@@ -354,55 +498,99 @@ logging.info('This is info message')
 logging.warning('This is warning message')
 ```
 
-### 使用配置文件，配置logging
+***
+
+## 日志重复输出的坑
 
 ```python
 import logging
-import logging.config
 
-logging.config.fileConfig("logging.conf")
+logging.basicConfig(level=logging.DEBUG)
 
-if __name__ == "__main__":
-    logger = logging.getLogger("test_logging.sublogger")
-    logger.info("info")
+fmt = '%(levelname)s:%(message)s'
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter(fmt))
+logging.getLogger().addHandler(console_handler)
+
+logging.info('hello!')
+
+# INFO:root:hello!
+# INFO:hello!
 ```
 
-`logging.conf`如下： 
+上面这个例子出现了重复日志，因为在第3行调用`basicConfig()`方法时系统会默认创建一个handler，如果再添加一个控制台handler时就会出现重复日志。
 
-```conf
-[loggers]
-keys = root,logger
+```python
+import logging
 
-[handlers]
-keys = stream_handler
+def get_logger():
+    fmt = '%(levelname)s:%(message)s'
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(fmt))
+    logger = logging.getLogger('App')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(console_handler)
+    return logger
 
-[formatters]
-keys = formatter
+def call_me():
+    logger = get_logger()
+    logger.info('hi')
 
-[logger_root]
-handlers = stream_handler
+call_me()
+call_me()
 
-[logger_logger]
-handlers = stream_handler
-level = DEBUG
-propagate = 1 
-qualname = test_logging
+# INFO:hi
+# INFO:hi
+# INFO:hi
+```
 
-[handler_stream_handler]
-class = StreamHandler
-args = (sys.stdout,)
-formatter = formatter
-level = DEBUG
+在这个例子里`hi`居然打印了三次，如果再调用一次`call_me()`呢？会打印6次。why? 因为每次调用`get_logger()`方法时都会给它加一个新的handler。正常的做法应该是全局只配置logger一次。
 
-[formatter_formatter]
-format = %(asctime)s|%(name)-12s|%(message)s
-datefmt = %F %T
+```python
+import logging
+
+def get_logger():
+    fmt = '%(levelname)s: %(message)s'
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(fmt))
+    logger = logging.getLogger('App')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(console_handler)
+    return logger
+
+def foo():
+    logging.basicConfig(format='[%(name)s]: %(message)s')
+    logging.warn('some module use root logger')
+
+def main():
+    logger = get_logger()
+    logger.info('App start.')
+    foo()
+    logger.info('App shutdown.')
+
+main()
+
+# INFO: App start.
+# [root]: some module use root logger
+# INFO: App shutdown.
+# [App]: App shutdown.
+```
+
+最后的`App shutdown`打印了两次。所以在Stackoverflow上很多人都问，应该怎么样把root  logger关掉，root logger太坑爹坑妈了。只要在程序中使用过root  logger，那么默认你打印的所有日志都算它一份。上面的例子没有什么很好的办法。
+
+如果真的想禁用root logger，有两个不是办法的办法：                     
+
+```python
+logging.getLogger().handlers = []  # 删除所有的handler
+logging.getLogger().setLevel(logging.CRITICAL)  # 将它的级别设置到最高
 ```
 
 ***
 
 参考：
 
-http://www.liujiangblog.com/course/python/71
+[logging](http://www.liujiangblog.com/course/python/71)，刘江
 
-http://blog.timd.cn/python-logging/
+[python-logging](http://blog.timd.cn/python-logging/)，Tim
+
+[Python中的logging模块](https://segmentfault.com/a/1190000007581128)，betacat

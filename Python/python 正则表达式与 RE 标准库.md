@@ -396,17 +396,17 @@ print(re.findall(r'[a-z]', test))
 ['a', 'b', 'c']
 ```
 
-re.findall()和re.match()、re.search()的不同之处在于：
+`re.findall()`和`re.match()`、`re.search()`的不同之处在于：
 
 后两者都是单值匹配，找到一个就忽略后面，直接返回不再查找了。并且，返回Match Object。
 
-re.findall()是全文查找，返回值是一个所有匹配到的字符串的列表。
+`re.findall()`是全文查找，返回值是一个所有匹配到的字符串的列表。
 
-re.match()和re.search()的不同之处在于：
+`re.match()`和`re.search()`的不同之处在于：
 
-re.match只匹配字符串的开始，如果字符串开始不符合正则表达式，则匹配失败，函数返回None；
+`re.match`只匹配字符串的开始，如果字符串开始不符合正则表达式，则匹配失败，函数返回None；
 
-而re.search匹配整个字符串，直到找到一个匹配。
+而`re.search`匹配整个字符串，直到找到一个匹配。
 
 * `re.finditer(pattern, string[, flags=0])`
 
@@ -433,14 +433,10 @@ c
 
 ```python
 test = "a1b2c3"
-print(re.sub(r'2', 'b', test))
-
-
-输出结果：
-a1bbc3
+print(re.sub(r'2', 'b', test))	# a1bbc3
 ```
 
-sub()方法有一个高级功能——“分组引用”:
+分组引用:
 
 将形式为 11/27/2012 的日期字符串改成 2012-11-27：
 
@@ -449,6 +445,23 @@ In [31]: text = 'Today is 11/27/2012. PyCon starts 3/13/2013.'
 
 In [32]: re.sub(r'(\d+)/(\d+)/(\d+)', r'\3-\1-\2', text)
 Out[32]: 'Today is 2012-11-27. PyCon starts 2013-3-13.'
+```
+
+自定义替换函数：
+
+替换日期
+
+```python
+import re
+
+def change_date(m):
+    from calendar import month_abbr
+    mon_name = month_abbr[int(m.group(1))]
+    return '{} {} {}'.format(m.group(2), mon_name, m.group(3))
+
+s = 'We will fly to Thailand on 10/31/2016'
+pattern = r'(\d+)/(\d+)/(\d+)'
+print(re.sub(pattern, change_date, s))	# We will fly to Thailand on 31 Oct 2016
 ```
 
 忽略大小写的方式搜索与替换文本字符串，跟被匹配字符串的大小写保持一致：
@@ -469,11 +482,7 @@ def matchcase(word):
 
 text = 'UPPER PYTHON, lower python, Mixed Python'
 text_sub = re.sub('python', matchcase('snake'), text, flags=re.IGNORECASE)
-print(text_sub)
-```
-
-```bash
-UPPER SNAKE, lower snake, Mixed Snake
+print(text_sub)	# UPPER SNAKE, lower snake, Mixed Snake
 ```
 
 * `re.subn(pattern, repl, string[, count=0, flags=0])`
