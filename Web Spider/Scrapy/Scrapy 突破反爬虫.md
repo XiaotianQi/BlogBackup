@@ -270,11 +270,18 @@ class SinaSpider(scrapy.Spider):
         return [scrapy.Request(url=self.start_urls[0], dont_filter=True)]
 ```
 
-### 静默启动 Chrome
+### headless 模式
+
+HEADLESS BROWSER 指的是不需要用户界面的浏览器，这种浏览器在自动化测试和爬虫领域有着广泛的应用。
 
 ```python
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 chrome_options = Options()
 chrome_options.add_argument('--headless')
+options.add_argument('--disable-gpu') # 允许在无GPU的环境下运行，可选
+options.add_argument('--window-size=1920x1080') # 建议设置
 driver = webdriver.Chrome(chrome_options=chrome_options)
 ```
 
