@@ -38,6 +38,13 @@ service v2ray restart
 
 win客户端 v2rayN 添加代理，参数与服务器端配置文件相同，如下设置：
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/V2ray.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/V2ray.png)
 
 v2rayN 与 浏览器配置：
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/V2ray%201.png)
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/V2ray%202.png)
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/V2ray%203.png)
+

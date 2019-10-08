@@ -1,5 +1,3 @@
-
-
 **镜像（Image）**：类似于虚拟机中的镜像，是一个包含有文件系统的面向Docker引擎的只读模板。任何应用程序运行都需要环境，而镜像就是用来提供这种运行环境的。例如一个Ubuntu镜像就是一个包含Ubuntu操作系统环境的模板，同理在该镜像上装上Apache软件，就可以称为Apache镜像。
 
 **容器（Container）**：类似于一个轻量级的沙盒，可以将其看作一个极简的Linux系统环境（包括root权限、进程空间、用户空间和网络空间等），以及运行在其中的应用程序。Docker引擎利用容器来运行、隔离各个应用。容器是镜像创建的应用实例，可以创建、启动、停止、删除容器，各个容器之间是是相互隔离的，互不影响。注意：镜像本身是只读的，容器从镜像启动时，Docker在镜像的上层创建一个可写层，镜像本身不变。
@@ -384,7 +382,7 @@ Linux 虚拟网桥的特点：
 * 可以设置 IP 地址
 * 相当于拥有一个隐藏的虚拟网卡
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/docker%200.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/docker%200.png)
 
 **Docker 容器的的互联**
 
@@ -412,7 +410,7 @@ Docker 数据卷是经过特殊设计的目录，可以绕过联合文件系统(
 
 数据卷涉及的目的，在于数据的永久化，它完全独立于容器的生存周期。因此，Docker 不会在容器删除时，删除其挂载的数据卷，也不存在类似的垃圾收集机制，对容器引用的数据卷进行处理。
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/docker%201.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/docker%201.png)
 
 特点：
 
@@ -436,7 +434,7 @@ docker run -v hostDataPath:containerDataPath:ro
 
 命名的容器挂载数据卷，其他容器通过挂载这个容器实现数据共享，挂载数据卷的容器，叫做数据卷容器。
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/docker%202.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/docker%202.png)
 
 ```text
 docker run --volumes-from [CONTAINER NAME]
@@ -481,7 +479,7 @@ docker run --volumes-from [CONTAINER NAME] -v $PWD:/backup --name [CONTAINER NAM
 docker run --volumes-from [CONTAINER NAME] -v $PWD:/backup --name [CONTAINER NAME] ubuntu tar xvf /backup/backup.tar [CONTAINER DATA VOLUME]
 ```
 
-![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Linux/docker%203.png)
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/docker%203.png)
 
 ***
 
