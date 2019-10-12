@@ -204,7 +204,12 @@ with open('xx.txt', w) as f:
 >
 > In this PEP, context managers provide `__enter__()` and `__exit__()` methods that are invoked on entry to and exit from the body of the with statement.
 
-基本语法和工作原理如下
+with 语句适用于对资源进行访问的场合，确保不管使用过程中是否发生异常都会执行必要的“清理”操作，释放资源，比如文件使用后自动关闭、线程中锁的自动获取和释放等。
+
+with语句即“上下文管理器”，在程序中用来表示代码执行过程中所处的前后环境 上下文管理器：含有`__enter__`和`__exit__`方法的对象就是上下文管理器。
+
+* `__enter__()`：在执行语句之前，首先执行该方法，通常返回一个实例对象，如果with语句有as目标，则将对象赋值给as目标。
+* `__exit__()`：执行语句结束后，自动调用`__exit__()`方法，用户释放资源，若此方法返回布尔值True，程序会忽略异常。
 
 ###   1. `with` 语句的语法格式
 

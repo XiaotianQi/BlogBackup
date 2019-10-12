@@ -169,6 +169,27 @@ finally
 
 所以，如果想要获取 `else` 中的 `return`信息，那么 `try`、`finally` 中均不能使用 `return`。
 
+嵌入其中`return`的语句，必须灵活运用：
+
+```python
+def read_filedata(filename):
+
+    try:
+        f = open(filename, 'r')
+        f_data = f.read()
+    except IOError as e:
+        f = "File does not exist." + str(e)
+    else:
+        return f_data
+    finally:
+        if isinstance(f, str):
+            return f
+        elif hasattr(f, 'read'):
+            f.close()
+        else:
+            return 'Unknown Error'
+```
+
 ### 使用内置的语法范式代替try/except
 
 Python 本身提供了很多的语法范式简化了异常的处理，比如`for`语句就处理了的`StopIteration`异常，让你很流畅地写出一个循环。

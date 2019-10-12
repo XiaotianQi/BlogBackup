@@ -26,7 +26,7 @@ Python 中常见的内置数据结构可以统称为容器（container）。
 
   * 数字类型：`int`、`float`
 
-  * 序列类型：`tuple`、`bytes`
+  * 序列类型：`tuple`、`bytes`、`str`
 
   * 集合类型：`frozenset`
 
