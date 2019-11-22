@@ -241,28 +241,214 @@ def person(name, age, *args, city, job):
 def person(name, age, city=beijing, *args, **kwargs):
 ```
 
-### 参数传递
+## 参数传递
 
-但是，在处理不同数据类型的参数时，会有不同的情况发生。这一切都是因为以下两点。
+**值传递**是指在调用函数时将实际参数复制一份传递到函数中，这样在函数中如果对参数进行修改，将不会影响到实际参数。
 
-- Python的函数参数传递的是实际对象的内存地址。
-- Python的数据类型分可变数据类型和不可变数据类型。
+**引用传递**是指在调用函数时将实际参数的地址传递到函数中，那么在函数中对参数所进行的修改，将影响到实际参数。
 
-函数内部可以访问全局变量中的值，但是不能修改全局变量的值。但是，当参数使用可变变量时：
+**Python函数是通过引用传参的。**
+
+如果是从C++转来的，那么就可以理解成Python的传值方式是按照C++中传指针的方式传值的，既不是引用也不是值。
+
+* 如果数据类型是可变的，对其进行运算操作，则是在其本身上面进行。如果进行赋值，则这个符号指向一个新的对象，旧的对象根据情况进行垃圾回收。 
+* 如果数据类型是不可变的，那么运算操作或者赋值，均相当于创建新的对象，然后将原先的变量名绑定到新的对象。
+
+### 传入不可变对象
+
+在函数发生的变化，不会波及函数外。
 
 ```python
-a = [1, 2, 3]
-def func(x):
-    x.append(5)
+def num_add(num):
+    num += 10
 
-print("调用函数之前,变量a：", a)		# [1, 2, 3]
-func(a)
-print("调用函数之后,变量a：", a)		# [1, 2, 3, 5]
+d = 2
+num_add(d)
+print(d)	# 2
 ```
 
-因为最关键的`x.append(5)`这句代码，它不同于`=`赋值语句，不会创建新的变量，而列表作为可变类型，具有append方法，这个方法只是对列表的一种调用而已。
+想要得到12，必须进行赋值操作。
 
-------
+```python
+def num_add(num):
+    return num + 10
+
+d=2
+d = num_add(d)
+print(d)	# 12		
+```
+
+或者使用`global`
+
+```python
+def num_add():
+    global d
+    d = d + 10
+
+d = 2
+num_add()
+print(d)	# 12
+```
+
+### 传入可变对象
+
+默认参数不推荐使用可变参数，否则后果如下：
+
+```python
+def foo(ls=[]):
+    ls.append(0)
+    print(ls)
+
+foo()	# [0]
+foo()	# [0, 0]
+```
+
+如下进行赋值操作，并不会影响函数之外的对象。因为，可变对象的赋值操作是创建一个新的对象。
+
+```python
+def foo(ls):
+    ls = [0, 0, 0]
+    print(ls)
+    
+l1 = [0, 1, 2]
+foo(l1)			# [0, 0, 0]
+print(l1)		# [0, 1, 2]
+```
+
+函数内部可以访问全局变量中的值，但是不能修改全局变量的值。但是，当参数使用可变对象时，会影响函数之外。
+
+```python
+def foo(ls):
+    ls += [0, 0, 0]
+    print(ls)
+    
+l1 = [0, 1, 2]
+foo(l1)			# [0, 1, 2, 0, 0, 0]
+print(l1)		# [0, 1, 2, 0, 0, 0]
+```
+
+`+=` `.append()`不同于`=`赋值语句，不会创建新的变量。而列表作为可变类型，这只是对列表的一种调用而已。
+
+**传入可变对象，并参与`+=`操作**
+
+```python
+def func(a, b):
+    a += b
+    return a
+
+if __name__ == "__main__":
+    a = 1
+    b = 1
+    print(func(a, b))		# 2
+    print(a, b)				# 1 1
+
+    a = [1,]
+    b = [2,]
+    print(func(a, b))		# [1, 2]
+    print(a, b)				# [1, 2] [2]
+```
+
+```python
+def func(a, b):
+    a = a + b
+    return a
+
+if __name__ == "__main__":
+    a = 1
+    b = 1
+    print(func(a, b))		# 2
+    print(a, b)				# 1 1
+
+    a = [1,]
+    b = [2,]
+    print(func(a, b))		# [1, 2]
+    print(a, b)				# [1] [2]
+```
+
+造成 `a` 变化的原因是:
+
+* `+=` 不会改变变量引用，不会创建新的对象
+* `a = [1,]` 是可变对象，但是 `+` 会改变其引用
+
+除此之外，list的相关用法，也不会造成引用改变：
+
+```python
+def change_lst(lst):
+    lst.append(3)			# 等价于:lst += [3]
+    lst.append('change')	# 等价于:lst += ['change']
+    #lst = [1,2]
+    print(id(lst))
+
+lst = []
+change_lst(lst)
+print(lst)		# [3, 'change']
+print(id(lst))
+```
+
+**可变对象作为默认参数**
+
+声明 `Company` 类：
+
+```python
+class Company:
+    def __init__(self, name, staffs=[]):
+        self.name = name
+        self.staffs = staffs
+    
+    def add(self, staff_name):
+        self.staffs.append(staff_name)
+
+    def remove(self, staff_name):
+        self.staffs.remove(staff_name)
+```
+
+实例 `com1`、`com2`：
+
+```python
+if __name__ == "__main__":
+    com1 = Company('com1', ['a', 'b'])
+    com1.add('c')
+    com1.remove('a')
+    print(com1.staffs)			# [b', 'c']
+
+    com2 = Company('com2')
+    com2.add('a')
+    print(com2.staffs)			# ['a']
+```
+
+实例 `com2`、`com3`：
+
+```python
+if __name__ == "__main__":
+    com2 = Company('com2')
+    com2.add('a')
+    print(com2.staffs)			# ['a']
+
+    com3 = Company('com3')
+    com3.add('b')
+    print(com3.staffs)			# ['a', 'b']
+    print(com2.staffs)			# ['a', 'b']
+```
+
+在实例 `com2`、`com3`后，`com2.staffs`发生变化的原因是：
+
+* 声明 `Company` 时，使用了 `staffs=[]`，变量`staffs`将默认使用 `list`类型
+* `com1` 传入了新列表对象，`com2` 和  `com3` 均使用默认的列表对象
+
+由此可见， `staffs=[]` 中的默认列表产生的问题，证实一下：
+
+```python
+if __name__ == "__main__":
+    com2 = Company('com2')
+    com2.add('a')
+    print(Company.__init__.__defaults__)	# (['a'],)
+
+    com3 = Company('com3')
+    com3.add('b')
+    print(Company.__init__.__defaults__)	# (['a', 'b'],)
+```
+
+***
 
 ## 函数的流程控制
 
@@ -355,3 +541,5 @@ None
 参考：
 
 [函数式编程初探](http://www.ruanyifeng.com/blog/2012/04/functional_programming.html)，阮一峰
+
+[Python 的函数是怎么传递参数的？](https://www.zhihu.com/question/20591688)，resolvewang、Kies
