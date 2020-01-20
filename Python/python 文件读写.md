@@ -18,16 +18,19 @@ open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, clo
 
 * `mode`：制定了文件打开的方式，函数提供了如下方式，其中，`r`为默认方式，同 `'rt'` ，意味着它以文本模式打开并读取。在文本模式，如果 *encoding* 没有指定，则根据平台来决定使用的编码：使用 `locale.getpreferredencoding(False)` 来获取本地编码。（要读取和写入原始字节，请使用二进制模式并不要指定 *encoding*。）
 
-  | `mode` | 说明                                                         |
-  | ------ | ------------------------------------------------------------ |
-  | `r`    | open for reading (default)——读取 （默认）                    |
-  | `w`    | open for writing, truncating the file first——写入，会覆盖源文件内容 |
-  | `x`    | create a new file and open it for writing——创建新文件，并写入内容，如果文件已存在，将会报错：FileExistsError |
-  | `a`    | open for writing, appending to the end of the file if it exists——写入，如果文件有内容，则在末尾追加写入 |
-  | `b`    | binary mode——二进制模式                                      |
-  | `t`    | text mode (default)——文本模式（默认）                        |
-  | `+`    | open a disk file for updating (reading and writing)——更新磁盘文件，读写 |
-  | `U`    | universal newline mode (deprecated)——在paython3中已经弃用    |
+  | `mode`              | 说明                                                         |
+  | ------------------- | ------------------------------------------------------------ |
+  | `r`                 | 只读（默认）                                                 |
+  | `w`                 | 只写，会覆盖源文件内容                                       |
+  | `a`                 | 只写，如果文件有内容，则在末尾追加写入                       |
+  | `x`                 | 创建新文件，并写入内容，如果文件已存在，将会报错：FileExistsError |
+  | `b`                 | 二进制模式                                                   |
+  | `t`                 | 文本模式（默认）                                             |
+  | `+`                 | 更新磁盘文件，读写                                           |
+  | `U`                 | paython3中已经弃用                                           |
+  | `r+`、`w+`、`a+`    | 读写，附带相应功能                                           |
+  | `rb`、`wb`、`ab`    | 二进制，附带相应功能                                         |
+  | `r+b`、`w+b`、`a+b` | 读写，二进制，附带相应功能                                   |
 
   ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/file%20open%20mode.png)
 
@@ -37,7 +40,7 @@ open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, clo
 
   对于`r+`模式，也就是读写模式，配合seek()和tell()方法，可以实现更多操作。
 
-  Python区分二进制和文本I/O。
+  **Python区分二进制和文本I/O**。
 
   * 以二进制模式打开的文件（包括 mode 参数中的 `'b'` ）返回的内容为 `bytes`对象，不进行任何解码。
   * 在文本模式下（默认情况下，或者在 mode 参数中包含 `’t’` ）时，文件内容返回为 `str` ，首先使用指定的 encoding （如果给定）或者使用平台默认的的字节编码解码。
@@ -141,8 +144,6 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-
-
 
 `f.read(size)`读取一定大小的数据, 然后作为字符串或字节对象返回。size是一个可选的数字类型的参数，用于指定读取的数据量。当`size`被忽略了或者为负值，那么该文件的所有内容都将被读取并且返回。
 

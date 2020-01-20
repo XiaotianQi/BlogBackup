@@ -324,9 +324,7 @@ Python内置了很多的异常类，并且这些类都是从BaseException类派�
 
 Exception VS BaseException
 
-### 捕获通用异常
-
-当要捕获一个通用异常时，应该用`Exception`还是`BaseException`？
+## 异常层级关系
 
 ```text
 BaseException
@@ -334,10 +332,68 @@ BaseException
  +-- KeyboardInterrupt
  +-- GeneratorExit
  +-- Exception
-      +-- StopIteration...
-      +-- StandardError...
-      +-- Warning...
+      +-- StopIteration
+      +-- StopAsyncIteration
+      +-- ArithmeticError
+      |    +-- FloatingPointError
+      |    +-- OverflowError
+      |    +-- ZeroDivisionError
+      +-- AssertionError
+      +-- AttributeError
+      +-- BufferError
+      +-- EOFError
+      +-- ImportError
+      |    +-- ModuleNotFoundError
+      +-- LookupError
+      |    +-- IndexError
+      |    +-- KeyError
+      +-- MemoryError
+      +-- NameError
+      |    +-- UnboundLocalError
+      +-- OSError
+      |    +-- BlockingIOError
+      |    +-- ChildProcessError
+      |    +-- ConnectionError
+      |    |    +-- BrokenPipeError
+      |    |    +-- ConnectionAbortedError
+      |    |    +-- ConnectionRefusedError
+      |    |    +-- ConnectionResetError
+      |    +-- FileExistsError
+      |    +-- FileNotFoundError
+      |    +-- InterruptedError
+      |    +-- IsADirectoryError
+      |    +-- NotADirectoryError
+      |    +-- PermissionError
+      |    +-- ProcessLookupError
+      |    +-- TimeoutError
+      +-- ReferenceError
+      +-- RuntimeError
+      |    +-- NotImplementedError
+      |    +-- RecursionError
+      +-- SyntaxError
+      |    +-- IndentationError
+      |         +-- TabError
+      +-- SystemError
+      +-- TypeError
+      +-- ValueError
+      |    +-- UnicodeError
+      |         +-- UnicodeDecodeError
+      |         +-- UnicodeEncodeError
+      |         +-- UnicodeTranslateError
+      +-- Warning
+           +-- DeprecationWarning
+           +-- PendingDeprecationWarning
+           +-- RuntimeWarning
+           +-- SyntaxWarning
+           +-- UserWarning
+           +-- FutureWarning
+           +-- ImportWarning
+           +-- UnicodeWarning
+           +-- BytesWarning
+           +-- ResourceWarning
 ```
+
+当要捕获一个通用异常时，应该用`Exception`还是`BaseException`？
 
 从`Exception`的层级结构来看，`BaseException`是最基础的异常类，`Exception`继承了它。`BaseException`除了包含所有的`Exception`外还包含了`SystemExit`，`KeyboardInterrupt`和`GeneratorExit`三个异常。
 
@@ -347,9 +403,9 @@ BaseException
 
 ## 综上
 
-1. 只处理知道的异常，避免捕获所有异常然后吞掉它们。
-2. 抛出的异常应该说明原因，有时候知道异常类型也猜不出所以然。
-3. 避免在`catch`语句块中干一些没意义的事情，捕获异常也是需要成本的。
+1. 只处理预知的异常，避免捕获所有异常然后吞掉它们。
+2. 抛出的异常应该说明原因，有时候通过异常类型也猜不出所以然。
+3. 避免在`catch`语句块中干一些没意义的事情，捕获异常也是需要成本。
 4. 不要使用异常来控制流程，那样程序会无比难懂和难维护。
 5. 如果有需要，切记使用`finally`来释放资源。
 6. 如果有需要，请不要忘记在处理异常后做清理工作或者回滚操作。

@@ -196,5 +196,33 @@ ssh -T git@github.com
 输入yes
 ```
 
+***
+
+## Jupyter Notebook
+
+```text
+# 安装 jupyter notebook
+λ pip install jupyter
+
+# 安装 插件管理器
+λ pip install jupyter_contrib_nbextensions
+λ pip install jupyter_nbextensions_configurator
+
+# 启用并配置 插件管理器
+λ jupyter nbextensions_configurator install --user
+λ jupyter nbextensions_configurator enable --user
+
+# 常用插件
+Table of Contents	目录
+Codefolding			折叠
+Hinterland			补全
+
+# 修改主题
+$ pip install jupyterthemes
+$ jt -l
+$ jt -t <theme_name>
+$ jt -r
+```
+
 
 

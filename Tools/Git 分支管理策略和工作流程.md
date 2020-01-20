@@ -239,6 +239,87 @@ Github flow 的最大优点就是简单，对于"持续发布"的产品，可以
 
 ***
 
+## Git 使用规范流程
+
+团队开发中，遵循一个合理、清晰的Git使用流程，是非常重要的。否则，每个人都提交一堆杂乱无章的commit，项目很快就会变得难以协调和维护。
+
+ 下面是[ThoughtBot](https://github.com/thoughtbot/guides/tree/master/protocol/git) 的Git使用规范流程。 
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/Tools/git%20protocol.png)
+
+* 避免在源代码中包含特定于您的开发环境或过程的文件
+* 合并后删除本地和远程的 feature branches
+* 在 feature branch 中执行进行开发
+* 经常性地 rebase，从而整合上游的变更
+* 使用 pull request 进行 code reviews
+
+### 新建功能分支
+
+首先，每次开发新功能，都应该新建一个单独的分支（参考**Git分支管理策略**）。
+
+```bash
+# 创建一个基于 master 的本地 feature branch
+$ git checkout master
+$ git pull
+$ git checkout -b myfeature
+```
+
+### 分支 commit
+
+ 分支修改后，就可以提交commit了。 
+
+```bash
+$ git add .
+$ git status
+$ git commit --verbose
+```
+
+提交commit时，必须给出完整扼要的提交信息，下面是一个**提交信息范本**。
+
+```text
+Present-tense summary under 50 characters
+
+* More information about commit (under 72 characters).
+* More information about commit (under 72 characters).
+
+http://project.management-system.com/ticket/123
+```
+
+第一行是不超过50个字的提要，然后空一行，罗列出改动原因、主要变动、以及需要注意的问题。最后，提供对应的网址（比如Bug ticket）。
+
+分支开发完成后，很可能有一堆commit，但是合并到主干的时候，往往希望只有一个（或最多两三个）commit，这样不仅清晰，也容易管理。
+
+那么，怎样才能将多个**commit合并**呢？这就要用到 git rebase 命令。
+
+```bash
+$ git rebase -i origin/master
+```
+
+### 与主干同步
+
+分支的开发过程中，要经常与主干保持同步。
+
+```bash
+$ git fetch origin
+$ git rebase origin/master
+```
+
+### 推送到远程仓库
+
+合并commit后，就可以推送当前分支到远程仓库了。
+
+```bash
+$ git push --force origin myfeature
+```
+
+`git push`命令要加上`force`参数，因为`rebase`以后，分支历史改变了，跟远程分支不一定兼容，有可能要强行推送。
+
+### code review
+
+提交到远程仓库以后，就可以发出 `Pull Request` 到master分支，然后请求别人进行代码review，确认可以合并到master。 
+
+***
+
 参考：
 
 [Git分支管理策略](http://www.ruanyifeng.com/blog/2012/07/git.html)，阮一峰
