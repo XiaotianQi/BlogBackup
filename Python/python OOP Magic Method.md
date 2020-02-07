@@ -626,6 +626,82 @@ other + some_object
 
 ***
 
+## 区别
+
+### 属性访问的区别
+
+`__get__`, `__getattr__`, `__getattribute__`, `__getitem__` 均是与属性访问有关的特殊方法。
+
+**属性的访问机制**
+
+`obj.x` 属性被访问时：
+
+```text
+obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
+```
+
+一般情况下，属性访问的默认行为是从对象的字典中获取，并当获取不到时会沿着一定的查找链进行查找，直至 `obj` 的基类，顺序符合 C3 算法。若查找链都获取不到属性，则抛出 `AttributeError` 异常。
+
+**区别**
+
+* `__getattr__` 方法是当对象的属性不存在是调用。如果通过正常的机制能找到对象属性的话，不会调用 。
+
+* `__getattribute__ `方法会被无条件调用。不管属性存不存在。如果类中还定义了 `__getattr__` ，则只有在 `__getattribute__` 方法中显示调用`__getattr__()` 或者抛出了 `AttributeError` 时，才会调用`__getattr__` 。
+
+* `__getitem__` 方法也是无条件调用，这点与 `__getattribute__` 一致。区别在于 `__getitem__` 让类实例允许下标`[]` 运算，可以这样理解：
+  * `__getattribute__` 适用于所有 `.` 运算符；
+  * `__getitem__` 适用于所有 `[]` 运算符。
+
+* `__get__()`是描述符相关方法，与其他方法的关系不大。如果一个类中定义了 `__get__()`, `__set__()` 或 `__delete__()` 中的任何方法，则这个类的对象称为描述符。
+
+**示例**
+
+```python
+class Test1(object):
+    a = 'abc'
+
+    def __getattribute__(self, *args, **kwargs):
+        print("__getattribute__() is called")
+        return object.__getattribute__(self, *args, **kwargs)
+
+    def __getattr__(self, name):
+        print("__getattr__() is called ")
+        return name + " from getattr"
+
+    def __get__(self, instance, owner):
+        print("__get__() is called", instance, owner)
+        return self
+
+    def __getitem__(self, item):
+        print('__getitem__ call')
+        return object.__getattribute__(self, item)
+
+    def foo(self, x):
+        print(x)
+
+class Test2(object):
+    b = Test1()
+
+if __name__ == '__main__':
+    c1 = Test1()
+    c2 = Test2()
+    print(c1.a)
+    print(c1.zzzzzzzz)
+    c2.b
+    print(c2.b.a)
+    print(c1['a'])
+```
+
+***
+
+### attributes 与 items 的区别
+
+创建容器类型时，区分属性和项非常重要。
+
+容器都有许多属性(通常是方法，但并不总是方法)，这些属性使它能够以优雅的方式管理其内容。例如，dict有`items`, `values`, `keys`, `iterkeys`等。这些属性都可以使用 `.` 符号进行访问。另一方面，使用`[]`符号访问项。所以，二者没有冲突。
+
+***
+
 参考：
 
 [Python 魔法方法指南](http://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id2)
@@ -633,3 +709,5 @@ other + some_object
 [Difference between `__str__ `and `__repr__`?](https://stackoverflow.com/questions/1436703/difference-between-str-and-repr)
 
 [How to use __setattr__ correctly, avoiding infinite recursion](https://stackoverflow.com/questions/17020115/how-to-use-setattr-correctly-avoiding-infinite-recursion)
+
+[Why doesn't Python have a hybrid getattr + __getitem__ built in?](https://stackoverflow.com/questions/6738087/why-doesnt-python-have-a-hybrid-getattr-getitem-built-in)
