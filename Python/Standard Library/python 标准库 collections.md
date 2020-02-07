@@ -23,31 +23,41 @@ Python `collections` 模块包含许多容器数据类型。
 
 ## `namedtuple`
 
+namedtuple 用以构建只有少数属性，但是没有方法的对象，比如数据库条目。
+
 ```python
 collections.namedtuple(typename, field_names, *, verbose=False, rename=False, module=None)
 ```
 
-一个命名元组(namedtuple)有两个必需的参数。它们是元组名称(typename)和字段名称(field_names)。`field_names` 是可迭代对象，用于指定数据对象的元素。例如 `'x y'`、`'x, y'`、`['x', 'y']`。
+一个命名元组(namedtuple)有两个必需的参数。它们是元组名称(typename)和字段名称(field_names)。`field_names` 是可迭代对象，用于指定数据对象的元素。例如 `'x y'`、`'x, y'`、`['x', 'y']`。`namedtuple` 是 `tuple` 的子类。
 
-`namedtuple` 主要用来产生可以使用名称来访问元素的数据对象，通常用来增强代码的可读性，在访问一些 tuple 类型的数据时尤其好用。`namedtuple` 是 `tuple` 的子类。
-
-`namedtuple` 可以使用如下3中方法进行声明：
+* 声明方法：
 
 ```python
+# 方法1
 User = namedtuple('User', ['name', 'age', 'height', 'weight'])
+
+# 方法2
 User = namedtuple('User', 'name age height weight')
+
+# 方法3
 User = namedtuple('User', 'name, age, height, weight')
 ```
 
-实例可以采用以下5种方法，`field_names` 是可迭代对象即可：
+* 实例，`field_names` 是可迭代对象即可：
 
 ```python
+# 方法 1
 user1 = User(name='Bob', age=25, height=180, weight=75)
+
+# 方法2
 user2 = User('Alice', 22, 170, 55)
 
+# 方法3
 test_tuple = ('Clur', 24, 175)
 user3 = User(*test_tuple, 65)
 
+# 方法4
 test_dict = {
     'name':'David',
     'age':27,
@@ -56,6 +66,7 @@ test_dict = {
 }
 user4 = User(**test_dict)
 
+# 方法5
 test_list = ['Ema', 23, 160, 45]
 user5 = User(*test_list)
 ```
@@ -78,7 +89,9 @@ user_dict = user5._asdict()
 name, *others = user5
 ```
 
-命名元组的一个主要用途是将代码从下标操作中解脱出来。因此，如果从数据库调用中返回了一个很大的元组列表，通过下标去操作其中的元素，当在表中添加了新的列的时候代码可能就会出错了。下标操作通常会让代码表意不清晰，并且非常依赖记录的结构。
+* 命名元组的一个主要用途是将代码从下标操作中解脱出来。
+
+因此，如果从数据库调用中返回了一个很大的元组列表，通过下标去操作其中的元素，当在表中添加了新的列的时候代码可能就会出错了。下标操作通常会让代码表意不清晰，并且非常依赖记录的结构。
 
 ```python
 from collections import namedtuple
@@ -88,11 +101,9 @@ def compute_cost(records):
     total = 0.0
     for rec in records:
         s = Stock(*rec)
-        total += s.Chinese + s.Math
+        total += s.Chinese + s.Math		# 明确操作内容
     return total
-```
 
-```python
 user =(
     ('Alice', 90, 94),
     ('Bob', 80, 80),
