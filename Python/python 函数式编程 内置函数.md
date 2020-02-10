@@ -174,13 +174,13 @@
   Out[51]: 123.0
   ```
 
-*  `class complex([real[, imag]])`
+* `class complex([real[, imag]])`
 
-  返回值为 *real* + *imag* *1j 的复数，或将字符串或数字转换为复数。
+  返回值为 `real + imag*j` 的复数，或将字符串或数字转换为复数。
 
   如果第一个形参是字符串，则它被解释为一个复数，并且函数调用时必须没有第二个形参。
 
-  如果省略了 *imag*，则默认值为零。
+  如果省略了 `imag`，则默认值为零。
 
   ```bash
   In [60]: complex()			# 无参数
@@ -192,6 +192,8 @@
   In [62]: complex('2')		# 只传入实部
   Out[62]: (2+0j)
   ```
+
+  complex 类也可以被当做二维向量。
 
 * ` class str(object='')`
   `class str(object=b'', encoding='utf-8', errors='strict')`
