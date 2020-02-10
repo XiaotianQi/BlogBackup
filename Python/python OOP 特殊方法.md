@@ -1,8 +1,22 @@
-形如 `__xxx__` 的变量或者函数名，在 Python 中是有特殊用途，统称为"魔术方法"。比如接触最多的`__init__`。重载这些魔法方法一般会改变对象的内部行为。
+形如 `__xxx__` 的变量或者函数名，在 Python 中是有特殊用途，统称为特殊方法。比如接触最多的`__init__`。重载这些特殊方法一般会改变对象的内部行为。
 
 特殊方法也称为魔法方法（Magic method）
 
 > Python methods (including `staticmethod()` and `classmethod()`) are implemented as non-data descriptors.  Accordingly, instances can redefine and override methods.  This allows individual instances to acquire behaviors that differ from other instances of the same class.
+
+特殊方法的存在是为了被python解释器调用，我们并不用直接调用它们。也就是说，没有`my_obj.__len__()`这种写法，而应该使用`len(my_obj)`。在执行`len(my_obj)`的时候，如果`my_obj`是个自定义的类对象，那么python会自己调用其中由我们实现的`__len__`方法。当`my_obj`是内置类型的时候，比如list、str等，那么Cpython就会走捷径，`__len__`实际上会直接返回 PyVarObject 里的 ob_size 属性。其中，PyVarObject 是表示内存中长度可变的内置对象的C语言结构体。直接读取这个值比调用一个方法要快的多。
+
+对于`__repr__`、`__abs__`、`__add__`、`__mul__`、`__init__`等这些方法，除了`__init__`方法，其他特殊方法通常不会在这个类的自身代码中使用。及时其他程序想要使用该类的这些方法，也不会直接调用它们。一般只有python解释器会频繁的调用这些特殊方法。
+
+很多时候，特殊方法的调用时隐式的。比如`for i in x:`这个语句，其实背后使用了`iter(x)`，而这个函数的背后是`x.__iter__()`方法。不过，前提是该方法在 x 中被实现了。
+
+通过内置函数（例如：len、iter、str等）来使用特殊方法是最好的选择。这些内置函数不仅会调用特殊方法，还会有提供额外的功能。而且，对于内置的类来说，它们的速度更快。
+
+使用 Python 特殊方法的方便之处就是可以构建一个拥有 Python 内置类型行为的对象。
+
+不要想当然的添加特殊方法，比如`__foo__`之类，因为虽然现在这个名字还没有被python内部使用，但是以后就说不定了。
+
+通过特殊方法，自定义数据类型可以表现得跟内置类型一样，从而写出更具表达力的代码。
 
 ## 常见的特殊属性
 
@@ -64,7 +78,9 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
   类的初始化方法。它获取任何传给构造器的参数。`__init__` 在 Python 的类定义中用的最多。
 
-  Note:
+  在子类的`__init__`方法中调用超类的构造器。
+
+  **Note**:
 
   ```python
   In [1]: class Movie(object):
@@ -128,7 +144,7 @@ Python中对象的属性具有 **层次性**，属性在哪个对象上定义，
 
 * `__repr__(self)`
 
-  返回的字符串主要是面向解释器。python 内置的 `repr()` 函数，`x` 时调用。
+  返回的字符串主要是面向解释器。python 内置的 `repr()` 函数，`repr(x)` 时调用。
 
 * `__bin__(self)`
 
@@ -154,20 +170,21 @@ Out[4]: ('1', 'abc')
 
 由`repr(x)`, `str(y)`返回值很明显看出二者的不同之处。
 
-> * `__repr__` goal is to be unambiguous.
-> * `__str__` goal is to be readable.
-> * Container’s `__str__` uses contained objects’ `__repr__`
-
 ```python
 In [5]: y == eval(repr(y))
 Out[5]: True
 ```
 
-> It is important to realize the default implementation of `__repr__` for a `str` object can be called as an argument to `eval` and the return value would be a valid `str` object.While the return value of `__str__` is not even a valid statement that can be executed by eval.
+> It is important to realize the default implementation of `__repr__` for a `str` object can be called as an argument to `eval` and the return value would be a valid `str` object.`repr` should return A string that can be evaluated to re-create the object.While the return value of `__str__` is not even a valid statement that can be executed by eval.
 
 因此：
 
 > Implement `__repr__` for any class you implement. This should be second nature. Implement `__str__` if you think it would be useful to have a string version which errs on the side of more readability in favor of more ambiguity.
+
+除此之外，如果重载了`__repr__`，那么对`str()`同样有效。但是，反过来，只重载了`__str__`，对`repr()`无效。使用时，应该如此：
+
+* `__repr__` goal is to be unambiguous.
+* `__str__` goal is to be human-readable.
 
 ***
 
@@ -185,6 +202,12 @@ Out[5]: True
 | `__hex__(self)`     | 类型转化为十六进制数                                         |
 | `__index__(self)`   | 类型转化索引位置，切片操作使用                               |
 | `__trunc__(self)`   | 当调用 `math.trunc(self)` 时调用该方法，返回 `self` 截取到一个整数类型（通常是long类型）的值。 |
+
+### 自定布尔值
+
+实际上，任何对象都可以用于需要布尔值的上下文中，比如 `if`、`while`语句，或者`and`、`or`、`not`运算符。
+
+默认情况下，自定义的类的实例总被认为是真，除非对该类的`__bool__`和`__len__`方法重载。`bool(x)`的背后是调用 `x.__bool__()`的结果。如果该方法不存在，那么`bool(x)`会尝试调用`x.__len__()`。若返回0，则`bool(x)`返回 False，否则返回 True。
 
 ***
 
@@ -424,7 +447,34 @@ class FunctionalList:
 
 ## 运算符
 
-使用 Python 魔法方法的一个巨大优势就是可以构建一个拥有 Python 内置类型行为的对象。这意味着你可以避免使用非标准的、丑陋的方式来表达简单的操作。这样做让代码变得冗长而混乱。不同的类库可能对同一种比较操作采用不同的方法名称，这让使用者需要做很多没有必要的工作。
+如下例子中，通过`__add__`、`__mul__`，为向量类添加了 + 和 * 两个运算符。值得注意的是，这两个方法的返回值都是新创建的向量对象，被操作的两个向量`self`、`other`还是原封不动，代码里只是读取了他们的值而已。中缀运算符的基本原则就是不改变操作对象，而产出一个新的值。
+
+```python
+from math import hypot
+
+class Vector:
+    
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+    
+    def __repr__(self):
+        return 'Vector({}, {})'.format(self.x, self.y)
+    
+    def __abs__(self):
+        return hypot(self.y, self.y)
+    
+    def __bool__(self):
+        return bool(self.y or self.y)
+    
+    def __add__(self, other):
+        x = self.x + other.x
+        y = self.y + other.y
+        return Vector(x, y)
+    
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar)
+```
 
 ### 比较运算
 
@@ -500,52 +550,6 @@ True
 |`__pow__(self, other)`|幂，`**`|
 
 不能重载 `and`和`or` 的逻辑运算。
-
-```python
-class Arithmetic(object):
-
-    def __init__(self, num):
-        self.data = num
-    # +
-    def __add__(self, other):
-        return self.data + other.data
-    # -
-    def __sub__(self, other):
-        return self.data - other.data
-    # *
-    def __mul__(self, other):
-        return self.data * other.data
-    # /
-    def __truediv__(self, other):
-        return self.data / other.data
-    # //
-    def __floordiv__(self, other):
-        return self.data // other.data
-    # %
-    def __mod__(self, other):
-        return self.data % other.data
-    # divmod()
-    def __divmod__(self, other):
-        return self.data / other.data, self.data % other.data
-    # **
-    def __pow__(self, other):
-        return self.data ** other.data
-    # <<
-    def __lshift__(self, other):
-        return self.data << other.data
-    # >>
-    def __rshift__(self, other):
-        return self.data >> other.data
-    # &
-    def __and__(self, other):
-        return self.data & other.data
-    # ^
-    def __xor__(self, other):
-        return self.data ^ other.data
-    # |
-    def __or__(self, other):
-        return self.data | other.data
-```
 
 ### 反向算数运算符
 
