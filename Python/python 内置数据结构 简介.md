@@ -1,5 +1,19 @@
 ## 概览
 
+python是强类型、动态类型语言。
+
+> 强类型：偏向于不容忍隐式类型转换。譬如说haskell的int就不能变成double
+>
+> 弱类型：偏向于容忍隐式类型转换。譬如说C语言的int可以变成double
+>
+> 静态类型：编译的时候就知道每一个变量的类型，因为类型错误而不能做的事情是语法错误。
+>
+> 动态类型：编译的时候不知道每一个变量的类型，因为类型错误而不能做的事情是运行时错误。譬如说你不能对一个数字a写a[10]当数组用。
+>
+> 类型系统越强，在同一操作中它就越不喜欢接受不同的类型。
+>
+> 动态类型=>运行时检查。静态类型=>编译期检查。
+
 在Python中，变量本身没有数据类型的概念，通常所说的“变量类型”是变量所引用的对象的类型，或者说是变量的值的类型。
 
 Python 中常见的内置数据结构可以统称为容器（container）。
@@ -98,5 +112,6 @@ The implementation adds a few special read-only attributes to several object typ
 
 参考：
 
-(Built-in Types)[https://docs.python.org/3/library/stdtypes.html#special-attributes]
+[Built-in Types](https://docs.python.org/3/library/stdtypes.html#special-attributes)
 
+[弱类型、强类型、动态类型、静态类型语言的区别是什么？](https://www.zhihu.com/question/19918532/answer/21645395)
