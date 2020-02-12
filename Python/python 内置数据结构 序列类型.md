@@ -6,14 +6,15 @@
 
 Python 中的序列主要有下几种类型：
 
-- 基本序列类型(Basic Sequence Types)：list、tuple、range objects
-- 专门处理文本的附加序列类型(Text Sequence Types)：str
-- 专门处理二进制数据的附加序列类型(Binary Sequence Types): bytes、bytearray、memoryview
+* 容器序列：list、tuple、collections.deque，这些序列能存放不同类型的数据
+* 扁平序列：str、bytes、bytearray、memoryview和array.array，这类序列只能容纳单一类型。
+
+容器序列存放的是其所包含的任意类型的对象的引用，而扁平队列里存放的是值而不是引用，换句话说，扁平序列其实是一段连续的内存空间，因此，更加进错，但是，它们只能存储字符、字节和数值这种基础类型。
 
 按照序列是否可被改变分类：
 
-- 可变序列: list
-- 不可变序列：tuple、str
+- 可变序列: list、bytearray、array.array、collections.deque、memoryview
+- 不可变序列：tuple、str、bytes
 
 > The only operation that immutable sequence types generally implement that is not also implemented by mutable sequence types is support for the `hash()` built-in.
 >
@@ -21,19 +22,19 @@ Python 中的序列主要有下几种类型：
 >
 > Attempting to hash an immutable sequence that contains unhashable values will result in `TypeError`.
 
-相关 ABC：
+下方的UML类图，列举了 collections.abc 中的几个类，显示了可变序列（MutableSequence）和不可变序列（Sequence）的差异，同时也可以看出前者从后者继承了一些方法。
 
-* `collections.abc.Sequence`
-* `collections.abc.MutableSequence`
-* `collections.abc.ByteString`
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Data%20Structures%20-1.png)
 
-通过这些抽象基类，可以便捷的自定义序列。
+虽然内置的序列类型并不是直接从 Sequence 和 MutableSequence 这两个抽象基类（Abstract Base Class，ABC）继承而来，但是了解这些基类可以帮助我们总结出那些完整的序列类型包含了哪些功能。
+
+通过记住这些类的共有特性，把可变与不可变序列或是容器与扁平序列的概念融会贯通，在探索并学习新的序列类型时，更加得心应手。
 
 ***
 
 ## `list`
 
-列表具有有序、可索引、可修改、可迭代的特点。
+list 是一个可变序列，并且能同时存放不同类型的元素，具有有序、可索引、可修改、可迭代的特点。
 
 > Lists are **mutable sequences**, typically used to store collections of **homogeneous items** (where the precise degree of similarity will vary by application).
 
@@ -273,7 +274,17 @@ print(l)
 
 ***
 
-### 4.Using Lists as Stacks
+### 4.列表推导
+
+列表推导是构建列表的快捷方式，具有更好的可读性和更高的效率。
+
+具体内容已在《python 函数式编程 迭代、推导式、生成器》中写明。
+
+***
+
+### 5.扩展
+
+#### Using Lists as Stacks
 
 堆栈是一种特定的数据结构，遵循先进先出。将列表的表头作为栈底，表尾作为栈顶，就形成了一个堆栈。
 
@@ -307,7 +318,7 @@ Out[44]: [0, 1]
 
 ***
 
-### 5.Using Lists as Queues
+#### Using Lists as Queues
 
 > It is also possible to use a list as a queue, where the first element added is the first element retrieved (“**first-in, first-out**”); however, lists are not efficient for this purpose.  While appends and pops from the end of list are fast, doing inserts or pops from the beginning of a list is slow (because all of the other elements have to be shifted by one).
 
@@ -339,34 +350,37 @@ In [52]: queue
 Out[52]: deque([1, 2, 3])
 ```
 
-但是用Python的列表做队列的效率并不高。因为，虽然在列表的最后添加或者弹出元素速度很快，但在列头部弹出第一个元素的速度却不快（因为所有其他的元素都得跟着一个一个地往左移动一位）。通常我们使用queue.Queue作为单向队列，使用collections.deque作为双向队列。
+但是用Python的列表做队列的效率并不高。因为，虽然在列表的最后添加或者弹出元素速度很快，但在列头部弹出第一个元素的速度却不快（因为所有其他的元素都得跟着一个一个地往左移动一位）。通常我们使用queue. Queue作为单向队列，使用collections.deque作为双向队列。
 
 ***
 
-### 6.嵌套列表
-
-嵌套列表就是列表推导式相关内容。
-
-```python
-list_variable = [out_exp for out_exp in input_list if exp]
-```
-
-***
-
-### 7.扩展
-
-#### 遍历
+#### 列表元素修改
 
 ```python
 lst = [i for i in range(1, 5)]
 
+# 迭代过程中对元素的修改无效
 for i in lst:
-    i = i + 1	# 迭代过程中对元素的修改无效
-print(lst)	# [1, 2, 3, 4]
+    i = i + 1
 
-for i in list(enumerate(lst, 0)):
-    lst[i[0]] += 1
-print(lst) 	# [2, 3, 4, 5]
+# 可修改为：
+for i, j in enumerate(lst, 0):
+    lst[i] += 1
+    # j += 1 便是和上边一样的错误
+
+# 更简单的实现
+lst = [i+1 for i in lst]
+```
+
+#### 列表求平均值 
+
+```python
+data = [[240, 240, 239],
+        [250, 249, 237], 
+        [242, 239, 237],
+        [240, 234, 233]]
+avg = [float(sum(col))/len(col) for col in zip(*data)]
+# [243.0, 240.5, 236.5]
 ```
 
 #### `list.copy()` 和 `=` 的区别
@@ -1002,3 +1016,5 @@ bytearray：具有有序、可修改、可迭代的特点
 [Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)
 
 http://www.liujiangblog.com/course/python/1
+
+《Fluent Python》
