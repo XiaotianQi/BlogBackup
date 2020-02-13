@@ -29,7 +29,9 @@ namedtuple 用以构建只有少数属性，但是没有方法的对象，比如
 collections.namedtuple(typename, field_names, *, verbose=False, rename=False, module=None)
 ```
 
-一个命名元组(namedtuple)有两个必需的参数。它们是元组名称(typename)和字段名称(field_names)。`field_names` 是可迭代对象，用于指定数据对象的元素。例如 `'x y'`、`'x, y'`、`['x', 'y']`。`namedtuple` 是 `tuple` 的子类。
+`collections.namedtuple()`是个工厂函数，可以用来构建一个带字段名的元组和一个有名字的类。
+
+创建一个命名元组(namedtuple)有两个必需的参数，一个是类名(typename)，一个是类的各个字段名称(field_names)，`field_names` 是可迭代对象，用于指定数据对象的元素。例如 `'x y'`、`'x, y'`、`['x', 'y']`。`namedtuple` 是 `tuple` 的子类。
 
 * 声明方法：
 
@@ -71,22 +73,37 @@ test_list = ['Ema', 23, 160, 45]
 user5 = User(*test_list)
 ```
 
-输出相关属性的方式类似实例：
+* 输出某一个属性：
 
 ```python
 print('user1: ', user1.name, user1.age, user1.height, user1.weight)
 ```
 
-将命名元组转化为字典：
+* 命名元组专有属性
+
+除了从普通元组继承来的属性外，命名元组还具有一些专有属性。常用的如：
+
+`_fields`类属性：返回该类的所有字段名称的元组。
+
+`_make(iterable)`类方法：通过接受一个可迭代对象生成该类的实例。
+
+`_asdict()`实例方法：将命名元组以 collections.OrderdDict的形式返回，由此可更好的呈现元组里的信息。
 
 ```python
-user_dict = user5._asdict()
-```
+from collections import namedtuple
 
-序列拆分：
+City = namedtuple('City', 'name country population coordinates')
 
-```python
-name, *others = user5
+# _fields类属性
+print(City._fields)		# ('name', 'country', 'population', 'coordinates')
+
+LatLong = namedtuple('LatLong', 'lat long')
+delhi_data = ('Delhi NCR', 'IN', 21.935, LatLong(28.613889, 77.208889))
+delhi = City._make(delhi_data)	# 同价于delhi = City(*delhi_data)
+print(delhi._asdict())
+
+for i in delhi._asdict().items():
+    print('%r:%r' % i)
 ```
 
 * 命名元组的一个主要用途是将代码从下标操作中解脱出来。

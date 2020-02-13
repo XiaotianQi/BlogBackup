@@ -266,65 +266,55 @@ Out[94]: tuple
 
 > *Sequence unpacking* and works for any sequence on the right-hand side.  Sequence unpacking requires that there are as many variables on the left side of the equals sign as there are elements in the sequence.  Note that multiple assignment is really just a combination of tuple packing and sequence unpacking.
 
-任何的序列(或者是可迭代对象)可以通过一个简单的赋值语句拆封并赋值给多个变量。唯一的前提就是变量的数量必须跟序列元素的数量是一样的。如果一个可迭代对象的元素个数超过变量个数时，会抛出一个 `ValueError`。下面采用 `*args`，拆封出的 `others` 变量永远都是列表类型，无论拆封出的数量是多少。`*args` 语法是专门为拆封不确定个数或任意个数元素的可迭代对象而设计。
+元组拆包可以运用在任何可以迭代的对象上，唯一的硬性要求是可迭代对象中元素数量必须要和接受这些元素的变量个数保持一致。如果一个可迭代对象的元素数量超过变量数量时，会抛出一个 `ValueError`。除非采用 `*args`获取不确定数量的元素，拆封出的 `agrs` 变量永远都是列表类型，无论拆封出的数量是多少。`*args` 语法是专门为拆封不确定个数或任意个数元素的可迭代对象而设计。
+
+最好辨认的元组拆包形式就是平行赋值，也就是说把一个可迭代对象里的元素，一并赋值到对应的变量中。`*agrs`可以让我们把注意力更集中在元组的部分元素上。在平行赋值中，* 前缀只能用在一个变量名前，不过，这个变量可以出现在赋值表达式的任意位置。
 
 ```cmd
-In [1]: user_tuple = 'Bob', 25, 180, 70
+# 平行赋值
+user_tuple = 'Bob', 25, 180, 70
+name, age, height, weight = user_tuple
 
-In [2]: name, age, height, weight = user_tuple
+# *args处理多余的元素
+name, *others = user_tuple			# ('Bob', [25, 180, 70])
+name, *others, weight = user_tuple	# ('Bob', [25, 180], 70)
 
-In [3]: print(name, age, height, weight)
-Bob 25 180 70
+# _ 作为占位符
+user_tuple = 'Bob', 25
+_, age = user_tuple
+age
 
-In [4]: name, *others = user_tuple
-
-In [5]: print(name, others)
-Bob [25, 180, 70]
+# 两个变量值交换
+a, b = b, a
+c, d = d, c+d
 ```
 
-星号表达式也能用在列表的开始部分。
+除此之外，* 运算符可以把一个可迭代对象拆开作为函数的参数。
 
 ```python
-In [1]: *others, current = [i for i in range(5)]
-
-In [2]: others
-Out[2]: [0, 1, 2, 3]
-
-In [3]: current
-Out[3]: 4
+t = (20, 8)
+divmod(*t)		# (2, 4)
 ```
 
-拆封一些元素后丢弃它们，可以使用一个普通的废弃名称，例如：`*_`。
+### 嵌套元组拆包
+
+接受的表达式元组可以是嵌套式的，例如`(a, b, (c, d))`，只要接受元组的嵌套结构符合表达式本身的嵌套结构即可。
 
 ```python
-In [4]: record = ('ACME', 50, 123.45, (12, 18, 2012))
+metro_areas = [
+    ('Tokyo','JP',36.933,(35.689722,139.691667)),
+    ('Delhi NCR', 'IN', 21.935, (28.613889, 77.208889)),
+    ('Mexico City', 'MX', 20.142, (19.433333, -99.133333)),
+    ('New York-Newark', 'US', 20.104, (40.808611, -74.020386)),
+    ('Sao Paulo', 'BR', 19.649, (-23.547778, -46.635833)),
+]
 
-In [5]: name, *_, (*_, year) = record
-
-In [6]: name
-Out[6]: 'ACME'
-
-In [7]: year
-Out[7]: 2012
+print('{:15} | {:^9} | {:^9}'.format('', 'lat.', 'long.'))
+fmt = '{:15} | {:9.4f} | {:9.4f}'
+for name, cc, pop, (latitude, longitude) in metro_areas:
+    if longitude <= 0:
+        print(fmt.format(name, latitude, longitude))
 ```
-
-多元赋值变量交换：
-
-```python
-In [89]: a = 1
-    ...: b = 2
-    ...: a, b = b, a+b
-    ...:
-    ...:
-
-In [90]: a
-Out[90]: 2
-
-In [91]: b
-Out[91]: 3
-```
-
-将 `(b, a+b)` 打包成元组，再序列的分给 `(a, b)` 这个序列。先计算右边表示式的值，再分别赋值给左边的变量。区别于上面的连续赋值。
 
 ## 补充
 

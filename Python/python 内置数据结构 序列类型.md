@@ -454,6 +454,17 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 >
 > Tuples are also used for cases where an immutable sequence of **homogeneous data is needed** (such as allowing storage in a `set` or `dict` instance).
 
+元组其实是对数据的记录：元组中的每个元素都存放了记录中的一个字段的数据，外加这个字段的位置。正是这个位置信息给数据赋予的意义。
+
+如果只把元组理解为不可变的列表，那其他信息——它所含有的元素的总数和它们的位置——似乎就变得可有可无。但是如果把元组当作一些字段的集合，那么数量和位置信息就变得非常重要了。因此，命名元组具有两个功能：
+
+* 不可变的列表
+* 可以当做记录使用的数据类型
+
+除此之外，不要把可变对象放在元组里面。
+
+不过，元组作为记录来用的话，还是缺少了一个功能：记录的字段名。因此，`collections.namedtuple()`函数解决这个问题。
+
 ### 1.创建方式
 
 > - Using a pair of parentheses to denote the empty tuple: `()`
@@ -466,23 +477,27 @@ Out[36]: [[0, 1], [0, 1], [0, 1]]
 
 > For heterogeneous collections of data where **access by name** is clearer than access by index, [`collections.namedtuple()` may be a more appropriate choice than a simple tuple object.
 
-### 2. `tuple` 和 `list` 区别
+### 2. 元组拆分
+
+该部分已在《python 变量与对象 赋值、浅拷贝与深拷贝》中写明。
+
+### 3. `tuple` 和 `list` 区别
 
 > Tuples are immutable, and usually contain a heterogeneous sequence of elements that are accessed via unpacking (see later in this section) or indexing (or even by attribute in the case of `namedtuples`.
 > Lists are mutable, and their elements are usually homogeneous and are accessed by iterating over the list.
 
+元组中不允许的操作，确切的说是元组没有的功能，除了跟增减元素相关的方法外，元组支持列表的其他所有方法。
+
+不过，虽然元组没有`__reversed__`方法，但是`reversed(my_tuple)`仍然可以使用，只改变了输出结果，不会改变元组的元素的位置。
+
 元组与列表相同的操作：
 
-    使用方括号加下标访问元素
-    切片（形成新元组对象）
-    count()/index()
-    len()/max()/min()/tuple()
+* 下标访问
+* 切片（形成新元组对象）
+* count()/index()
+* len()/max()/min()/tuple()
+* ...
 
-元组中不允许的操作，确切的说是元组没有的功能：
-
-    修改、新增元素
-    删除某个元素（但可以删除整个元组）
-    所有会对元组内部元素发生修改动作的方法。例如，元组没有remove，append，pop等方法。
 Note：元组只保证它的一级子元素不可变，对于嵌套的元素内部，不保证不可变！
 
 ***
@@ -1006,6 +1021,89 @@ bytes对象只负责以二进制字节序列的形式记录所需记录的对象
 bytes：具有有序、不可修改、可迭代的特点
 
 bytearray：具有有序、可修改、可迭代的特点
+
+***
+
+## 切片
+
+在 Python 里，像列表、元组和字符串这类序列类型都支持切片操作，但是实际上切片操作比想象的要强大很多。
+
+对`seq[start:stop:step]` 进行求值的时候，Python 会调用`seq.__getitem__(slice(start, stop, step))`，对seq在start和stop之间以step为间隔取值，step值为负，则是反向取值。
+
+### 为什么切片和区间会忽略最后一个元素
+
+在切片和区间操作里不包含区间范围的最后一个元素是 Python 的风格，这个习惯符合 Python、C 和其他语言里以 0 作为起始下标的传统。这样做带来的好处如下：
+
+* 当只有最后一个位置信息时，我们也可以快速看出切片和区间里有几个元素：range(3) 和 my_list[:3] 都返回 3 个元素。
+* 当起止位置信息都可见时，我们可以快速计算出切片和区间的长度，用后一个数减去第一个下标（stop - start）即可。
+* 利用任意一个下标来把序列分割成不重叠的两部分，只要写成 my_list[:x] 和 my_list[x:] 就可以了
+
+```python
+>>> l = [10, 20, 30, 40, 50, 60]
+>>> l[:2] # 在下标2的地方分割
+[10, 20]
+>>> l[2:]
+[30, 40, 50, 60]
+>>> l[:3] # 在下标3的地方分割
+[10, 20, 30]
+>>> l[3:]
+[40, 50, 60]
+
+>>> s = 'bicycle'
+>>> s[::3]
+'bye'
+>>> s[::-1]
+'elcycib'
+>>> s[::-2]
+'eccb'
+```
+
+### 给切片赋值
+
+如果把切片放在赋值语句的左边，或把它作为 del 操作的对象，我们就可以对序列进行嫁接、切除或就地修改操作。
+
+```python
+>>> l = list(range(10))
+>>> l
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> l[2:5] = [20, 30]
+>>> l
+[0, 1, 20, 30, 5, 6, 7, 8, 9]
+>>> del l[5:7]
+>>> l
+[0, 1, 20, 30, 5, 8, 9]
+>>> l[3::2] = [11, 22]
+>>> l
+[0, 1, 20, 11, 5, 22, 9]
+>>> l[2:5] = 100
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module>
+TypeError: can only assign an iterable
+```
+
+如果赋值的对象是一个切片，那么赋值语句的右侧必须是个可迭代对象。即便只有单独一个值，也要把它转换成可迭代的序列。
+
+### 切片对象
+
+给切片命名，就像电子表格软件里给单元格区域取名字一样。比如，要解析如下所示的纯文本文件，这时使用有名字的切片比用硬编码的数字区间要方便得多，注意示例里的 for 循环的可读性有多强。
+
+```python
+invoice = """
+0.....6................................40........52...55........
+1909  Pimoroni PiBrella                    $17.50    3    $52.50
+1489  6mm Tactile Switch x20                $4.95    2     $9.90
+1510  Panavise Jr. - PV-201                $28.00    1    $28.00
+1601  PiTFT Mini Kit 320x240               $34.95    1    $34.95
+"""
+SKU = slice(0, 6)
+DESCRIPTION = slice(6, 40)
+UNIT_PRICE = slice(40, 52)
+QUANTITY = slice(52, 55)
+ITEM_TOTAL = slice(55, None)
+line_items = invoice.split('\n')[2:]
+for item in line_items:
+    print(item[UNIT_PRICE], item[DESCRIPTION])
+```
 
 ***
 
