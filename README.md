@@ -1,6 +1,6 @@
 # Note-Taking，Taking-Note
 
-通过各个渠道，包括但不限于博客、StackOverflow、segmentfault、知乎、GitHub、博客园、CSDN、慕课，学习前辈的笔记，进行摘抄、学习和总结。
+通过各个渠道，包括但不限于博客、StackOverflow、segmentfault、知乎、GitHub、博客园、CSDN、慕课，学习前辈的笔记，进行摘抄、学习和总结。找启发，而非塞知识。
 
 | 文件           | 内容              | 进度                     |
 | -------------- | ----------------- | ------------------------ |
