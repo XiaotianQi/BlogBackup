@@ -1,6 +1,10 @@
 ## 递归
 
+### 什么是递归
+
 递归就是一个函数直接或间接的调用自身。一般来说，递归需要有**边界条件**、**递归前进段**、**递归返回段**。当边界条件不满足时，递归前进；边界条件满足时，递归返回。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/recursion%201.png)
 
 递归的核心只有两个：
 
@@ -9,23 +13,77 @@
 
 递归算法的出发点不在初始条件（递归边界）上，而是在求解目标上，也就是从所求的未知项出发，逐次调用本身，直至递归边界（初始条件）的求解过程。
 
+递归是单线程运行，单激活余挂起。
+
+* 递
+  * 调用，以一定参数传递的方式传递给下家
+  * 调用的目的是为了返回
+* 归
+  * 返回值
+  * 返回控制权，上家由挂起状态转回激活状态
+
+无论递归有多深，最终回到原点，产生递归的入口出口函数。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/recursion%202.png)
+
+整体看来，递归过程就是：
+
+* 传递---值、控制权
+* 函数---出栈、入栈
+
+### 什么问题适合采用递归
+
+具备以下3个条件：
+
+* 问题可以分解成遵循**重复**模式的多个**过程**
+* 必须有一个明确的**终止条件**
+* 递归深度不能太深，防止**堆栈溢出**
+
 ***
 
-### 斐波那契数列
+### 如何使用递归
+
+#### 阶乘
+
+$f(n)=n!$
+
+$f(n)= n \times (n-1) \times (n-2) \times ... \times 1=n \times f(n-1), n>1$
+
+```python
+def f(x):
+    if x == 1:
+        return 1
+    return x * f(x-1)
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/recursion%203.png)
+
+#### 斐波那契数列
+
+$f(0)=1,f(1)=1,f(n)=f(n-1) + f(n-2)$
 
 ```python
 def fib(n):
-    if n == 0:
-        return 0
-    elif n == 1:
+    if n < 2:
         return 1
-    else:
-        return fib(n-1) + fib(n-2)
+    return fib(n-1) + fib(n-2)
 ```
 
-***
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/recursion%204.png)
 
-### 汉诺塔
+一定程度节省资源：
+
+```python
+fib_mem = {0:1, 1:1}
+
+def fib(n):
+    if n in fib_mem.keys():
+        return fib_mem[n]
+    fib_mem[n] = fib(n-1) + fib(n-2)
+    return fib_mem[n]
+```
+
+#### 汉诺塔
 
 ```python
 def move(n, a, b, c):
@@ -41,9 +99,7 @@ def move(n, a, b, c):
 
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/hanoi.png)
 
-***
-
-### 格雷码
+#### 格雷码
 
 给定一个整数n，请返回n位的格雷码，顺序为从0开始。
 
@@ -239,8 +295,8 @@ def factorial(n, result=1):
 
 参考：
 
-http://blog.timd.cn/recursive/
+[递归](http://blog.timd.cn/recursive/)，Tim
 
-https://zh.wikipedia.org/wiki/%E5%B0%BE%E8%B0%83%E7%94%A8
+[你一定听得懂的递归教程！](https://www.bilibili.com/video/BV1954y1Q7u8)，爱可可-爱生活
 
-http://www.ruanyifeng.com/blog/2015/04/tail-call.html
+[尾调用优化](http://www.ruanyifeng.com/blog/2015/04/tail-call.html)，阮一峰
