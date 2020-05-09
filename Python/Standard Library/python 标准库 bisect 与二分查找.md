@@ -1,4 +1,4 @@
-Python 的列表（list）内部实现是一个数组，也就是一个线性表。在列表中查找元素可以使用 list.index() 方法，其时间复杂度为O(n)。对于大数据量，则可以用二分查找进行优化。二分查找要求对象必须有序，且必须事先排序。其基本原理如下：
+Python 的列表（list）内部实现是一个数组，也就是一个线性表。在列表中查找元素可以使用 `list.index()` 方法，其时间复杂度为O(n)。对于大数据量，则可以用二分查找进行优化。二分查找要求对象必须有序，且必须事先排序。其基本原理如下：
 
 - 从数组的中间元素开始，如果中间元素正好是要查找的元素，则搜素过程结束；
 - 如果某一特定元素大于或者小于中间元素，则在数组大于或小于中间元素的那一半中查找，而且跟开始一样，从剩余中间元素开始比较。
@@ -138,9 +138,9 @@ insort = insort_right
 该模块比较典型的应用是计算分数等级：
 
 ```python
-def grade(score,breakpoints=(60, 70, 80, 90), grades='FDCBA'):
+def grade(score, breakpoints=(60, 70, 80, 90), grades='FDCBA'):
     i = bisect.bisect(breakpoints, score)
-    return grades[i]
+    return grades[i]   
 
 print([grade(score) for score in [33, 99, 77, 70, 89, 90, 100]])
 ```
@@ -179,4 +179,4 @@ if __name__ == "__main__":
 
 参考：
 
-http://www.liujiangblog.com/course/python/57
+http://www.liujiangblog.com/course/python/57  

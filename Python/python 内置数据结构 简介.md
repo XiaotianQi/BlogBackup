@@ -66,6 +66,14 @@ PS：
 
 ***
 
+## None & 0 & undefined
+
+在python中是没有NULL，取而代之的是None。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Data%20Structures%20-2.png)
+
+***
+
 ## Special Attributes
 
 The implementation adds a few special read-only attributes to several object types, where they are relevant.  Some of these are not reported by the `dir()` built-in function.
@@ -112,6 +120,6 @@ The implementation adds a few special read-only attributes to several object typ
 
 参考：
 
-[Built-in Types](https://docs.python.org/3/library/stdtypes.html#special-attributes)
+[Built-in Types](https://docs.python.org/3/library/stdtypes.html#special-attributes)，官方文档
 
-[弱类型、强类型、动态类型、静态类型语言的区别是什么？](https://www.zhihu.com/question/19918532/answer/21645395)
+[弱类型、强类型、动态类型、静态类型语言的区别是什么？](https://www.zhihu.com/question/19918532/answer/21645395)，知乎
