@@ -1,14 +1,83 @@
 函数（function）是用于完成特定任务的程序代码的自包含单元。在面向对象编程的类中，函数通常被称作方法。不同的函数在程序中扮演着不同的角色，起着不同的作用，执行不同的动作。
 
-那么，为什么要使用函数呢？
+## 函数
 
-第一、函数的使用可以重用代码，省去重复性代码的编写，提高代码的重复利用率。如果程序中需要多次使用某种特定的功能，那么只需要编写一个合适的函数就可以了。程序可以在任何需要的地方调用该函数，并且同一个函数可以在不同的程序中调用。
+### 为什么要使用函数
 
-第二、函数能封装内部实现，保护内部数据，实现对用户的透明。很多时候，我们把函数看做“黑盒子”，即对应一定的输入会产生特定的结果或返回某个对象。往往函数的使用者并不是函数的编写者，函数的使用者对黑盒子的内部行为并不需要考虑，可以把精力投入到自身业务逻辑的设计而不是函数的实现细节。只有函数的设计者或者说编写者，才需要考虑函数内部实现的细节，如何暴露对外的接口，返回什么样的数据，也就是API的设计。
+1. 封装：封装内部实现，减少复杂性。很多时候，我们把函数看做“黑盒子”，即对应一定的输入会产生特定的结果或返回某个对象。往往函数的使用者并不是函数的编写者，函数的使用者对黑盒子的内部行为并不需要考虑，可以把精力投入到自身业务逻辑的设计而不是函数的实现细节。只有函数的设计者或者说编写者，才需要考虑函数内部实现的细节，如何暴露对外的接口，返回什么样的数据，也就是API的设计。
+2. 复用：重用代码，省去重复性代码的编写，提高代码的重复利用率。如果程序中需要多次使用某种特定的功能，那么只需要编写一个合适的函数就可以了。程序可以在任何需要的地方调用该函数，并且同一个函数可以在不同的程序中调用。
+3. 命名空间的隔离：保护数据。
 
-第三、即使某种功能在程序中只使用一次，将其以函数的形式实现也是有必要的，因为函数使得程序模块化，从“一团散沙”变成“整齐方队”，从而有利于程序的阅读、调用、修改和完善。
+### 如何使用函数
 
-## 简介
+在密码学中，恺撒密码（英语：Caesar cipher），或称恺撒加密、恺撒变换、变换加密，是一种最简单且最广为人知的加密技术。它是一种替换加密的技术，明文中的所有字母都在字母表上向后（或向前）按照一个固定数目进行偏移后被替换成密文。例如，当偏移量是3的时候，所有的字母A将被替换成D，B变成E，以此类推。
+
+```python
+alphabet_src = 'abcdefghijklmnopqrstuvwxyz'
+
+def encryptIt(src_str, num=0):
+    result = ''
+    for item in src_str:
+        if item in alphabet_src:
+            index_old = alphabet_src.index(item)
+            index_new = (index_old + num) % 26
+            result += alphabet_src[index_new]
+        else:
+            result += item
+    return result
+
+def decryptIt(src_str, num=0):
+    result = ''
+    for item in src_str:
+        if item in alphabet_src:
+            index_old = alphabet_src.index(item)
+            index_new = (index_old - num) % 26
+            result += alphabet_src[index_new]
+        else:
+            result += item
+    return result
+
+assert('abc xyz!') == decryptIt(encryptIt('abc xyz!', 3), 3)
+```
+
+继续完善：
+
+```python
+def cryptIt(src_str, encrypt=True, num=0):
+    """
+    加密/解密字符串
+    
+    params:
+        src_str: 源字符串
+        encrypt: 选择加密/解密模式
+            Ture:  加密（默认）
+            False：解密
+        num: 移动位数
+    
+    return：
+        返回处理后的字符串
+    
+    """
+    alphabet_src = 'abcdefghijklmnopqrstuvwxyz'
+    result = ''
+    for item in src_str:
+        if item in alphabet_src:
+            index_old = alphabet_src.index(item)
+            if encrypt:
+                index_new = (index_old + num) % 26	# 加密
+            else:
+                index_new = (index_old - num) % 26	# 解密
+            result += alphabet_src[index_new]
+        else:
+            result += item
+    return result
+
+assert('abc xyz!') == cryptIt(cryptIt('abc xyz!', num=3), False, 3)
+```
+
+***
+
+## 函数式编程
 
 ### 定义
 

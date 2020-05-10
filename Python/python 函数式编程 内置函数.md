@@ -4,6 +4,8 @@
 
 ***
 
+## 内置函数
+
 * `abs(x)`
 
   返回一个数的绝对值。实参可以是整数或浮点数。如果实参是一个复数，返回它的模。
@@ -1017,6 +1019,18 @@
 * ` __import__(name, globals=None, locals=None, fromlist=(), level=0)`
 
   动态加载类和函数 。
+
+***
+
+## 区别
+
+### hash & id
+
+```python
+hash(500) == hash(1.0 * 500)	# True
+
+id(500) == id(500)				# False
+```
 
 ***
 

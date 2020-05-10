@@ -60,11 +60,13 @@ def f(x):
 
 #### 斐波那契数列
 
-$f(0)=1,f(1)=1,f(n)=f(n-1) + f(n-2)$
+$f(0)=0,f(1)=1,f(n)=f(n-1) + f(n-2)$
 
 ```python
 def fib(n):
-    if n < 2:
+    if n == 0:
+        return 0
+    elif n == 1:
         return 1
     return fib(n-1) + fib(n-2)
 ```
@@ -74,7 +76,7 @@ def fib(n):
 一定程度节省资源：
 
 ```python
-fib_mem = {0:1, 1:1}
+fib_mem = {0:0, 1:1}
 
 def fib(n):
     if n in fib_mem.keys():

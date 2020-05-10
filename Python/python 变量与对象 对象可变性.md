@@ -381,6 +381,23 @@ Out[5]: (1889956815560, 1889956951240)
 
 空值是Python里一个特殊的值，用None表示。None不能理解为0，因为0是整数类型，而None是一个特殊的值。None也不是布尔类型，而是NoneType。
 
+在python中是没有NULL，取而代之的是None。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Data%20Structures%20-2.png)
+
+***
+
+### 6. 替换str中某个元素
+
+因为str是不可变对象，所以使用类似`str[2] = 'abc'` 这样的语句，会报错。不过，str可以使用切片操作：
+
+```python
+str = 'abc'
+str = str[:1] + 'x' + str[2:]	# 'axc'
+```
+
+再或者，转换为list进行处理。
+
 ***
 
 参考：
