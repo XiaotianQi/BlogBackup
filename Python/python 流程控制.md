@@ -67,7 +67,18 @@ else:
 
 ## 循环控制
 
-在Python中构造循环结构有两种做法，一种是`for-in`循环，一种是`while`循环。
+循环是计算机科学运算领域的用语，也是一种常见的控制流程。循环是一段在程序中只出现一次，但可能会连续运行多次的代码。循环中的代码会运行特定的次数，或者是运行到特定条件成立时结束循环，或者是针对某一集合中的所有项目都运行一次。
+
+* 指定运行次数的循环(for loop)
+  * python不支持。不过，指定次数的循环可以用重复incrementing list或generator的方式来达到其效果，`range()`。
+* 指定条件的循环(while loop/doWhile loop)
+  * Python 不支持 `do〜while` 语法、可以使用 `while`和 `if...break` 组合起来实现 `do ~ while` 语法
+* 指定集合的循环（遍历）
+* 死循环
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/flow.png)
+
+在Python中构造循环结构有两种做法，一种是`for-in`循环，一种是`while`循环。虽然上表中有些功能python并没有直接支持，但是可以通过其他方法实现。
 
 ### for 循环
 
