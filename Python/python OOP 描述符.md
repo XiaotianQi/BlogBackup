@@ -20,15 +20,114 @@ descr.__set__(self, obj, value) -> None
 descr.__delete__(self, obj) -> None
 ```
 
-如果一个对象同时定义了`__get__`和`__set__`，则这个描述符被称为 `data descriptor`。
+以上就是全部。定义这些方法中的任何一个的对象被视为描述器。
 
-如果一个对象只定义了`__get__`方法，则这个描述符被称为`non-data descriptor`。
+如果一个对象同时定义了`__get__`和`__set__`，则这个描述符被称为数据描述符 `data descriptor`。
+
+如果一个对象只定义了`__get__`方法，则这个描述符被称为非数据描述符`non-data descriptor`。
+
+```python
+class A:
+    name = 'haha1'
+    
+print(A.name)		# haha1
+ 
+a = A()
+print(a.name)		# haha1
+print(a.__dict__)	# {};a没有name属性, 但继承了类属性)
+ 
+
+a.name = "haha2"
+print(A.name)		# haha1
+print(a.name)		# haha2;没有覆盖类A的属性，实例a增加了一个name属性, 并赋值haha2
+print(a.__dict__)	# {'name': 'haha2'}
+ 
+
+del a.name
+print(a.name)		# haha1
+print(a.__dict__)	# {};实例a没有了属性name, 因此再次去继承其类A的name属性
+```
+
+```python
+class A:
+ 
+    def __init__(self):
+        self.temp = 'abc';
+ 
+    def __get__(self, obj, type = None):
+        print("GET")
+        return self.temp
+ 
+    def __set__(self, obj, val):
+        print("SET")
+        self.temp = val
+        print(self.temp)
+ 
+class B:
+    # 把类B的一个属性设置成上面特殊类的对象
+    name = A()
+
+b = B()
+print(B.name)		# GET 输出abc;类B有name属性,获取类B的name属性时,调用了类A的__get__方法
+print(b.name)		# GET 输出abc;实例b没有name属性,继承了类A的name属性,获取类B的name属性时,调用了类A的__get__方法
+print(b.__dict__)	# {}
+
+
+b.name = "haha"		# SET;给实例b增加name属性,此时已调用类A的__set__方法
+print(b.name)		# GET 输出haha;此时调用类A的__get__方法
+print(b.__dict__)	# {}
+```
+
+```python
+class C1:
+ 
+    def __get__(self, obj, type = None):
+        print("GET")
+ 
+
+class C2:
+ 
+    def __get__(self, obj, type = None):
+        print("GET")
+ 
+    def __set__(self, obj, val):
+        print("SET")
+ 
+ 
+class D1:
+    name = C1()
+ 
+class D2:
+    name = C2()
+ 
+d1 = D1()
+d1.name = "haha"
+print(d1.name)		# haha;实例字典覆盖了非数据描述符,不会调用C1类的__get__
+
+d2 = D2()
+d2.name = "haha"	# SET;给实例d2设置name属性的值
+print(d2.name)		# GET 输出None;实例字典不能覆盖数据描述符, 继续调用__get__
+```
 
 ***
 
 ## 优先级
 
-`obj.x` 属性被访问时：
+`obj.x` 属性被访问时，取决于 `obj` 是对象还是类。
+
+对于对象来说，机制是 `object.__getattribute__()` 中将 `b.x` 转换为 `type(b).__dict__['x'].__get__(b, type(b))` 。这个实现通过优先级完成，该优先级赋予数据描述符优先于实例变量，实例变量优先于非数据描述符，并且如果 `__getattr__()` 方法存在，为其分配最低的优先级。 
+
+对于类来说，机制是 `type.__getattribute__()` 中将 `B.x` 转换为 `B.__dict__['x'].__get__(None, B)` 。
+
+* 描述器由 `__getattribute__()` 方法调用
+
+* 重写 `__getattribute__()` 会阻止描述器的自动调用
+
+* `object.__getattribute__()` 和 `type.__getattribute__()` 会用不同的方式调用 `__get__()`.
+
+* 数据描述符始终会覆盖实例字典。
+
+* 非数据描述符会被实例字典覆盖。
 
 ```text
 obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
@@ -36,13 +135,7 @@ obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
 
 直至 `obj` 的基类，顺序符合 C3 算法。Python中对象的属性具有 **层次性**，属性在哪个对象上定义，便会出现在哪个对象的`__dict__`中。
 
-具体步骤：
-
-* 查看当前是否是描述符；
-* 若是，则调用 `__set__` 或 `__get__`，进行属性读写；
-* 若不是，则采用默认调用，进行属性读写 。
-
-即，descriptor 会**改变默认的属性读写方式**。
+descriptor 会**改变默认的属性读写方式**。
 
 ***
 
@@ -93,7 +186,7 @@ DataDes_noget.__set__ 2
 
 In [17]: a.data_noset = 3		# 默认调用
 
-In [18]: a.__dict__				
+In [18]: a.__dict__				# 实例字典
 Out[18]: {'data_noset': 3}
 ```
 
@@ -109,6 +202,27 @@ Out[20]: <__main__.DataDes_noget at 0x1984c586470>
 In [21]: a.data_noset			# 默认调用
 Out[21]: 3
 ```
+
+如果想调用非数据描述符中的`__get__`方法，那么不添加实例属性即可：
+
+```python
+class DataDes_noset:
+    def __get__(self, instance, owner):
+        print('non_DataDes.__get__')
+        
+class Manage:
+    data_noset = DataDes_noset()
+    
+a = Manage()
+a.data_noset					# non_DataDes.__get__
+a.data_noset = 'abc'
+a.data_noset					# 'abc',实例字典对__get__进行的覆盖
+```
+
+综上，这也是数据和非数据描述器的不同之处：
+
+* If an instance’s dictionary has an entry with the same name as a data descriptor, the data descriptor takes precedence.
+* If an instance’s dictionary has an entry with the same name as a non-data descriptor, the dictionary entry takes precedence.
 
 不过，使用实例的字典直接赋值和访问，会绕过描述符。
 
@@ -134,17 +248,18 @@ Out[35]: 3
 
 Data and non-data descriptors differ in how overrides are calculated with  respect to entries in an instance’s dictionary.  If an instance’s dictionary has an entry with the same name as a data descriptor, the data descriptor takes precedence.  If an instance’s dictionary has an entry with the same name as a non-data descriptor, the dictionary entry takes precedence.
 
-对属性进行访问的时候需要几行打交道的基本上包含这几个对象：
+对属性进行访问的时候需要几行打交道的基本上包含这几个对象，使用的属性搜索顺序如下:
 
-1. data descriptor
-2. non-data descriptor
+1. `__getattribute__` 和 `__setattr__`
+2. data descriptor
 3. 实例的字典
-4. 内置的`__getattr__`函数
+4. non-data descriptor
+5. `__getattr__`
 
 优先级顺序是：
 
 ```text
-data descriptor  >>  instance's dict  >>  non-data descriptor  >>   __getattr__()
+__getattribute__ 和 __setattr__  >>  data descriptor  >>  instance's dict  >>  non-data descriptor  >>   __getattr__
 ```
 
 The details of invocation depend on whether obj is an object or a class.
@@ -520,11 +635,45 @@ class property([fget[, fset[, fdel[, doc]]]])
 
 ***
 
-### 2.`@staticmethod`、`@classmethod`
+### 2.静态方法和类方法
+
+非数据描述符为把函数绑定为方法的通常模式提供了一种简单的机制。概括地说，函数具有 `get__()` 方法，以便在作为属性访问时可以将其转换为方法。非数据描述符将 `obj.f(*args)` 的调用转换为 `f(obj, *args)` 。调用 `klass.f(*args)` 因而变成 `f(*args)` 。
 
 `@staticmethod`、`@classmethod`也是描述符。
 
  [`staticmethod()`](https://docs.python.org/3/library/functions.html#staticmethod) and [`classmethod()`](https://docs.python.org/3/library/functions.html#classmethod)) are implemented as non-data descriptors.  
+
+| 转换形式 | 通过对象调用          | 通过类调用        |
+| -------- | --------------------- | ----------------- |
+| 函数     | `f(obj, *args)`       | `f(*args)`        |
+| 静态方法 | `f(*args)`            | `f(*args)`        |
+| 类方法   | `f(type(obj), *args)` | `f(klass, *args)` |
+
+静态方法返回底层函数，不做任何更改。调用 `c.f` 或 `C.f` 等效于通过 `object.__getattribute__(c, "f")` 或 `object.__getattribute__(C, "f")` 查找。适合于作为静态方法的是那些不引用 `self` 变量的方法。
+
+```shel
+>>> class E(object):
+...     def f(x):
+...         print(x)
+...     f = staticmethod(f)
+...
+>>> E.f(3)
+3
+>>> E().f(3)
+3
+```
+
+```shell
+>>> class E(object):
+...     def f(klass, x):
+...         return klass.__name__, x
+...     f = classmethod(f)
+...
+>>> print(E.f(3))
+('E', 3)
+>>> print(E().f(3))
+('E', 3)
+```
 
 ***
 
@@ -677,6 +826,25 @@ ABC
 
 ***
 
+### `__setattr__`
+
+绑定实例的某个属性（赋值）时，会自动调用 `__setattr__()`方法，**被无条件调用**，并且拥有最高优先级。其用法如下：Make it handle a specific set attributes only, or make it handle all but some set of attributes. 举例：处理“除了‘ x’以外的所有属性”
+
+```python
+class A:    
+    ...
+    def __setattr__(self, name, value):
+        if name == "x":
+            super().__setattr__(name, value)
+        else:
+            print("setting attr %s" % name)
+	...
+```
+
+The problem here arises from the asymmetry between `__getattr__` and `__setattr__`. The former is called only if attribute by the normal means fails, but the latter is called unconditionally. 
+
+***
+
 参考：
 
 [Properties vs. Getters and Setters](https://www.python-course.eu/python3_properties.php)，Python 3 Tutorial
@@ -688,3 +856,7 @@ ABC
 [Difference between `__getattr__` vs `__getattribute__`](https://stackoverflow.com/questions/3278077/difference-between-getattr-vs-getattribute)，StackOverflow
 
 [Python Descriptors Demystified](http://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb)，Chris Beaumont
+
+[数据描述符与非数据描述符](https://blog.csdn.net/Liv2005/article/details/77942276)，Liv2005
+
+[Class properties and `__setattr__` ](https://stackoverflow.com/questions/15750522/class-properties-and-setattr)，Stack Overflow
