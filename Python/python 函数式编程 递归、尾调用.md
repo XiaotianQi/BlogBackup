@@ -138,11 +138,184 @@ def gray_code(n):
 
 ***
 
+### 记录递归次数
+
+一般用全局变量可以解决，以斐波那契数列为例：
+
+```python
+count = 0
+
+def fib(n):
+    global count
+    count += 1
+    
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n-1) + fib(n-2)
+
+fib(5)
+print(count)	# 15
+
+# 副作用
+fib(5)
+print(count)	# 30
+```
+
+不过会产生副作用。如果其中使用`assert(5) == fib(5)`语句，`count`还会再计算一次。
+
+以下方法均会产生同样的副作用。这些做法本质都是修改**作用域**外的值。及时如下这样使用装饰器，更多的也仅仅是将数据封装，也没有消除副作用。
+
+```python
+# 函数装饰器1
+def callCounter(func):
+    def counter(*args, **kwargs):
+        count[0] += 1					# 使用可变对象
+        print(count)
+        return func(*args, **kwargs)
+    count = [0]
+    return counter
+
+# 函数装饰器2
+def callCounter(func):
+    def counter(*args, **kwargs):
+        nonlocal count					# 使用nonlocal
+        count += 1
+        print(count)
+        return func(*args, **kwargs)
+    count = 0
+    return counter
+```
+
+也可以通过给函数**设置属性**来实现，不过也会带来副作用：
+
+```python
+def fib(n):
+    fib.count += 1
+
+    if n==0:
+        return 0
+    elif n==1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+fib.count = 0
+print(fib(5))
+print(fib.count)	# 15
+print(fib(5))
+print(fib.count)	# 30
+fib.count = 0
+print(fib(5))
+print(fib.count)	# 15
+```
+
+```python
+# 如下这个装饰器，并没有规避副作用
+def callCounter(func):
+    def counter(*args, **kwargs):
+        counter.calls += 1
+        return func(*args, **kwargs)
+    counter.calls = 0
+    return counter
+```
+
+```python
+# 类装饰器
+class CallCounter(object) :
+    def __init__(self, fun) :
+        self._fun = fun
+        self.counter=0
+    def __call__(self,*args, **kwargs) :
+        self.counter += 1
+        return self._fun(*args, **kwargs)
+
+@CallCounter
+def fib(n):  
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n-1) + fib(n-2)
+
+print(fib(5))
+print(fib.counter) # 15
+print(fib(5))
+print(fib.counter) # 30
+```
+
+使用嵌套函数可以解决：
+
+```python
+def fib(n):
+    count = 0
+    def inner(n):
+        nonlocal count
+        count += 1
+        if n==0:
+            return 0
+        elif n==1:
+            return 1
+        else:
+            return inner(n-1) + inner(n-2)
+    return inner(n), count
+    
+fib(5)	# (5, 15)
+fib(5)	# (5, 15)
+```
+
+
+
+***
+
+### 循环、迭代、递推、递归
+
+**循环**：循环是计算机科学运算领域的用语，也是一种常见的控制流程。循环中的代码会运行特定的次数，或者是运行到特定条件成立时结束循环，或者是针对某一集合中的所有项目都运行一次。所有能用递归解决的问题，都可以用循环来解决。
+
+**迭代**：迭代是重复反馈过程的活动，其目的通常是为了接近并到达所需的目标或结果。每一次对过程的重复被称为一次“迭代”，而每一次迭代得到的结果会被用来作为下一次迭代的初始值。当使用一个循环来遍历时，这个过程本身就叫迭代。
+
+**递归**（英语：recursion）：递归在计算机科学中是指一种通过重复将问题分解为同类的子问题而解决问题的方法。递归式方法可以被用于解决很多的计算机科学问题，因此它是计算机科学中十分重要的一个概念。绝大多数编程语言支持函数的自调用，在这些语言中函数可以通过调用自身来进行递归。计算理论可以证明递归的作用可以完全取代循环，因此有很多在函数编程语言（如Scheme）中用递归来取代循环的例子。**从未知到已知**。
+
+**递推**：数学概念，从初值出发反复进行某一运算得到所需结果。**从已知到未知**。
+
+以斐波那契函数为例：
+
+```python
+# 递归实现
+def fib(n):
+    if n==0:
+        return 0
+    elif n==1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+# 递推实现
+a, b = 0 , 1
+for i in range(7):
+    if i == 0:
+        print(0)
+    if i == 1:
+        print(1)
+    else:
+        a, b = b, a + b
+        print(b)
+```
+
+递归是逆向的，从 n 到1， 递推是正向的，从1到n。
+
+对于求斐波那契数列，递归是把问题从 n 开始分解成 n-1、n-2、... 2、1,是从大到小分解求解，是逆向的。
+
+对于递推，则是先求f(2)、f(3)，再求 f(n),是从小到大，是正向的。
+
+
+
+***
+
 ## 尾调用
 
-尾调用（tail call）的概念非常简单，就是指某个函数的**最后一步**是调用另一个函数。尾调用之所以与其他调用不同，就在于它的特殊的调用位置。wiki解释如下：
-
-尾调用指一个函数里的最后一个动作是返回一个函数的调用结果的情形，即最后一步新调用的返回值直接被当前函数的返回结果。此时，该尾部调用位置被称为**尾位置**。尾调用中有一种重要而特殊的情形叫做**尾递归**。
+尾调用（tail call）指的是一个函数的最后一条语句也是一个返回调用函数的语句。在函数体末尾被返回的可以是对另一个函数的调用，也可以是对自身调用（即自身递归调用）。若这个函数在尾位置调用本身（或是一个尾调用本身的其他函数等等），则称这种情况为**尾递归**。尾调用之所以与其他调用不同，就在于它的特殊的调用位置。
 
 ```python
 def func(x):
@@ -165,7 +338,9 @@ def func(x):
 
 ### 尾调用优化
 
-经过适当处理，尾递归形式的函数的运行效率可以被极大地优化。尾调用原则上都可以通过简化函数调用栈的结构而获得性能优化（称为“尾调用消除”），但是优化尾调用是否方便可行取决于运行环境对此类优化的支持程度如何。 
+传统模式的编译器对于尾调用的处理方式就像处理其他普通函数调用一样，总会在调用时创建一个新的栈帧（stack frame）并将其推入调用栈顶部，用于表示该次函数调用。当一个函数调用发生时，电脑必须 “记住” 调用函数的位置 —— 返回位置，才可以在调用结束时带着返回值回到该位置，返回位置一般存在调用栈上。在尾调用这种特殊情形中，电脑理论上可以不需要记住尾调用的位置而从被调用的函数直接带着返回值返回调用函数的返回位置（相当于直接连续返回两次）。
+
+尾调用原则上都可以通过简化函数调用栈的结构而获得性能优化（称为“尾调用消除”），但是优化尾调用是否方便可行取决于运行环境对此类优化的支持程度如何。 
 
 在程序运行时，计算机会为应用程序分配一定的内存空间；应用程序则会自行分配所获得的内存空间，其中一部分被用于记录程序中正在调用的各个函数的运行情况，这就是函数的**调用栈**。
 
@@ -201,7 +376,7 @@ g(3)
 
 ### 尾递归
 
-若函数在尾位置调用自身（或是一个尾调用本身的其他函数等等），则称这种情况为**尾递归**。
+若函数在尾位置调用自身（或是一个尾调用本身的其他函数等等），则称这种情况为**尾递归**。经过适当处理，尾递归形式的函数的运行效率可以被极大地优化。
 
 递归非常耗费内存，因为需要同时保存成千上百个调用记录，很容易发生"栈溢出"错误（stack overflow）。但对于尾递归来说，由于只存在一个调用记录，所以永远不会发生"栈溢出"错误。
 
@@ -292,6 +467,16 @@ def factorial(n, result=1):
 ```
 
 递归本质上是一种循环操作。纯粹的函数式编程语言没有循环操作命令，所有的循环都用递归实现，这就是为什么尾递归对这些语言极其重要。
+
+斐波那契函数改写：
+
+```python
+def fib(num, res, temp):
+    if num == 0:
+        return res 
+    else:
+        return fib(num-1, temp, res+temp)
+```
 
 ***
 
