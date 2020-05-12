@@ -247,7 +247,7 @@ Out[5]: True
 
   绑定实例的某个属性（赋值）时，会自动调用 `__setattr__()`方法。
 
-  需要注意的是，重载时，如果其中包含 `self.x = x`或者 `setattr(self, name, value)`，会造成递归调用。为避免这种情况，可以采用以下两种方法：
+  需要注意的是，重载时，如果其中包含 `self.x = x`或者 `setattr(self, name, value)`，会造成递归调用。**重载`__setattr__()`必须谨慎**，为避免这种情况，可以采用以下两种方法：
 
   * 调用父类方法：
 
@@ -271,6 +271,66 @@ Out[5]: True
             print(name, value)
             self.__dict__[name] = value
     ```
+
+
+`__setattr__()`负责在`__dict__`中对属性进行注册，所以在重载时必须进行属性注册过程。
+
+```python
+class Fun:
+    def __init__(self):
+        self.name = "Liu"
+        self.age = 12
+        self.male = True
+    
+    def __setattr__(self, key, value):
+        pass
+
+not_fun = Fun()
+print(not_fun.__dict__)		# {}
+```
+
+可以通过以下两种方法进行属性注册：
+
+```python
+# 方法1
+self.__dict__[name] = value
+# 方法2
+super().__setattr__(name, value)
+```
+
+`__init__`中三个属性赋值时，每次都会调用一次`__setattr__`函数。
+
+```python
+class Fun:
+    def __init__(self):
+        self.name = "Liu"
+        self.age = 12
+        self.male = True
+        
+    def __setattr__(self, name, value):
+        print("*"*50)
+        print("setting:{},  with:{}".format(name, value))
+        print("current __dict__ : {}".format(self.__dict__))
+        super().__setattr__(name, value)
+
+fun = Fun()
+```
+
+```shell
+**************************************************
+setting:name,  with:Liu
+current __dict__ : {}
+**************************************************
+setting:age,  with:12
+current __dict__ : {'name': 'Liu'}
+**************************************************
+setting:male,  with:True
+current __dict__ : {'name': 'Liu', 'age': 12}
+```
+
+由于每次类实例进行属性赋值时都会调用`__setattr__()`，所以可以重载`__setattr__()`方法，来动态的观察每次实例属性赋值时`__dict__`的变化。
+
+`__setattr__()`方法在类的属性赋值时被调用，并通常需要把属性名和属性值存储到self的`__dict__`字典中。
 
 * `__delattr__(self, name)`
 
@@ -632,7 +692,7 @@ other + some_object
 
 ## 区别
 
-### 属性访问的区别
+### `__get__`, `__getattr__`, `__getattribute__`, `__getitem__` 
 
 `__get__`, `__getattr__`, `__getattribute__`, `__getitem__` 均是与属性访问有关的特殊方法。
 
@@ -650,9 +710,9 @@ obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
 
 * `__getattr__` 方法是当对象的属性不存在是调用。如果通过正常的机制能找到对象属性的话，不会调用 。
 
-* `__getattribute__ `方法会被无条件调用。不管属性存不存在。如果类中还定义了 `__getattr__` ，则只有在 `__getattribute__` 方法中显示调用`__getattr__()` 或者抛出了 `AttributeError` 时，才会调用`__getattr__` 。
+* `__getattribute__ `方法会被**无条件调用**。不管属性存不存在。如果类中还定义了 `__getattr__` ，则只有在 `__getattribute__` 方法中显示调用`__getattr__()` 或者抛出了 `AttributeError` 时，才会调用`__getattr__` 。
 
-* `__getitem__` 方法也是无条件调用，这点与 `__getattribute__` 一致。区别在于 `__getitem__` 让类实例允许下标`[]` 运算，可以这样理解：
+* `__getitem__` 方法也是**无条件调用**，这点与 `__getattribute__` 一致。区别在于 `__getitem__` 让类实例允许下标`[]` 运算，可以这样理解：
   * `__getattribute__` 适用于所有 `.` 运算符；
   * `__getitem__` 适用于所有 `[]` 运算符。
 
@@ -708,10 +768,12 @@ if __name__ == '__main__':
 
 参考：
 
-[Python 魔法方法指南](http://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id2)
+[Python 魔法方法指南](http://pyzh.readthedocs.io/en/latest/python-magic-methods-guide.html#id2)，PyZh
 
-[Difference between `__str__ `and `__repr__`?](https://stackoverflow.com/questions/1436703/difference-between-str-and-repr)
+[Difference between `__str__ `and `__repr__`?](https://stackoverflow.com/questions/1436703/difference-between-str-and-repr)，stackoverflow
 
-[How to use __setattr__ correctly, avoiding infinite recursion](https://stackoverflow.com/questions/17020115/how-to-use-setattr-correctly-avoiding-infinite-recursion)
+[How to use __setattr__ correctly, avoiding infinite recursion](https://stackoverflow.com/questions/17020115/how-to-use-setattr-correctly-avoiding-infinite-recursion)，stackoverflow
 
-[Why doesn't Python have a hybrid getattr + __getitem__ built in?](https://stackoverflow.com/questions/6738087/why-doesnt-python-have-a-hybrid-getattr-getitem-built-in)
+[Why doesn't Python have a hybrid getattr + __getitem__ built in?](https://stackoverflow.com/questions/6738087/why-doesnt-python-have-a-hybrid-getattr-getitem-built-in)，stackoverflow
+
+[python魔法方法之`__setattr__()`](https://zhuanlan.zhihu.com/p/101004827?from_voters_page=true)，机器学习入坑者
