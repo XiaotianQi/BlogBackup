@@ -40,40 +40,10 @@ def decryptIt(src_str, num=0):
 assert('abc xyz!') == decryptIt(encryptIt('abc xyz!', 3), 3)
 ```
 
-继续完善：
+再次基础上，进行扩展，可以从合并和分离两个方向：
 
-```python
-def cryptIt(src_str, encrypt=True, num=0):
-    """
-    加密/解密字符串
-    
-    params:
-        src_str: 源字符串
-        encrypt: 选择加密/解密模式
-            Ture:  加密（默认）
-            False：解密
-        num: 移动位数
-    
-    return：
-        返回处理后的字符串
-    
-    """
-    alphabet_src = 'abcdefghijklmnopqrstuvwxyz'
-    result = ''
-    for item in src_str:
-        if item in alphabet_src:
-            index_old = alphabet_src.index(item)
-            if encrypt:
-                index_new = (index_old + num) % 26	# 加密
-            else:
-                index_new = (index_old - num) % 26	# 解密
-            result += alphabet_src[index_new]
-        else:
-            result += item
-    return result
-
-assert('abc xyz!') == cryptIt(cryptIt('abc xyz!', num=3), False, 3)
-```
+* `encryptIt`和`decryptIt`合并成一个函数
+* 抽取`encryptIt`和`decryptIt`其中解密加密部分，写成新的函数，这样以后如果修改加密方法，那么不会影响前两个函数。
 
 ***
 
@@ -366,10 +336,18 @@ print(d)	# 12
 ```python
 def foo(ls=[]):
     ls.append(0)
-    print(ls)
+    return ls
+```
 
+一下两种调用方式，产生的结果不同：
+
+```python
 foo()	# [0]
 foo()	# [0, 0]
+```
+
+```python
+foo(), foo()	# [0, 0] [0, 0]
 ```
 
 如下进行赋值操作，并不会影响函数之外的对象。因为，可变对象的赋值操作是创建一个新的对象。

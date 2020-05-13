@@ -111,6 +111,30 @@ def add_to(element, target=None):
 
 ***
 
+## 嵌套列表
+
+```python
+lst = [[1, 'c'], [3, 'b'], [2, 'a']]
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/variables%201.png)
+
+```python
+lst.sort()	# [[1, 'c'], [2, 'a'], [3, 'b']]
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/variables%202.png)
+
+```python
+a = sorted(lst, key=lambda x:x[1])	# [[2, 'a'], [3, 'b'], [1, 'c']]
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/variables%203.png)
+
+使用嵌套列表，尤其子元素仍然是个可变对象的时候，谨慎操作可变对象子元素。
+
+***
+
 ## 元组的相对不可变性
 
 元组和多数 python 集合（列表、字典、集等等）一样，保存的是对象的引用。
