@@ -23,6 +23,8 @@ Python 中常见的内置数据结构可以统称为容器（container）。
 * 映射类型：`dict`
 * 集合类型：`set`、`frozenset`
 
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Data%20Structures%20-3.png)
+
 各类型特点：
 
 * 序列类型：有序、可索引、可迭代、可切片

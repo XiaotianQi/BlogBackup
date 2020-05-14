@@ -124,7 +124,9 @@ except OSError as ex:
     print(ex)
 ```
 
-绝对路径 相对路径：
+***
+
+**绝对路径 & 相对路径**
 
 `\`：绝对路径
 
@@ -136,11 +138,13 @@ os.path.abspath(os.path.dirname(__file__))	# c:\test\path test
 ```
 
 ```text
-''     ：当前同级目录
-'/'    ：根目录
-'./'   ：当前同级目录
+''     ：当前目录
+'./'   ：当前目录
 '../'  ：上级目录
+'/'    ：根目录
 ```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/path.png)
 
 ```python
 with open('f1.txt', 'w') as f:
@@ -151,16 +155,22 @@ with open('./f2.txt', 'w') as f:
 
 with open('../f3.txt', 'w') as f:
     f.write('test text')
+
+with open('../F2/f4.txt', 'w') as f:
+    f.write('test text')
 ```
 
-对应的目录如下：
+当前工作路径在F3文件夹中：
 
 ```text
-path_test\
+F1\
 	f3.txt
-	test\
+	F2\
+		f4.txt
+	F3\
 		f1.txt
 		f2.txt
+		test.py
 ```
 
 ***
@@ -333,4 +343,6 @@ shutil模块的压缩和解压功能，在后台是通过调用zipfile和tarfile
 
 参考：
 
-http://www.liujiangblog.com/course/python/53
+[os](http://www.liujiangblog.com/course/python/53)，刘江
+
+[Python绝对路径和相对路径详解](http://c.biancheng.net/view/5693.html)，C语言中文网
