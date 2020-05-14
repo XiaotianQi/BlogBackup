@@ -176,51 +176,32 @@ Out[81]: [1, [1, 2, 3], 3]
 * `l1[1] = l1` 这个赋值操作将 `l1` 引用的列表对象的第二个元素的引用修改，将第二个元素引用修改为 `l1` 列表对象本身。然而，`l1` 仍然引用原来的对象，只不过其中元素的引用发生了变化。
 * `l2[1] = l2[:]`中，`l1[:]` 是一个浅拷贝，创建了一个新的对象，所以 `l2[1]` 指向是一个新的对象，于是 `l2` 便指向了 `[1, [1, 2, 3], 3]`。
 
-以客车乘客中途上下车为例：
+### 三者区别
 
 ```python
-class Bus(object):
+import copy
 
-    def __init__(self, passengers=None):
-        if passengers is None:
-            self.passengers = []
-        else:
-            self.passengers = list(passengers)
-
-    def pick(self, name):
-        self.passengers.append(name)
-
-    def drop(self, name):
-        self.passengers.remove(name)
+a = [1, 2, [3, 4, [5, 6]]]
+b = a
+c = a.copy()
+d = copy.deepcopy(a)
 ```
 
-```cmd
-In [103]: import copy
+其关系如下图：
 
-In [104]: bus1 = Bus(['a', 'b', 'c', 'd'])
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mutable-3.png)
 
-In [105]: bus2 = copy.copy(bus1)
+修改其中的值后：
 
-In [106]: bus3 = copy.deepcopy(bus1)
-
-In [107]: id(bus1), id(bus2), id(bus3)
-Out[107]: (2371469375416, 2371469375528, 2371469377152)
-
-In [108]: bus1.drop('b')
-
-In [109]: bus2.passengers
-Out[109]: ['a', 'c', 'd']
-
-In [110]: id(bus1.passengers), id(bus2.passengers), id(bus3.passengers)
-Out[110]: (2371468182280, 2371468182280, 2371468866120)
-
-In [111]: bus3.passengers
-Out[111]: ['a', 'b', 'c', 'd']
+```python
+b[0] = 'a'
+c[2][0] = 'a'
+d[2][2][0] = 'a'
 ```
 
-* 创建 `Bus` 的实例 `bus1`，以及浅拷贝副本 `bus2`，深拷贝副本 `bus3`
-* 审查 `passengers` 的属性后发现，`bus1` 与 `bus2` 共享同一个列表对象，因为 `bus2` 是 `bus1` 的浅拷贝副本；
-* `bus3` 是 `bus1` 的深拷贝副本，所以 `bus3` 的 `passengers` 属性指向的是另一个列表。
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/mutable-4.png)
+
+***
 
 ## 连续赋值
 

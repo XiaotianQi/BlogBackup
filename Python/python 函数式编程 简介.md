@@ -293,7 +293,7 @@ def person(name, age, city=beijing, *args, **kwargs):
 * 如果数据类型是可变的，对其进行运算操作，则是在其本身上面进行。如果进行赋值，则这个符号指向一个新的对象，旧的对象根据情况进行垃圾回收。 
 * 如果数据类型是不可变的，那么运算操作或者赋值，均相当于创建新的对象，然后将原先的变量名绑定到新的对象。
 
-### 传入不可变对象
+### 不可变对象
 
 在函数发生的变化，不会波及函数外。
 
@@ -329,26 +329,13 @@ num_add()
 print(d)	# 12
 ```
 
-### 传入可变对象
+***
 
-默认参数不推荐使用可变参数，否则后果如下：
+### 可变对象
 
-```python
-def foo(ls=[]):
-    ls.append(0)
-    return ls
-```
+#### 函数操作可变对象，参与赋值、`=...+`、`+=`、`.append()`操作
 
-一下两种调用方式，产生的结果不同：
-
-```python
-foo()	# [0]
-foo()	# [0, 0]
-```
-
-```python
-foo(), foo()	# [0, 0] [0, 0]
-```
+* 赋值（`=`）
 
 如下进行赋值操作，并不会影响函数之外的对象。因为，可变对象的赋值操作是创建一个新的对象。
 
@@ -362,6 +349,24 @@ foo(l1)			# [0, 0, 0]
 print(l1)		# [0, 1, 2]
 ```
 
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Functional%20Programming%202.png)
+
+* `=...+..`运算
+
+```python
+def foo(ls):
+    ls = ls + [0, 0, 0]
+    print(ls)
+    
+l1 = [0, 1, 2]
+foo(l1)			# [0, 1, 2, 0, 0, 0]
+print(l1)		# [0, 1, 2]
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Functional%20Programming%201.png)
+
+* `+=`运算
+
 函数内部可以访问全局变量中的值，但是不能修改全局变量的值。但是，当参数使用可变对象时，会影响函数之外。
 
 ```python
@@ -374,9 +379,27 @@ foo(l1)			# [0, 1, 2, 0, 0, 0]
 print(l1)		# [0, 1, 2, 0, 0, 0]
 ```
 
-`+=` `.append()`不同于`=`赋值语句，不会创建新的变量。而列表作为可变类型，这只是对列表的一种调用而已。
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Functional%20Programming%203.png)
 
-**传入可变对象，并参与`+=`操作**
+* `.extend()`等运算。
+
+过程和结果同 `+=` 运算。
+
+```python
+def foo(ls):
+    ls.extend([0, 0, 0])
+    print(ls)
+    
+l1 = [0, 1, 2]
+foo(l1)         # [0, 1, 2, 0, 0, 0]
+print(l1)		# [0, 1, 2, 0, 0, 0]
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/Functional%20Programming%204.png)
+
+`+=` `.extend()`不同于赋值`=`和`=...+`语句，不会创建新的变量。而列表作为可变类型，这只是对列表的一种调用而已。
+
+再如下面的例子：
 
 ```python
 def func(a, b):
@@ -414,27 +437,35 @@ if __name__ == "__main__":
 
 造成 `a` 变化的原因是:
 
-* `+=` 不会改变变量引用，不会创建新的对象
-* `a = [1,]` 是可变对象，但是 `+` 会改变其引用
+* `..+=..` 不会改变变量引用，不会创建新的对象。`.append()`等列表相关用法，也不会改变引用。
+*  `..=..+..` 会改变其引用
 
-除此之外，list的相关用法，也不会造成引用改变：
+***
+
+#### 可变对象作为默认参数
+
+默认参数不推荐使用可变参数，否则后果如下：
 
 ```python
-def change_lst(lst):
-    lst.append(3)			# 等价于:lst += [3]
-    lst.append('change')	# 等价于:lst += ['change']
-    #lst = [1,2]
-    print(id(lst))
-
-lst = []
-change_lst(lst)
-print(lst)		# [3, 'change']
-print(id(lst))
+def foo(ls=[]):
+    ls.append(0)
+    return ls
 ```
 
-**可变对象作为默认参数**
+一下两种调用方式，产生的结果不同：
 
-声明 `Company` 类：
+```python
+print(foo())		# [0]
+print(foo())		# [0, 0]
+```
+
+```python
+print(foo(), foo())	# [0, 0] [0, 0]
+```
+
+因为，如果函数修改了该对象，那么默认值也会被修改。
+
+再例如，声明 `Company` 类：
 
 ```python
 class Company:
