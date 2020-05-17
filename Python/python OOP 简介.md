@@ -69,8 +69,6 @@ Class 是一种抽象概念，也具有模版的作用。实例（Instance）则
 - 继承：即一个派生类（derived class）继承基类（base class），从而获得继承基类的属性和方法。继承也允许把一个派生类的对象作为一个基类对象对待
 - 多态：根据对象类型的不同以不同的方式进行处理。
 
-
-
 ------
 
 ## 属性
@@ -89,6 +87,104 @@ Class 是一种抽象概念，也具有模版的作用。实例（Instance）则
 class Test(object):
     name = 'test'
 ```
+
+如果类变量使用了可变对象，那么需要谨慎操作：
+
+```python
+class Dog:
+    kind = 'canine'
+    tricks = []
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+        
+d = Dog('Fido')
+e = Dog('Buddy')
+d.add_trick('roll over')
+e.add_trick('play dead')
+d.kind = 'abc'
+d.tricks 	# ['roll over', 'play dead']
+d.kind		# 'abc'
+e.kind		# 'canine'
+
+f = Dog('AL')
+f.tricks	# ['roll over', 'play dead']
+
+Dog.kind	# 'canine'
+Dog.tricks	# ['roll over', 'play dead']
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20Variables.png)
+
+将可变变量放入`__init__`后：
+
+```python
+class Dog:
+    kind = 'canine'
+
+    def __init__(self, name):
+        self.name = name
+        self.tricks = []
+
+    def add_trick(self, trick):
+        self.tricks.append(trick)
+        
+d = Dog('Fido')
+e = Dog('Buddy')
+d.add_trick('roll over')
+e.add_trick('play dead')
+d.kind = 'abc'
+d.tricks 	# ['roll over']
+d.kind		# 'abc'
+
+e.kind		# 'canine'
+e.tricks	# ['play dead']
+
+f = Dog('AL')
+f.tricks	# []
+
+Dog.kind	# 'canine'
+```
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20Variables%202.png)
+
+但是，当在类中也使用可变参数作为默认参数时：
+
+```python
+class Company:
+    def __init__(self, name, staffs=[]):
+        self.name = name
+        self.staffs = staffs
+    
+    def add(self, staff_name):
+        self.staffs.append(staff_name)
+
+
+if __name__ == "__main__":
+    com1 = Company('com1', ['a', 'b'])
+    com1.add('c')
+    print(com1.staffs)            # ['a', 'b', 'c']
+
+    com2 = Company('com2')
+    com2.add('a')
+    print(com2.staffs)            # ['a']
+    
+    
+    com3 = Company('com3')
+    com3.add('b')
+    print(com3.staffs)            # ['a', 'b']
+    print(com2.staffs)            # ['a', 'b']
+```
+
+如下图：
+
+* 实例化时，不使用默认值，该实例与类与其他实例互不影响
+* 实例化时，不使用默认值，该实例与类与相同方法的实例互相影响
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20Variables%203.png)
 
 #### 实例变量
 
@@ -139,8 +235,10 @@ if __name__ == '__main__':
 
 可以说，python 中的属性都是公开的。
 
-#### 类变量VS实例变量
+#### 类变量 VS 实例变量
 
+- 一般来说，实例变量用于每个实例的唯一数据，而类变量用于类的所有实例共享的属性和方法。
+- 共享数据可能在涉及 mutable 对象例如列表和字典的时候导致令人惊讶的结果。
 - Python是动态语言，根据类创建的实例可以任意绑定属性给实例，即使绑定的属性没有在类属性中定义。
 
 ```python
@@ -148,7 +246,6 @@ cats = Animals('cat', 2, 123456)
 cats.test='test'
 ```
 
-- 若类本身需要绑定一个属性，可以直接在类中定义属性，即类属性。类属性虽然归类所有，但类的所有属性实例都可以访问。
 - 不要把实例属性和类属性使用相同的名字，相同名称的实例属性将屏蔽掉类属性，实例属性优先级比类属性高。但是当删除实例属性后，再使用相同的名称，访问到的将是类属性。
 
 ------
@@ -207,9 +304,7 @@ print(Test.prt)
 
 ##### `__init__`
 
-构造函数，生成对象时自动调用。在实例化的时候体现实例的不同。
-
-类定义了 `__init__` 方法的话，实例化操作会自动调用 `__init__` 方法。
+构造函数。类定义了 `__init__` 方法的话，实例化操作会自动调用 `__init__` 方法。生成实例时自动调用一次。生成其他实例时，再次自动调用。在实例化的时候体现实例的不同。
 
 `__init__` 方法的第一个参数永远是 `self`，表示创建的实例本身，因此，在 `__init__` 方法内部，就可以把各种属性绑定到`self`，因为`self`就指向创建的实例本身。其他参数通过 `__init__` 传递到类的实例化操作上。
 
