@@ -247,7 +247,7 @@ Out[94]: tuple
 
 > *Sequence unpacking* and works for any sequence on the right-hand side.  Sequence unpacking requires that there are as many variables on the left side of the equals sign as there are elements in the sequence.  Note that multiple assignment is really just a combination of tuple packing and sequence unpacking.
 
-元组拆包可以运用在任何可以迭代的对象上，唯一的硬性要求是可迭代对象中元素数量必须要和接受这些元素的变量个数保持一致。如果一个可迭代对象的元素数量超过变量数量时，会抛出一个 `ValueError`。除非采用 `*args`获取不确定数量的元素，拆封出的 `agrs` 变量永远都是列表类型，无论拆封出的数量是多少。`*args` 语法是专门为拆封不确定个数或任意个数元素的可迭代对象而设计。
+元组拆包可以运用在任何可以迭代的对象上，**唯一的硬性要求是可迭代对象中元素数量必须要和接受这些元素的变量个数保持一致**。如果一个可迭代对象的元素数量超过变量数量时，会抛出一个 `ValueError`。除非采用 `*args`获取不确定数量的元素，拆封出的 `agrs` 变量永远都是列表类型，无论拆封出的数量是多少。`*args` 语法是专门为拆封不确定个数或任意个数元素的可迭代对象而设计。
 
 最好辨认的元组拆包形式就是平行赋值，也就是说把一个可迭代对象里的元素，一并赋值到对应的变量中。`*agrs`可以让我们把注意力更集中在元组的部分元素上。在平行赋值中，* 前缀只能用在一个变量名前，不过，这个变量可以出现在赋值表达式的任意位置。
 
