@@ -302,7 +302,5 @@ Dialect: "unix"
 
 参考：
 
-[CSV File Reading and Writing](https://docs.python.org/3.7/library/csv.html#id3)
-
-[csv — 逗号分隔值文件格式](https://pythoncaff.com/docs/pymotw/csv-comma-separated-value-files/125)
+[csv — 逗号分隔值文件格式](https://pythoncaff.com/docs/pymotw/csv-comma-separated-value-files/125)，《Python 3 标准库实例教程》
 

@@ -1,4 +1,4 @@
-Python的re模块有一个分组功能。所谓的分组就是去已经匹配到的内容里面再筛选出需要的内容，相当于二次过滤。实现分组靠圆括号`()`，而获取分组的内容靠的是group()、groups()和groupdict()方法。
+Python的re模块有一个分组功能。所谓的分组就是将已经匹配到的内容再次筛选，获得需要的内容，相当于二次过滤。实现分组靠圆括号`()`，而获取分组的内容靠的是group()、groups()和groupdict()方法。
 
 `()` 标记一个子表达式的开始和结束位置。具有分组的功能，一对括号代表一个分组。
 
@@ -27,11 +27,7 @@ import re
 test = "https://en.wikipedia.org/wiki/Python_(programming_language)"
 
 regex = re.compile(r"(\w+):\/\/([^/:]+)\/wiki\/([^# ]*)")
-print(regex.findall(test))
-
-
-输出结果：
-[('https', 'en.wikipedia.org', 'Python_(programming_language)')]
+print(regex.findall(test))	# [('https', 'en.wikipedia.org', 'Python_(programming_language)')]
 ```
 
 * 第一个括号子表达式获取协议："https"
@@ -42,7 +38,7 @@ print(regex.findall(test))
 
 在 `[]` 中时，表示取反。`[^/:]+` 匹配除 `/:` 之外的任何字符。
 
-获取 HTML 标签中的内容
+获取 HTML 标签中的内容：
 
 ```python
 import re
@@ -50,11 +46,7 @@ import re
 test = "<p>a<span>b</span><span>c</span></p>"
 
 regex = re.compile(r">([^<>]+?)<")
-print(regex.findall(test))
-
-
-输出结果：
-['a', 'b', 'c']
+print(regex.findall(test))	# ['a', 'b', 'c']
 ```
 
 当含有嵌入的 `()` 时：
@@ -63,23 +55,16 @@ print(regex.findall(test))
 test = "abc def ghi jkl mno"
 
 regex1 = re.compile(r"\w+\s+\w+")
-print("regex1:", regex1.findall(test))
+print("regex1:", regex1.findall(test))	# regex1: ['abc def', 'ghi jkl']
 
 regex2 = re.compile(r"(\w+)\s+\w+")
-print("regex2:", regex2.findall(test))
+print("regex2:", regex2.findall(test))	# regex2: ['abc', 'ghi']
 
 regex3 = re.compile(r"(\w+)\s+(\w+)")
-print("regex3:", regex3.findall(test))
+print("regex3:", regex3.findall(test))	# regex3: [('abc', 'def'), ('ghi', 'jkl')]
 
 regex4 = re.compile(r"((\w+)\s+\w+)")
-print("regex4:", regex4.findall(test))
-
-
-输出结果：
-regex1: ['abc def', 'ghi jkl']
-regex2: ['abc', 'ghi']
-regex3: [('abc', 'def'), ('ghi', 'jkl')]
-regex4: [('abc def', 'abc'), ('ghi jkl', 'ghi')]
+print("regex4:", regex4.findall(test))	# regex4: [('abc def', 'abc'), ('ghi jkl', 'ghi')]
 ```
 
 * regex1 中没有括号，因此获取所有内容；
@@ -214,27 +199,19 @@ test = "i have a dog, i have 2 cats."
 ```python
 test = "aa,cdd,eff,ghg"
 regEx = re.compile(r'([abcd])\1')
-print(regEx.findall(test))
-
-
-输出结果：
-['a', 'd']
+print(regEx.findall(test))	# ['a', 'd']
 ```
 
 捕获组中的子表达式 `[ab]` 虽然可以匹配 `a` 或者 `b` ，但是捕获组一旦匹配成功，反向引用的内容也就确定了。如果捕获组匹配到 `a`，那么反向引用也就只能匹配 `a`，同理，如果捕获组匹配到的是 `b`，那么反向引用也就只能匹配 `b`。
 
-'([abcd])\1' 改为 '([abcd])\1{2}' 即可匹配三个连续的字符。
+`([abcd])\1`改为 `([abcd])\1{2}` 即可匹配三个连续的字符。
 
 #### 命名捕获组的反向引用
 
 ```python
 test = "Is is the cost of of gasoline going up up"
 regEx = re.compile(r'\b(?P<words>[a-z]+) (?P=words)\b', re.I)
-print(regEx.findall(test))
-
-
-输出结果：
-['Is', 'of', 'up']
+print(regEx.findall(test))	# ['Is', 'of', 'up']
 ```
 
 #### 应用场景
@@ -302,22 +279,18 @@ python 的 re 模块并不支持长度不确定的后发断言，只支持固定
 
 * `(?=exp)`:零宽度正预测先行断言，也称作顺序肯定环视。匹配自身所在位置的右侧的表达式 exp。断言 exp 一定在匹配位置的右侧，即断言后面一定跟着 exp。
 
-对于 `(?=exp)` 来说，当子表达式 exp 匹配成功时，`(?=exp)` 匹配成功，返回 `(?=exp)` 当前位置。
+  对于 `(?=exp)` 来说，当子表达式 exp 匹配成功时，`(?=exp)` 匹配成功，返回 `(?=exp)` 当前位置。
 
 * `(?<=exp)`:零宽度正回顾后发断言，也称作逆序肯定环视。匹配自身所在位置的左侧的表达式 exp。断言 exp 一定在匹配位置的左侧，即断言前面一定有 exp 前缀。
 
-对于 `(?<=exp)` 来说，当子表达式 exp 匹配成功时，exp 匹配成功，`(?<=exp)` 匹配成功，返回 `(?<=exp)` 当前位置。
+  对于 `(?<=exp)` 来说，当子表达式 exp 匹配成功时，exp 匹配成功，`(?<=exp)` 匹配成功，返回 `(?<=exp)` 当前位置。
 
 提取 HTML 中的信息：
 
 ```python
 test = "<p> hello world </p>"
 regEx = re.compile(r'(?<=<\w{1}>).*(?=</\w{1}>))')
-print(regEx.findall(test))
-
-
-输出结果：
-[' hello world ']
+print(regEx.findall(test))	# [' hello world ']
 ```
 
 如果将上述正则表达式中 `\w{1}` 改为 `\w+`，python 则会报错误： `sre_constants.error: look-behind requires fixed-width pattern`。所以，在零宽度正回顾后发断言中不能有不确定长度的表达式。
@@ -330,23 +303,18 @@ print(regEx.findall(test))
 
 * `(?!exp)`:零宽度负预测先行断言，也称作顺序否定环视。断言 exp 不在匹配位置的右侧，即断言后面不能跟着 exp。
 
-对于 `(?!exp)` 来说，当子表达式 exp 匹配成功时，`(?!exp)` 匹配失败；当子表达式 exp 匹配失败时，`(?!exp)` 匹配成功，并返回 `(?!exp)` 当前位置；
+  对于 `(?!exp)` 来说，当子表达式 exp 匹配成功时，`(?!exp)` 匹配失败；当子表达式 exp 匹配失败时，`(?!exp)` 匹配成功，并返回 `(?!exp)` 当前位置；
 
 * `(?<!exp)`:零宽度负回顾后发断言，也称作逆序否定环视。断言 exp 不在匹配位置的左侧，即断言前面没有 exp 前缀。
 
-对于 `(?<!exp)` 来说，当子表达式 exp 匹配成功时，`(?<!exp)` 匹配失败；当子表达式 exp 匹配失败时，`(?<!exp)` 匹配成功，并返回 `(?<!exp)` 当前位置；
+  对于 `(?<!exp)` 来说，当子表达式 exp 匹配成功时，`(?<!exp)` 匹配失败；当子表达式 exp 匹配失败时，`(?<!exp)` 匹配成功，并返回 `(?<!exp)` 当前位置；
 
 ```python
 test = "do doing ding, going gone"
 regEx = re.compile(r'(?![do])\w+')
-print(regEx.findall(test))
+print(regEx.findall(test))			# ['ing', 'ing', 'going', 'gone']
 regEx = re.compile(r'\w+(?<![ing])')
-print(regEx.findall(test))
-
-
-输出结果：
-['ing', 'ing', 'going', 'gone']
-['do', 'do', 'd', 'go', 'gone']
+print(regEx.findall(test))			# ['do', 'do', 'd', 'go', 'gone']
 ```
 
 ***
@@ -358,11 +326,7 @@ print(regEx.findall(test))
 ```python
 test = "a<p>one</p>b<div>two</div>c"
 regEx = re.compile(r'<(?!/?p\b)[^>]+>')
-print(regEx.findall(test))
-
-
-输出结果：
-['<div>', '</div>']
+print(regEx.findall(test))		# ['<div>', '</div>']
 ```
 
 匹配过程：
@@ -396,11 +360,7 @@ print(regEx.findall(test))
 ```python
 test = "<div>a test</div>"
 regEx = re.compile(r'(?<=<div>)[^<]+(?=</div>)')
-print(regEx.findall(test))
-
-
-输出结果：
-['a test']
+print(regEx.findall(test))	# ['a test']
 ```
 
 匹配过程：

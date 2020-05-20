@@ -1,10 +1,10 @@
-如果有个问题需要用正则表达式来解决，那就成了两个问题。
+> 如果有个问题需要用正则表达式来解决，那就成了两个问题。
 
 正则表达式本质上只做一件事，那就是编写一个表达式“字符串”，然后用这个字符串去匹配目标文本。核心的核心，都在编写这个“字符串”表达式上面。
 
 正则表达式是从左到右依次匹配，如果满足了某个分支的话它就不会再管其他分支了。一个子表达式开始匹配的位置，是从前一子表达匹配成功的结束位置开始。
 
-常用的功能函数包括：`compile()`、`search()`、`match()`、`split()`、`findall()`、`sub()`。
+python中re模块，常用的功能函数包括：`compile()`、`search()`、`match()`、`split()`、`findall()`、`sub()`。
 
 ***
 
@@ -20,7 +20,11 @@
 
 占有字符与零宽度，是针对匹配的内容是否保存到最终的匹配结果中而言的。
 
-正则表达式匹配过程中，如果子表达式匹配到东西，而并非是一个位置，并最终保存到匹配的结果当中。这样的就称为占有字符，而只匹配一个位置，或者是匹配的内容并不保存到匹配结果中，这种就称作零宽度。
+* 占有字符：如果一个子正则表达式匹配到的是字符，且会被保存到最终的结果中，那个这个子表达式就是占有字符，比如 /ha/ （匹配 ha ）就是占有字符的；
+* 零宽度：只匹配一个位置，或者是匹配的内容并不保存到匹配结果中。如果一个子正则匹配的是位置，而不是字符，或者匹配到的内容不保存在结果中，那么这个子表达式是零宽度的，比如 `read(?=ing)` 匹配 reading ，但是只将read放入结果中，其中的`(?=ing)`就是零宽度的，代表一个位置。
+
+
+零宽度的匹配，它匹配到的内容不会保存到匹配结果中去，最终匹配结果只是一个位置而已。
 
 占有字符是互斥的，零宽度是非互斥的。也就是一个字符，同一时间只能由一个子表达式匹配，而一个位置，却可以同时由多个零宽度的子表达式匹配。
 
@@ -28,7 +32,7 @@
 
 正则表达式由左到右依次进行匹配，通常情况下是由一个表达式取得控制权，从字符串的的某个位置进行匹配，一个子表达式开始尝试匹配的位置，是从前一子表达匹配成功的结束位置开始。
 
-如果表达式一是零宽度，那表达式一匹配完成后，表达式二匹配的位置还是原来表达式以匹配的位置。也就是说它匹配开始和结束的位置是同一个。
+如果表达式一是零宽度，那表达式一匹配完成后，表达式二匹配的位置还是原来表达式已匹配的位置。也就是说它匹配开始和结束的位置是同一个。
 
 ***
 
@@ -83,7 +87,7 @@
 
 上表均与元字符中小写形式表示相反的匹配范围。
 
-`[^]` 排除型字符组，表示匹配任意一个未列举的字符。同时，也支持字符分组，例如 `[^0-9]` 表示除数字外的任意一个字符。。例如 `[^abc]` 表示除字符 `a`、`b`、`c` 外的任意一个字符。
+`[^]` 排除型字符组，表示匹配任意一个未列举的字符。同时，也支持字符分组，例如 `[^0-9]` 表示除数字外的任意一个字符。例如 `[^abc]` 表示除字符 `a`、`b`、`c` 外的任意一个字符。
 
 ### 限定符
 
@@ -108,7 +112,7 @@
 |    `()`, `(?:)`, `(?=)`, `[]`    | 圆括号和方括号 |
 | `*`, `+`, `?`,`{n}`, `{n,}`, `{n,m}` | 限定符 |
 | `^`, `$`, `\any metacharacter` | 位置和顺序 |
-|             \`\|`             | “或”操作 |
+|             \|             | “或”操作 |
 
 ***
 
@@ -144,17 +148,11 @@ import re
 test = 'a1boooooooobb123'
 
 regEx = re.compile(r'.*(b.*b)')
-print(regEx.findall(test))
+print(regEx.findall(test))			# ['bb']
 regEx = re.compile(r'.*(b.*?b)')
-print(regEx.findall(test))
+print(regEx.findall(test))			# ['bb']
 regEx = re.compile(r'.*?(b.*?b)')
-print(regEx.findall(test))
-```
-
-```bash
-['bb']
-['bb']
-['boooooooob']
+print(regEx.findall(test))			# ['boooooooob']
 ```
 
 可以改写为：
@@ -165,14 +163,9 @@ import re
 test = 'a1boooooooobb123'
 
 regEx = re.compile(r'(b.*b)')
-print(regEx.findall(test))
+print(regEx.findall(test))			# ['boooooooobb']
 regEx = re.compile(r'(b.*?b)')
-print(regEx.findall(test))
-```
-
-```bash
-['boooooooobb']
-['boooooooob']
+print(regEx.findall(test))			# ['boooooooob']
 ```
 
 提取 '南京大学'：
@@ -183,14 +176,9 @@ import re
 test = 'study in 南京大学'
 
 regEx = re.compile(r'.*([\u4E00-\u9FA5]+大学)')
-print(regEx.findall(test))
+print(regEx.findall(test))						# ['京大学']
 regEx = re.compile(r'.*?([\u4E00-\u9FA5]+大学)')
-print(regEx.findall(test))
-```
-
-```bash
-['京大学']
-['南京大学']
+print(regEx.findall(test))						# ['南京大学']
 ```
 
 可以直接写为 `([\u4E00-\u9FA5]+大学)`
@@ -239,15 +227,9 @@ print(regEx.findall(test))
 
 ```python
 test = "xabcabcxxabccabbc"
-print(re.findall(r'abc+', test))
-print(re.findall(r'[abc]+', test))
-print(re.findall(r'(abc)+', test))
-
-
-输出结果：
-['abc', 'abc', 'abcc']
-['abcabc', 'abccabbc']
-['abc', 'abc']
+print(re.findall(r'abc+', test))	# ['abc', 'abc', 'abcc']
+print(re.findall(r'[abc]+', test))	# ['abcabc', 'abccabbc']
+print(re.findall(r'(abc)+', test))	# ['abc', 'abc']
 ```
 
 `[^abc]` 与 `(?!abc)` 同理，只不过当表示 不含有 `abc` 连续字符串时写成 `[^(abc)]` 是达不到目的的。
@@ -255,16 +237,11 @@ print(re.findall(r'(abc)+', test))
 ```python
 # 取出格式为<...>，但<>中不是abc的内容
 test = "<abc><axx><bxx><cxx><xxx>"
-print(re.findall(r'<[^abc>]*>', test))
-print(re.findall(r'<(?!abc)[^>]*>', test))
-
-
-输出结果：
-['<xxx>']
-['<axx>', '<bxx>', '<cxx>', '<xxx>']
+print(re.findall(r'<[^abc>]*>', test))		# ['<xxx>']
+print(re.findall(r'<(?!abc)[^>]*>', test))	# ['<axx>', '<bxx>', '<cxx>', '<xxx>']
 ```
 
-### 圆括号 `()`
+关于`()`的功能，在另一个文章详细讲解，大致如下：
 
 `()` 指分组。大概分为以下四种：
 
@@ -292,12 +269,12 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 参数说明：
 
 ```text
-- pattern：正则表达式；
-- string：需要匹配的字符串；
-- flags：修饰符，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等；
-- repl：替换的字符串，也可作为一个函数；
-- count：模式匹配后替换的最大次数，默认0表示替换所有匹配。
-- maxsplit：最大分割次数。
+- pattern	：正则表达式
+- string	：需要匹配的字符串
+- flags		：修饰符，用于控制正则表达式的匹配方式，如：是否区分大小写，多行匹配等等
+- repl		：替换的字符串，也可作为一个函数
+- count		：模式匹配后替换的最大次数，默认0表示替换所有匹配
+- maxsplit	：最大分割次数
 ```
 
 - `re.compile(pattern[, flags=0])`
@@ -328,41 +305,27 @@ print(re.findall(r'<(?!abc)[^>]*>', test))
 
 * `re.match(pattern, string[, flags=0])`
 
+返回 `MatchObject` 或 `None`。
+
 ```python
 test = "abc"
-print(re.match(r'a', test).group())
-print(re.match(r'a', test).span())
-print(re.match(r'b', test))
-
-
-输出结果：
-a
-(0, 1)
-None
+print(re.match(r'a', test).group())	# a
+print(re.match(r'a', test).span())	# (0, 1)
+print(re.match(r'b', test))			# None
 ```
 
 ```python
 test = "2 is bigger than 1"
 regEx = re.compile(r'(.*) is (.*?) .*')
-print(regEx.match(test).group())
-print(regEx.match(test).span())
-print(regEx.match(test).group(1))
-print(regEx.match(test).group(2))
+print(regEx.match(test).group())		# 2 is bigger than 1
+print(regEx.match(test).span())			# (0, 18)
+print(regEx.match(test).group(1))		# 2
+print(regEx.match(test).group(2))		# bigger
 regEx1 = re.compile(r'(.*) is (.*) .*')
-print(regEx1.match(test).group(2))
-
-
-输出结果：
-2 is bigger than 1
-(0, 18)
-2
-bigger
-bigger than
+print(regEx1.match(test).group(2))		# bigger than
 ```
 
-返回 `MatchObject` 或 `None`。
-
-留意其中，第二个捕获中使用非贪婪模式带来的影响。以及，虽然第二个捕获组匹配的字符串不在开始位置，但是字符串开始符合正则表达式，所以匹配成功，由 `.span()` 反馈的结果可以明显看出。
+留意其中，第二个捕获中使用非贪婪模式带来的影响。
 
 * `re.search(pattern, string[, flags=0])`
 
@@ -370,33 +333,24 @@ bigger than
 
 ```python
 test = "abc"
-print(re.search(r'a', test).span())
-print(re.search(r'b', test).span())
-
-
-输出结果：
-(0, 1)
-(1, 2)
+print(re.search(r'a', test).span())	# (0, 1)
+print(re.search(r'b', test).span())	# (1, 2)
 ```
 
 * `re.findall(pattern, string[, flags=0])`
 
 返回 `list`。
 
-浏览全部字符串，匹配所有合规则的字符串，匹配到的字符串放到一个列表中，未匹配成功返回空列表
+浏览全部字符串，匹配所有合规则的字符串，匹配到的字符串放到一个列表中，未匹配成功返回空列表。
 
 一旦匹配成，再次匹配，是从前一次匹配成功的，后面一位开始的，也可以理解为匹配成功的字符串，不在参与下次匹配。
 
 ```python
 test = "a1b2c3"
-print(re.findall(r'[a-z]', test))
-
-
-输出结果：
-['a', 'b', 'c']
+print(re.findall(r'[a-z]', test))	# ['a', 'b', 'c']
 ```
 
-`re.findall()`和`re.match()`、`re.search()`的不同之处在于：
+**`re.findall()`和`re.match()`、`re.search()`的区别：**
 
 后两者都是单值匹配，找到一个就忽略后面，直接返回不再查找了。并且，返回Match Object。
 
@@ -417,12 +371,6 @@ test = "a1b2c3"
 matches = re.finditer(r'[a-z]', test)
 for i in matches:
     print(i.group())
-
-
-输出结果：
-a
-b
-c
 ```
 
 * `re.sub(pattern, repl, string[, count=0, flags=0])`
@@ -491,16 +439,12 @@ print(text_sub)	# UPPER SNAKE, lower snake, Mixed Snake
 
 ```python
 test = "a1b2c3"
-print(re.sub(r'2', 'b', test))
-
-
-输出结果：
-('a1bbc3', 1)
+print(re.sub(r'2', 'b', test))	# ('a1bbc3', 1)
 ```
 
 * `re.split(pattern, string[, maxsplit=0])`
 
-`re.split()` 用来分割字符串，re模块的split()方法和字符串的split()方法很相似，都是利用特定的字符去分割字符串。但是re模块的split()可以使用正则表达式。
+`re.split()` 用来分割字符串，re模块的`re.split()`方法和字符串的`str.split()`方法很相似，都是利用特定的字符去分割字符串。但是re模块的split()可以使用正则表达式。
 
 利用分组的概念，`re.split()`方法还可以保存被匹配到的分隔符，这个功能非常重要！
 
