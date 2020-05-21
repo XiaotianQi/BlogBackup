@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
 如下图：
 
-* 实例化时，不使用默认值，该实例与类与其他实例互不影响
+* 实例化时，使用默认值，该实例与类与其他实例互不影响
 * 实例化时，不使用默认值，该实例与类与相同方法的实例互相影响
 
 ![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/OOP%20Variables%203.png)
