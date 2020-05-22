@@ -98,7 +98,7 @@ Linux 目录结构如下：
 
 Linux 文件权限属性有两种设置方法，一种是数字，一种是符号。
 
-Linux 文件的基本权限就有九个，分别是owner/group/others三种身份各有自己的read/write/execute权限。
+Linux 文件的基本权限就有九个，分别是u/g/o三种身份各有自己的read/write/execute权限。
 
 数字可以代表各个权限，各权限的分数对照如下：
 
@@ -110,9 +110,9 @@ Linux 文件的基本权限就有九个，分别是owner/group/others三种身�
 
 每种身份各自的三个权限(r/w/x)数值可以累加，例如当权限为： [-rwxrwx---] 分数则是：
 
-* owner = rwx = 4+2+1 = 7
-* group = rwx = 4+2+1 = 7
-* others= --- = 0+0+0 = 0
+* u= rwx = 4+2+1 = 7
+* g= rwx = 4+2+1 = 7
+* o= --- = 0+0+0 = 0
 
 这也表示此文件的权限是770。
 

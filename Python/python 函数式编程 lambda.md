@@ -1,3 +1,5 @@
+## 定义
+
 ```python
 lambda [parameter_list]: expression
 ```
@@ -11,7 +13,16 @@ def <lambda>(parameter_list):
     return expression
 ```
 
-* 简单示例：
+## 简单示例
+
+输入一个参数：
+
+```python
+f = lambda x: x*x
+print(f(5))	# 25
+```
+
+输入多个参数：
 
 ```python
 In [6]: f = lambda x, y, z=0: x+y+z
@@ -23,7 +34,9 @@ In [8]: f(1, 2, 3)
 Out[8]: 6
 ```
 
-* 按照指定元素排序：
+## 常用情形
+
+### 按照指定元素排序
 
 多维列表排序：
 
@@ -56,7 +69,7 @@ print(prices)
 [('E', 10.75), ('D', 37.2), ('A', 45.23), ('C', 205.55), ('B', 612.78)]
 ```
 
-* 跳转表(jump table)：
+### 跳转表(jump table)
 
 ```python
 lst = [
@@ -83,7 +96,7 @@ builtin_function_or_method
 <built-in function iter>
 ```
 
-* 嵌套：
+### 嵌套
 
 ```python
 def func(num):
@@ -92,16 +105,24 @@ def func(num):
 
 ```python
 foo = func(1)
-print(foo)
-print(foo(1))
+print(foo)		# <function func.<locals>.<lambda> at 0x0000024C06612EA0>
+print(foo(1))	# 2
 ```
 
-```bash
-<function func.<locals>.<lambda> at 0x0000024C06612EA0>
-2
+再比如：
+
+```python
+def foo(a, b, c):
+    return lambda x: a*x*x + b*x + c
+
+f = foo(1, -1 , 2)
+print(f(5))				# 22
+print(foo(1, -1 , 2)(5))# 22
 ```
 
-* 闭包：
+***
+
+## 参与闭包
 
 ```python
 In [33]: lst = [lambda x:x*i for i in range(10)]
