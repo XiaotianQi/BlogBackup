@@ -2,46 +2,32 @@
 
 ```python
 def hi(name='Bob'):
-    return 'hi,'+name
+    return 'hi,' + name
 
-print(hi())
+print(hi())		# hi,Bob
 
-hello = hi  # 没有在使用小括号，因为并不是在调用hi函数
-print(hello())
+hello = hi  	# 没有在使用小括号，因为并不是在调用hi函数
+print(hello())	# hi,Bob
 
 del hi
-print(hello())
+print(hello())	# hi,Bob
 ```
 
-```python
-hi,Bob
-hi,Bob
-hi,Bob
-```
+删除 `hi()` 函数后，`hello()` 仍能执行，而运行 `hi()` 函数，则会提示 `NameError: name 'hi' is not defined`。所以，函数`hi()`被当做对象传递。
 
-删除 `hi()` 函数后，`hello()` 仍能执行，而运行 `hi()` 函数，则会提示 `NameError: name 'hi' is not defined`。
+搞清楚这些概念：函数名、函数体、返回值，函数的内存地址、函数名加括号、函数名被当作参数、函数名加括号被当作参数、返回函数名、返回函数名加括号。
 
-搞清楚几样东西：函数名、函数体、返回值，函数的内存地址、函数名加括号、函数名被当作参数、函数名加括号被当作参数、返回函数名、返回函数名加括号。
+* 函数名： `foo`、`outer`、`inner`
+* 函数体：函数的整个代码结构
+* 返回值： return后面的表达式
+* 函数的内存地址：`id(foo)`、`id(outer)`
+* 函数名加括号：对函数进行调用，比如`foo()`、`outer(foo)`
+* 函数名作为参数： `outer(foo)`中的foo本身是个函数，但作为参数被传递给了`outer()`函数
+* 函数名加括号被当做参数：先调用函数，再将它的返回值当做别的函数的参数，例如`outer(foo())`
+* 返回函数名：`return inner`
+* 返回函数名加括号：`return inner()`，其实就是先执行`inner()`函数，再将其返回值作为别的函数的返回值。
 
-函数名： `foo`、`outer`、`inner`
-
-函数体：函数的整个代码结构
-
-返回值： return后面的表达式
-
-函数的内存地址：`id(foo)`、`id(outer)`等等
-
-函数名加括号：对函数进行调用，比如`foo()`、`outer(foo)`
-
-函数名作为参数： `outer(foo)`中的foo本身是个函数，但作为参数被传递给了outer函数
-
-函数名加括号被当做参数：其实就是先调用函数，再将它的返回值当做别的函数的参数，例如`outer(foo())`
-
-返回函数名：`return inner`
-
-返回函数名加括号：`return inner()`，其实就是先执行inner函数，再将其返回值作为别的函数的返回值。
-
-如果你能理解函数也是一个对象，就能很容易地理解上面的概念。
+如果能理解函数也是一个对象，就能很容易地理解上面的概念。
 
 ***
 
@@ -65,97 +51,20 @@ def hi(name='Bob'):
 
 ```python
 f1 = hi()
-print(f1)
-print(f1())
+print(f1)		# <function hi.<locals>.greet at 0x000001C2E4A24C80>
+print(f1())		# greet() function
+```
 
+`f1` 指向 `hi()` 函数中的 `greet()` 函数，对 `fi()` 的调用。因为在赋值时，`hi()` 已经被调用执行。且，根据 `if/else` 语句，函数 `greet` 被返回，并且未被调用。
+
+```python
 f2 = hi
-print(f2)
-print(f2())
-print(f2()())
-```
-
-```python
-# f1
-<function hi.<locals>.greet at 0x000001C2E4A24C80>
-greet() function
-```
-
-`f1` 指向 `hi()` 函数中的 `greet()` 函数，对 `fi()` 的调用。因为在赋值时，`hi()` 已经被调用执行。且，根据 `if/else` 语句，函数 `greet` 被返回。
-
-```python
-# f2
-<function hi at 0x000001C2E45F3D90>
-<function hi.<locals>.greet at 0x000001C2E4A58D90>
-greet() function
+print(f2)		# <function hi at 0x000001C2E45F3D90>
+print(f2())		# <function hi.<locals>.greet at 0x000001C2E4A58D90>
+print(f2()())	# greet() function
 ```
 
 `f2` 仅指向 `hi()` 函数，对 `fi()` 的引用。
-
-***
-
-## 匿名函数
-
-```python
-lambda [parameter_list]: expression
-```
-
-返回函数对象。
-
-改为定义函数模式如下：
-
-```python
-def <lambda>(parameter_list):
-    return expression
-```
-
-字典排序：
-
-```python
-prices = {
-    'A': 45.23,
-    'B': 612.78,
-    'C': 205.55,
-    'D': 37.20,
-    'E': 10.75
-}
-
-prices = sorted(prices.items(), key=lambda x: x[1])
-print(prices)	# [('E', 10.75), ('D', 37.2), ('A', 45.23), ('C', 205.55), ('B', 612.78)]
-```
-
-跳转表(jump table)：
-
-```python
-lst = [
-    lambda x: x.__name__,
-    lambda x: x.__class__.__name__,
-    lambda x: type(x),
-    lambda x: repr(x)
-]
-
-for i in lst:
-    print(i(iter))
-```
-
-```bash
-In [33]: lst = [lambda x:x*i for i in range(10)]
-
-In [34]: lst
-Out[34]:
-[<function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>,
- <function __main__.<listcomp>.<lambda>(x)>]
-
-In [35]: [i(1) for i in lst]
-Out[35]: [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
-```
 
 ***
 
@@ -200,6 +109,13 @@ In [2]: print(i)
 1
 ```
 
+```python
+for i in range(10):
+    if i == 5:
+        break
+print(i)	# 5
+```
+
 在Python中，名字绑定在所属作用域中引入新的变量，同时绑定到一个对象。名字绑定发生在以下几种情况之下：
 
 - 参数声明：参数声明在函数的局部作用域中引入新的变量；
@@ -214,14 +130,21 @@ In [2]: print(i)
 ```python
 a = 10
 def test():
+    print(a)
+test()		# 10
+```
+
+```python
+a = 10
+def test():
     a += 1
     print(a)
-test()
+test()		# UnboundLocalError
 ```
 
 上述代码 ，`a += 1`报错。因为：
 
-Python的规则是，如果在函数内部要修改一个变量，那么这个变量需要是内部变量，除非你用global声明了它是外部变量。很明显，我们没有在函数内部定义变量a，所以会弹出局部变量在未定义之前就引用的错误。
+Python的规则是，如果在函数内部要**修改**一个变量，那么这个变量需要是内部变量，除非使用global声明了它是外部变量。很明显，我们没有在函数内部定义变量a，所以会弹出局部变量在未定义之前就引用的错误。
 
 ### 示例2
 
@@ -368,7 +291,7 @@ print(line1(5))	# 6
 print(line2(5)) # 7
 ```
 
-### 使用
+### 带参数的装饰器
 
 Python中的装饰器Decorator，假如需要写一个带参数的装饰器，那么一般都会生成闭包。
 
@@ -377,7 +300,7 @@ Python中的装饰器Decorator，假如需要写一个带参数的装饰器，�
 ```python
 def html_tags(tag_name):
     def wrapper_(func):
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs):		# 使用 *args, **kwargs 代指需要传入的参数
             content = func(*args, **kwargs)
             return "<{tag}>{content}</{tag}>".format(tag=tag_name, content=content)
         return wrapper
@@ -391,9 +314,45 @@ print(hello())  # <b>Hello Toby!</b>
 print(hello('world'))  # <b>Hello world!</b>
 ```
 
+### 获取return值
+
+* 获取 素数
+
+```python
+import time
+
+
+def display_time(func):
+    def inner(*args, **kwargs):
+        t1 = time.time()
+        result = func(*args, **kwargs)	# 使用result储存返回值
+        print(time.time() - t1)
+        return result					# 返回result
+    return inner
+
+def is_prime(num):
+    if num < 2:
+        return False
+    elif num == 2:
+        return True
+    else:
+        for i in range(2, num):
+            if num % i == 0 :
+                return False
+        return True
+
+@display_time
+def prime_num(max):
+    l = []
+    for i in range(max):
+        if is_prime(i):
+            l.append(i)
+    return l
+```
+
 ***
 
-### 注意事项
+### 当循环参与闭包
 
 ```python
 def outer():
@@ -484,7 +443,7 @@ outer()
 1
 ```
 
-* nonloacal
+* `nonloacal`
 
 ```python
 def outer():
