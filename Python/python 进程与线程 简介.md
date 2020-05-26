@@ -284,7 +284,7 @@ if __name__ == '__main__':
     two_thread()	# 26.8359999657
 ```
 
-### python37
+### python3
 
 ```python
 # coding=utf-8
@@ -328,8 +328,6 @@ if __name__ == '__main__':
 
 参考：
 
-wiki
-
 [进程 vs. 线程](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014319292979766bd3285c9d6b4942a8ea9b4e9cfb48d8000)，廖雪峰
 
 [多线程与多进程](http://www.liujiangblog.com/course/python/78)，刘江
@@ -341,3 +339,5 @@ wiki
 [进程和线程](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/13.%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B.md)，骆昊
 
 [多线程和多进程程序的优缺点](https://www.zhihu.com/question/24485648/answer/27980547)，刘然
+
+[MULTIPROCESSING VS. THREADING IN PYTHON: WHAT YOU NEED TO KNOW.](https://timber.io/blog/multiprocessing-vs-multithreading-in-python-what-you-need-to-know/)，Sid Panjwani
