@@ -27,55 +27,146 @@ Python 运行时，除了一个正在运行的主线程，引擎还提供一个�
 
 Python 引擎怎么知道异步任务有没有结果，能不能进入主线程呢？答案就是引擎在不停地检查，一遍又一遍，只要同步任务执行完了，引擎就会去检查那些挂起来的异步任务，是不是可以进入主线程了。这种循环检查的机制，就叫做事件循环（Event Loop）。维基百科的定义是：“事件循环是一个程序结构，用于等待和发送消息和事件（a programming construct that waits for and dispatches events or messages in a program）”。
 
-## 异步操作的模式
-
-下面总结一下 。
-
-### 回调函数
-
-回调函数是异步操作最基本的方法。
-
-下面是两个函数`f1`和`f2`，编程的意图是`f2`必须等到`f1`执行完成，才能执行。
-
-```python
-def f1():
-    pass
-
-def f2():
-    pass
-
-f1()
-f2()
-```
-
-如果`f1`是异步操作，`f2`会立即执行，不会等到`f1`结束再执行。
-
-这时，可以考虑改写`f1`，把`f2`写成`f1`的回调函数。
-
-```python
-def f1(callback):
-    ...
-    callback()
-
-    def f2():
-    pass
-
-f1(f2)  
-```
-
-回调函数的优点是简单、容易理解和实现，缺点是不利于代码的阅读和维护，各个部分之间高度耦合（coupling），使得程序结构混乱、流程难以追踪（尤其是多个回调函数嵌套的情况），而且每个任务只能指定一个回调函数。
-
-### 事件监听
-
-另一种思路是采用事件驱动模式。异步任务的执行不取决于代码的顺序，而取决于某个事件是否发生。
-
 ***
 
 ## asyncio 
 
 多线程有"线程竞争"的问题，处理起来很复杂，还涉及加锁。对于简单的异步任务来说（比如与网页互动），写起来很麻烦。
 
+* 多线程：抢占式多任务
+* 协程：合作式多任务
 
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20asyncio%201.jpg)
+
+Python 3.4 引入了 `asyncio` 模块，增加了异步编程，大大方便了异步任务的处理。
+
+`asyncio` 模块最大特点就是，只存在一个线程。
+
+由于只有一个线程，就不可能多个任务同时运行。asyncio 是"多任务合作"模式（cooperative multitasking），允许异步任务交出执行权给其他任务，等到其他任务完成，再收回执行权继续往下执行。
+
+由于代码的执行权在多个任务之间交换，所以看上去好像多个任务同时运行，其实底层只有一个线程，多个任务分享运行时间。
+
+表面上，这是一个不合理的设计，明明有多线程多进程的能力，为什么放着多余的 CPU 核心不用，而只用一个线程呢？但是就像前面说的，单线程简化了很多问题，使得代码逻辑变得简单，写法符合直觉。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20asyncio%202.jpg)
+
+asyncio 模块在单线程上启动一个事件循环（event loop），时刻监听新进入循环的事件，加以处理，并不断重复这个过程，直到异步任务结束。
+
+![](https://note-taking-1258869021.cos.ap-beijing.myqcloud.com/python/thread%20process%20asyncio%203.jpg)
+
+***
+
+## asyncio API
+
+`asyncio` 模块最主要的几个API。注意，必须使用 Python 3.7 或更高版本，早期的语法已经变了。
+
+函数前面加上 `async` 关键字，就变成了 async 函数。这种函数最大特点是执行可以暂停，交出执行权。
+
+```python
+async def main():
+```
+
+在 async 函数内部的异步任务前面，加上`await`命令。
+
+```python
+await asyncio.sleep(1)
+```
+
+上面代码中，`asyncio.sleep(1)` 方法可以生成一个异步任务，休眠1秒钟然后结束。
+
+执行引擎遇到`await`命令，就会在异步任务开始执行之后，暂停当前 async 函数的执行，把执行权交给其他任务。等到异步任务结束，再把执行权交回 async 函数，继续往下执行。
+
+`async.run()` 方法加载 async 函数，启动事件循环。
+
+```python
+asyncio.run(main())
+```
+
+上面代码中，`asyncio.run()` 在事件循环上监听 async 函数`main`的执行。等到 `main` 执行完了，事件循环才会终止。
+
+示例：
+
+* 同步版
+
+```python
+import time
+
+def count():
+    print("One")
+    time.sleep(1)
+    print("Two")
+
+def main():
+    for _ in range(3):
+        count()
+
+main()
+```
+
+输出如下：
+
+```python
+One
+Two
+One
+Two
+One
+Two
+```
+
+运行结果的原因是，三个 `count()` 都是同步执行，必须等到前一个执行完，才能执行后一个。脚本总的运行时间是3秒。
+
+* async
+
+```python
+import asyncio
+
+async def count():
+    print("One")
+    await asyncio.sleep(1)
+    print("Two")
+
+async def main():
+    await asyncio.gather(count(), count(), count())
+
+asyncio.run(main())
+```
+
+输出如下：
+
+```python
+One
+One
+One
+Two
+Two
+Two
+```
+
+在 async 函数`main`的里面，`asyncio.gather()` 方法将多个异步任务（三个 `count()`）包装成一个新的异步任务，必须等到内部的多个异步任务都执行结束，这个新的异步任务才会结束。上面运行结果的原因是，三个 `count()` 依次执行，打印完 `One`，就休眠1秒钟，把执行权交给下一个 `count()`，所以先连续打印出三个 `One`。等到1秒钟休眠结束，执行权重新交回第一个 `count()`，开始执行 `await` 命令下一行的语句，所以会接着打印出三个`Two`。脚本总的运行时间是1秒。
+
+***
+
+## 示例
+
+网页截图脚本`screenshot.py`
+
+```python
+# coding=utf-8
+import asyncio
+from pyppeteer import launch
+
+async def main():
+    browser = await launch()
+    page = await browser.newPage()
+    await page.goto('http://example.com')
+    await page.screenshot({'path': 'example.png'})
+    await browser.close()
+
+asyncio.run(main())
+```
+
+上面代码中，启动浏览器（`launch`）、打开新 Tab（`newPage()`）、访问网址（`page.goto()`）、截图（`page.screenshot()`）、关闭浏览器（`browser.close()`），这一系列操作都是异步任务，使用 `await` 命令写起来非常自然简单。
 
 ***
 
