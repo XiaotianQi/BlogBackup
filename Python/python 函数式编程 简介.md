@@ -45,6 +45,48 @@ assert('abc xyz!') == decryptIt(encryptIt('abc xyz!', 3), 3)
 * `encryptIt`和`decryptIt`合并成一个函数
 * 抽取`encryptIt`和`decryptIt`其中解密加密部分，写成新的函数，这样以后如果修改加密方法，那么不会影响前两个函数。
 
+### 常见函数形式
+
+1. 普通函数
+
+```python
+def function():
+    return 1
+```
+
+2. 生成器函数
+
+```python
+def generator():
+    yield 1
+```
+
+在3.5过后，我们可以使用async修饰将普通函数和生成器函数包装成异步函数和异步生成器。
+
+3. 异步函数（协程）
+
+```python
+async def async_function():
+    return 1
+```
+
+4. 异步生成器
+
+```python
+async def async_generator():
+    yield 1
+```
+
+通过类型判断可以验证函数的类型
+
+```python
+import types
+print(type(function) is types.FunctionType)
+print(type(generator()) is types.GeneratorType)
+print(type(async_function()) is types.CoroutineType)
+print(type(async_generator()) is types.AsyncGeneratorType)
+```
+
 ***
 
 ## 函数式编程

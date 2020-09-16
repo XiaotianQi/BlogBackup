@@ -1,17 +1,21 @@
 `dict` 属于 `mapping` 类型。
 
+mapping 对象会将 hashable 值映射到任意对象。映射属于可变对象。目前仅有一种标准映射类型字典。
+
 > Unlike sequences, which are indexed by a range of numbers, dictionaries are indexed by *keys*, which can be any immutable type; strings and numbers can always be keys.  Tuples can be used as keys if they contain only strings, numbers, or tuples; if a tuple contains any mutable object either directly or indirectly, it cannot be used as a key. You can’t use lists as keys, since lists can be modified in place using index assignments, slice assignments, or methods like `append()` and `extend()`.
 
 关于 `key`的两点：
 
-* `key` 必须是不可变对象。
-* 避免同时使用相同的 `key`。当存在多个相同的`key`时，那么存储最后一个`key`对应的值。
+* `key` 必须是不可变对象。非 hashable 的值，即包含列表、字典或其他可变类型的值（此类对象基于值而非对象标识进行比较）不可用作键。
+* 避免同时使用相同的 `key`。当存在多个相同的`key`时，则两者可以被用来索引同一字典条目，存储最后一个`key`对应的值。
 
 > A dictionary’s keys are *almost* arbitrary values.  Values that are not hashable, that is, values containing lists, dictionaries or other mutable types (that are compared by value rather than by object identity) may not be used as keys.  Numeric types used for keys obey the normal rules for numeric comparison: if two numbers compare equal (such as `1` and `1.0`) then they can be used interchangeably to index the same dictionary entry.  (Note however, that since computers store floating-point numbers as approximations it is usually unwise to use them as dictionary keys.)
 
-字典可精确描述为不定长、可变、无序、散列的集合类型。遍历字典获得的键值对是随机无序的！
+字典可精确描述为不定长、可变、散列的集合类型。
 
-Python的字典数据类型是基于hash散列算法实现的，采用键值对(key:value)的形式，根据key的值计算value的地址，具有非常快的查取和插入速度。但它是无序的，包含的元素个数不限，值的类型也可以是其它任何数据类型！
+从Python 3.6开始，字典是变成有顺序的了。先插入键值对A，后插入键值对B，那么打印Keys列表的时候，就会发现B在A的后面。
+
+Python的字典数据类型是基于hash散列算法实现的，采用键值对`key:value`的形式，根据key的值计算value的地址，具有非常快的查取和插入速度。
 
 ***
 
@@ -197,16 +201,12 @@ Out[83]: [1, 2, 3, 4]
 遍历字典的多种方法：
 
 ```python
-d = {'a': 1, 'b': 2, 'c': 3}
+for key in 字典					# 同 for i in 字典.keys()
 
-for k, v in d.items():
-    print(k, v)
+for value in 字典.values()
 
-for i in d.items():
-    print(i[0], i[1])
+for key, value in 字典.items()
 ```
-
-当然，使用`d.keys()`或者`d.values()`选择性遍历也是可以的。
 
 ***
 
