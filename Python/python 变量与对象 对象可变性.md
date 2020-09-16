@@ -354,21 +354,116 @@ Out[25]: 1612093971528
 
 ## 补充
 
-### 1.代码块
+### 1.编译单元
 
 模块、函数体、类定义、脚本都可以看做一个代码块，代码块作为一个执行单元。
 
-在交互命令行中，每行代码都单独作为一个代码块。例如：cmd、powershell、bash等。
+```powershell
+>>> (10.1) is (10.1)
+True
+>>> a = 10.1
+>>> b = 10.1
+>>> a is b
+False
+>>> def foo():
+...     a = 10.1
+...     b = 10.1
+...     return a is b
+...
+>>> foo()
+True
+>>> def bar():
+...   return 10.1
+...
+>>> def quux():
+...   return 10.1
+...
+>>> bar() is quux()
+False
+```
+
+在所有题主用的CPython环境里执行下面的代码：
+
+```python
+def foo():
+  a = 10.1
+  b = 10.1
+  return a is b
+
+print(foo())
+```
+
+而结果总是True。
+
+再试试：
+
+```python
+def bar():
+  return 10.1
+
+def quux():
+  return 10.1
+
+print(bar() is quux())
+```
+
+而结果总是False。
+
+这是跟CPython的编译单元以及常量池处理有关。
+
+***
+
+**背景知识**
+
+CPython的代码的“编译单元”是函数——每个函数单独编译，得到的结果是一个PyFunctionObject对象，其中带有字节码、常量池等各种信息。Python的顶层代码也被看作一个函数。
+函数之间有嵌套时，外层函数的代码并不包含内层函数的代码，而只是包含创建出内层函数的函数对象（PyFunctionObject）的逻辑。
+
+让我们看看上面的`foo()`函数的字节码（通过`dis.dis(foo)`获取）：
+
+```powershell
+>>> import dis
+>>> dis.dis(foo)
+  2           0 LOAD_CONST               1 (10.1)
+              2 STORE_FAST               0 (a)
+
+  3           4 LOAD_CONST               1 (10.1)
+              6 STORE_FAST               1 (b)
+
+  4           8 LOAD_FAST                0 (a)
+             10 LOAD_FAST                1 (b)
+             12 COMPARE_OP               8 (is)
+             14 RETURN_VALUE
+```
+
+可见a和b的赋值都是由同一个常量池项获得的：LOAD_CONST 1
+这条字节码指令的意思是：从当前PyFunctionObject的co_const字段所指向的常量池里，取出下标为1的项，压到操作数栈的栈顶。
+
+每个PyFunctionObject有一个独立的常量池；换句话说，每个PyFunctionObject的co_const字段都指向自己专有的一个常量池对象，而里面的常量池项也是自己专有。
+
+在同一个编译单元（PyFunctionObject）里出现的值相同的常量，只会在常量池里出现一份，一定会对应到运行时的同一个对象。所以在`foo()`的例子里，a和b都从同一个常量池项获取值；
+在不同的编译单元里，值相同的常量**不一定**会对应到运行时的同一个对象，要看具体的类型是否自带了某种interning / caching机制（例如Python 2.x系的PyInt / Python 3.x系的PyLong的小整数缓存机制）。
+
+PyFloatObject没有“小数字缓存”机制，所以每次“创建”一个对象（例如PyFloat_FromString() / PyFloat_FromDouble()）都一定会得到一个新的对象——id不同、is运算符比较为False。
+
+***
+
+在CPython的交互式解释器（例如python命令不指定参数时）里，每输入一行可以立即执行的代码，Python就会把它当作一个编译单元来编译到字节码并解释执行；如果输入的代码尚未构成一个完整的单元，例如函数声明或者类声明，则等到获得了完整单元的输入后再当作一个编译单元来处理。
+
+所以当我们在CPython的交互式解释器中分别输入`a = 10.1`、`b = 10.1`这两行时，它们分别被当作一个编译单元处理，其中的常量池没有共享，常量池项也都是各自新创建的，所以会得到`a is b`为False的结果。
+而在同一环境里输入`(10.1) is (10.1)`时，这一行被看作一个编译单元，其中两次对10.1这个常量的使用都变成了对同一对象的引用，因而is的结果为True。
+
+当使用python命令去整体解释一个Python源码文件时，其中位于顶层的
+
+```python
+a = 10.1
+b = 10.1
+```
+
+两行代码就会处于同一个编译单元中，因而共享常量池，因而a is b就会是True。
 
 而在同一个代码块中，执行时，增加新的变量时，会在代码池中查找其值是否存在。如果存在，那么就会重用，相同赋值的变量会指向同一个对象，而不是新建对象。
 
-```python
-a = 10000
-b = 10000
-print(a is b)
-```
-
-上边的例子会打印 `True`。
+***
 
 ### 2.可哈希(hashable)和不可变(immutable)
 
@@ -431,5 +526,7 @@ str = str[:1] + 'x' + str[2:]	# 'axc'
 [那些年我们踩过的那些坑](https://github.com/jackfrued/Python-100-Days/blob/master/那些年我们踩过的那些坑.md)，骆昊
 
 [关于python中“赋值就是建立一个对象的引用”，大家怎么看？Python一切皆为对象又是什么意思？](https://www.zhihu.com/question/27026782)，蓝色、王楠
+
+[python idle 解释和直接 python script.py 解释有什么差别？](https://www.zhihu.com/question/29089863)，RednaxelaFX
 
 《Fluent Python》
