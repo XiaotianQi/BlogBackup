@@ -1,3 +1,5 @@
+## 运算符
+
 从低到高，同一行的运算符具有相同优先级，具有相同优先级的运算符按照从左向右的顺序计算。
 
 | 运算符            | 描述             |
@@ -25,7 +27,22 @@
 
 ***
 
-布尔操作符---and、or、not
+### x 与 +x
+
+```python
+>>> from collections import Counter
+>>> ct = Counter('abcdbcaa')
+>>> ct
+Counter({'a': 3, 'b': 2, 'c': 2, 'd': 1})
+>>> ct['c'] = 0
+>>> ct['d'] = -2
+>>> +ct
+Counter({'a': 3, 'b': 2})
+```
+
+***
+
+## 布尔操作符---and、or、not
 
 * 没有括号的情况下，**and 的优先级大于 or**；
 * x and y，x 为真则是 y，x 为假则是 x；
