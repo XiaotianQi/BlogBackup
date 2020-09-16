@@ -60,6 +60,14 @@ print(js)
 
 ***
 
+命令行解析json文件：
+
+```powershell
+$ python -m json.tool demo.json
+```
+
+***
+
 参考：
 
 [文件和异常](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/11.%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8.md)，骆昊

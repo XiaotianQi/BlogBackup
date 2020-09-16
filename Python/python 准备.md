@@ -43,6 +43,16 @@ for dist in pip.get_installed_distributions():
 sudo apt install python3-pip
 ```
 
+为不同版本python安装包：
+
+```bash
+# 在 python3 中安装
+$ python3 -m pip install requests
+
+# 在 python3.8 中安装
+$ python3.8 -m pip install requests
+```
+
 ***
 
 ## 虚拟环境
