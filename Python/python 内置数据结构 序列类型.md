@@ -1105,12 +1105,44 @@ for item in line_items:
 
 ***
 
+## 字符串的 intern 机制
+
+驻留的具体表现是在内存中**不会创建新的对象**，而是引用已用的对象。
+
+```python
+>>> a = 'hello'
+>>> b = 'hello'
+>>> a is b
+True
+>>> a = 'hello world'
+>>> b = 'hello world'
+>>> a is b
+False
+```
+
+```python
+>>> a = 'hello' * 5
+>>> b = 'hello' * 5
+>>> a is b
+True
+>>> a = 'hello_' * 5
+>>> b = 'hello_' * 5
+>>> a is b
+True
+>>> a = 'hello ' * 5
+>>> b = 'hello ' * 5
+>>> a is b
+False
+```
+
+当两个或以上的字符串变量它们的值相同且仅由**数字字母下划线**构成，或者值仅含有一个字符时，内存空间中只创建一个对象来让这些变量都指向该内存地址。当字符串不满足该条件时，相同值的字符串变量在创建时都会申请一个新的内存地址来保存值。
+
+***
+
 参考：
 
 [Data Structures](https://docs.python.org/3/tutorial/datastructures.html)
 
-[Sequence Types —list, tuple, range](https://docs.python.org/3/library/stdtypes.html#typesseq)
+[Python教程](https://www.liujiangblog.com/course/python/1)，刘江
 
-http://www.liujiangblog.com/course/python/1
-
-《Fluent Python》
+Fluent Python
