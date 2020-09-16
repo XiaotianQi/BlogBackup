@@ -352,6 +352,62 @@ Out[52]: deque([1, 2, 3])
 
 ***
 
+#### 列表合并
+
+```python
+>>> l1 = [1,2,3]
+>>> l2 = [4,5,6]
+>>> l3 = [7,8,9]
+```
+
+**相加**
+
+```python
+>>> l1 + l2 + l3
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+**使用 * 解包**
+
+```python
+>>> [*l1, *l2, *l3]
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+**使用列表推导式**
+
+```python
+>>> [i for j in (l1, l2, l3) for i in j]
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+**使用 sum() 函数**
+
+```python
+>>> sum((l1, l2, l3), [])
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+**`itertools.chain()`**
+
+```python
+>>> from itertools import chain
+>>> list(chain(l1, l2, l3))
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+**heapq.merge()**
+
+```python
+>>> from heapq import merge
+>>> list(merge(l1, l2, l3))
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+`heapq.merge` 除了合并多个列表外，它还会将合并后的最终的列表进行排序。
+
+***
+
 #### 列表元素修改
 
 ```python
@@ -852,6 +908,22 @@ Out[14]: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
   Out[7]: 2
   ```
 
+  值得注意的是：
+
+  ```python
+  >>> "aabb".count("")
+  5
+  >>> ''.count('')
+  1
+  ```
+
+  补充：
+
+  ```python
+  >>> '' in 'abc'
+  True
+  ```
+
 * `str.isalpha()`
 
   Return true if all characters in the string are alphabetic and there is at least one character, false otherwise.  
@@ -1056,6 +1128,16 @@ bytearray：具有有序、可修改、可迭代的特点
 'eccb'
 ```
 
+```python
+>>> alist = [0, 1, 2, 3, 4]
+>>> alist[5]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: list index out of range
+>>> alist[5:]
+[]
+```
+
 ### 给切片赋值
 
 如果把切片放在赋值语句的左边，或把它作为 del 操作的对象，我们就可以对序列进行嫁接、切除或就地修改操作。
@@ -1136,6 +1218,25 @@ False
 ```
 
 当两个或以上的字符串变量它们的值相同且仅由**数字字母下划线**构成，或者值仅含有一个字符时，内存空间中只创建一个对象来让这些变量都指向该内存地址。当字符串不满足该条件时，相同值的字符串变量在创建时都会申请一个新的内存地址来保存值。
+
+```python
+>>> a = "Hello_Python"
+>>> id(a)
+2792412951280
+>>> id("Hello" + "_" + "Python")
+2792412951280
+>>> b = "Hello" + "_" + "Python"
+>>> a is b
+True
+```
+
+```python
+>>> a, b = "MING!", "MING!"
+>>> a is b
+True
+```
+
+
 
 ***
 
