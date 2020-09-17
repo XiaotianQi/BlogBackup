@@ -65,6 +65,102 @@ else:
     print('不能构成三角形')
 ```
 
+***
+
+### 条件语句的其他写法
+
+```python
+>>> age1 = 17
+>>> age2 = 20
+```
+
+**1**
+
+```python
+if age > 18:
+    return "已成年"
+else:
+    return "未成年"
+```
+
+**2**
+
+```python
+<on_true> if <condition> else <on_false>
+```
+
+```python
+>>> '已成年' if age1 > 18 else '未成年'
+'未成年'
+>>> '已成年' if age2 > 18 else '未成年'
+'已成年'
+```
+
+**3**
+
+```python
+<condition> and <on_true> or <on_false>
+```
+
+```python
+>>> age1 >18 and '已成年' or '未成年'
+'未成年'
+>>> age2 >18 and '已成年' or '未成年'
+'已成年'
+```
+
+```python
+((<condition>) and (<on_true>,) or (<on_false>,))[0]
+```
+
+```python
+>>> ((age1 > 18) and ('已成年',) or ('未成年',))[0]
+'未成年'
+>>> ((age1 > 18) and ('已成年',) or ('未成年',))[0]
+'已成年'
+```
+
+**4**
+
+```python
+(<on_false>, <on_true>)[condition]
+```
+
+```python
+>>> ('未成年', '已成年')[age1 > 18]
+'未成年'
+>>> ('未成年', '已成年')[age2 > 18]
+'已成年'
+```
+
+**5**
+
+```python
+(lambda: <on_false>, lambda:<on_true>)[<condition>]()
+```
+
+```python
+>>> (lambda:'未成年', lambda:'已成年')[age1 > 18]()
+'未成年'
+>>> (lambda:'未成年', lambda:'已成年')[age2 > 18]()
+'已成年'
+```
+
+**6**
+
+```python
+{True: <on_true>, False: <on_false>}[<condition>]
+```
+
+```python
+>>> {True: '未成年', False: '已成年'}[age1 > 18]
+'未成年'
+>>> {True: '未成年', False: '已成年'}[age2 > 18]
+'已成年'
+```
+
+***
+
 ## 循环控制
 
 循环是计算机科学运算领域的用语，也是一种常见的控制流程。循环是一段在程序中只出现一次，但可能会连续运行多次的代码。循环中的代码会运行特定的次数，或者是运行到特定条件成立时结束循环，或者是针对某一集合中的所有项目都运行一次。
@@ -343,3 +439,5 @@ print('你破产了, 游戏结束!')
 [流程控制](http://www.liujiangblog.com/course/python/25)，刘江
 
 [分支结构](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/03.%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84.md)，骆昊
+
+[条件语句的七种写法](http://magic.iswbm.com/zh/latest/c03/c03_04.html)，王炳明
