@@ -182,6 +182,8 @@ e = {x:y for x, y in b.items()}
 
 ## 相关
 
+### 字典有序
+
 Dictionary order is guaranteed to be insertion order.
 
 所以，使用`dict.popitem()`时，会遵循 LIFO.
@@ -198,7 +200,7 @@ In [83]: list(d.values())
 Out[83]: [1, 2, 3, 4]
 ```
 
-遍历字典的多种方法：
+### 遍历字典
 
 ```python
 for key in 字典					# 同 for i in 字典.keys()
@@ -207,6 +209,73 @@ for value in 字典.values()
 
 for key, value in 字典.items()
 ```
+
+### 合并字典
+
+```python
+>>> d1 = {'a':1, 'b':2}
+>>> d2 = {'c':3, 'd':4}
+```
+
+**dict.update()**
+
+```python
+>>> d3.update(d1)
+>>> d3.update(d2)
+>>> d3
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+```
+
+**转成列表再相加**
+
+```python
+>>> dict(list(d1.items()) + list(d2.items()))
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+```
+
+**|**
+
+```python
+>>> d1.items() | d2.items()
+{('b', 2), ('c', 3), ('a', 1), ('d', 4)}
+```
+
+**字典拆分**
+
+```python
+>>> d3 = {**d1, **d2}
+>>> d3
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+>>> d3 = {}
+>>> d3 = dict(d1, **d2)
+>>> d3
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+```
+
+**字典推导式**
+
+```python
+>>> {k:v for d in (d1, d2) for k, v in d.items()}
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+```
+
+**itertools.chain()**
+
+```python
+>>> from itertools import chain
+>>> dict(chain(d1.items(), d2.items()))
+{'a': 1, 'b': 2, 'c': 3, 'd': 4}
+```
+
+**collections.ChainMap()**
+
+```python
+>>> from collections import ChainMap
+>>> dict(ChainMap(d1, d2))
+{'c': 3, 'd': 4, 'a': 1, 'b': 2}
+```
+
+使用 ChainMap 有一点需要注意，当字典间有重复的键时，只会取第一个值，排在后面的键值并不会更新掉前面。其他方法，前者都会被覆盖。
 
 ***
 
