@@ -1,14 +1,212 @@
 ## Descriptor
 
+成绩管理系统，可能会这样子写。
+
+```python
+class Student:
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        self.math = math
+        self.chinese = chinese
+        self.english = english
+
+    def __repr__(self):
+        return "<Student: {}, math:{}, chinese: {}, english:{}>".format(
+                self.name, self.math, self.chinese, self.english)
+```
+
+```python
+In [2]: std1 = Student('小明', 76, 87, 68)
+
+In [3]: std1
+Out[3]: <Student: 小明, math:76, chinese: 87, english:68>
+```
+
+但是程序并不像人那么智能，不会自动根据使用场景判断数据的合法性，如果录入成绩的时候，不小心录入了将成绩录成了负数，或者超过100，程序是无法感知的。
+
+```python
+class Student:
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        if 0 <= math <= 100:
+            self.math = math
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+        if 0 <= chinese <= 100:
+            self.chinese = chinese
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+        if 0 <= english <= 100:
+            self.english = english
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+
+    def __repr__(self):
+        return "<Student: {}, math:{}, chinese: {}, english:{}>".format(
+                self.name, self.math, self.chinese, self.english)
+```
+
+```python
+In [6]: std1 = Student('小明', -76, 87, 68)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-6-14359b0242b0> in <module>
+----> 1 std1 = Student('小明', -76, 87, 68)
+
+<ipython-input-4-4fe38da1cda4> in __init__(self, name, math, chinese, english)
+      5             self.math = math
+      6         else:
+----> 7             raise ValueError("Valid value must be in [0, 100]")
+      8
+      9         if 0 <= chinese <= 100:
+
+ValueError: Valid value must be in [0, 100]
+```
+
+程序是智能了，但在`__init__`里有太多的判断逻辑，很影响代码的可读性。利用 Property 特性，可以很好的应用在这里。
+
+```python
+class Student:
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        self.math = math
+        self.chinese = chinese
+        self.english = english
+
+    @property
+    def math(self):
+        return self._math
+
+    @math.setter
+    def math(self, value):
+        if 0 <= value <= 100:
+            self._math = value
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+    @property
+    def chinese(self):
+        return self._chinese
+
+    @chinese.setter
+    def chinese(self, value):
+        if 0 <= value <= 100:
+            self._chinese = value
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+    @property
+    def english(self):
+        return self._english
+
+    @english.setter
+    def english(self, value):
+        if 0 <= value <= 100:
+            self._english = value
+        else:
+            raise ValueError("Valid value must be in [0, 100]")
+
+    def __repr__(self):
+        return "<Student: {}, math:{}, chinese: {}, english:{}>".format(
+                self.name, self.math, self.chinese, self.english)
+```
+
+```python
+In [8]: std1 = Student('小明', -76, 87, 68)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-8-14359b0242b0> in <module>
+----> 1 std1 = Student('小明', -76, 87, 68)
+
+<ipython-input-7-06b298b656f7> in __init__(self, name, math, chinese, english)
+      2     def __init__(self, name, math, chinese, english):
+      3         self.name = name
+----> 4         self.math = math
+      5         self.chinese = chinese
+      6         self.english = english
+
+<ipython-input-7-06b298b656f7> in math(self, value)
+     15             self._math = value
+     16         else:
+---> 17             raise ValueError("Valid value must be in [0, 100]")
+     18
+     19     @property
+
+ValueError: Valid value must be in [0, 100]
+```
+
+类里的三个属性，math、chinese、english，都使用了 Property 对属性的合法性进行了有效控制。功能上，没有问题，但就是太啰嗦了，三个变量的合法性逻辑都是一样的，只要大于0，小于100 就可以，代码重复率太高了，这里三个成绩还好，但假设还有地理、生物、历史、化学等十几门的成绩呢，这代码简直没法忍。去了解一下 Python 的描述符吧。
+
+```python
+class Score:
+    def __init__(self, default=0):
+        self._score = default
+
+    def __set__(self, instance, value):
+        if not isinstance(value, int):
+            raise TypeError('Score must be integer')
+        if not 0 <= value <= 100:
+            raise ValueError('Valid value must be in [0, 100]')
+
+        self._score = value
+
+    def __get__(self, instance, owner):
+        return self._score
+
+    def __delete__(self):
+        del self._score
+
+class Student:
+    math = Score(0)
+    chinese = Score(0)
+    english = Score(0)
+
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        self.math = math
+        self.chinese = chinese
+        self.english = english
+
+
+    def __repr__(self):
+        return "<Student: {}, math:{}, chinese: {}, english:{}>".format(
+                self.name, self.math, self.chinese, self.english)
+```
+
+```python
+In [10]: std1 = Student('小明', -76, 87, 68)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-10-14359b0242b0> in <module>
+----> 1 std1 = Student('小明', -76, 87, 68)
+
+<ipython-input-9-251b96b9f0c3> in __init__(self, name, math, chinese, english)
+     24     def __init__(self, name, math, chinese, english):
+     25         self.name = name
+---> 26         self.math = math
+     27         self.chinese = chinese
+     28         self.english = english
+
+<ipython-input-9-251b96b9f0c3> in __set__(self, instance, value)
+      7             raise TypeError('Score must be integer')
+      8         if not 0 <= value <= 100:
+----> 9             raise ValueError('Valid value must be in [0, 100]')
+     10
+     11         self._score = value
+
+ValueError: Valid value must be in [0, 100]
+```
+
+实现的效果和前面的一样，可以对数据的合法性进行有效控制（字段类型、数值区间等）。这就是描述符给我们带来的编码上的便利，它在实现**保护属性不受修改、属性类型检查** 的基本功能，同时有大大**提高代码的复用率**。
+
 In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol.  Those methods are `__get__`, `__set__`, and `__delete__`.  If any of those methods are defined for an object, it is said to be a descriptor.
 
 > They are the mechanism behind properties, methods, static methods, class methods, and `super()`.
 
-使用 Descriptor 的便捷之处：
-
-把函数的调用伪装成对属性的访问。
-
-For the users of a class, properties are syntactically identical to ordinary attributes.You can start with the simplest implementation imaginable, and  you are free to later migrate to a property version without having to change the interface! So properties are not just a replacement for getters and setter! 
+For the users of a class, properties are syntactically identical to ordinary attributes. You can start with the simplest implementation imaginable, and  you are free to later migrate to a property version without having to change the interface! So properties are not just a replacement for getters and setter! 
 
 The Pythonic way to introduce attributes is to make them public.
 
@@ -22,9 +220,15 @@ descr.__delete__(self, obj) -> None
 
 以上就是全部。定义这些方法中的任何一个的对象被视为描述器。
 
-如果一个对象同时定义了`__get__`和`__set__`，则这个描述符被称为数据描述符 `data descriptor`。
+* 如果一个对象同时定义了`__get__`和`__set__`，则这个描述符被称为数据描述符 `data descriptor`。
 
-如果一个对象只定义了`__get__`方法，则这个描述符被称为非数据描述符`non-data descriptor`。
+* 如果一个对象只定义了`__get__`方法，则这个描述符被称为非数据描述符`non-data descriptor`。
+
+***
+
+## 优先级
+
+普通类和实例：
 
 ```python
 class A:
@@ -34,7 +238,7 @@ print(A.name)		# haha1
  
 a = A()
 print(a.name)		# haha1
-print(a.__dict__)	# {};a没有name属性, 但继承了类属性)
+print(a.__dict__)	# {};a没有name属性, 但继承了类属性
  
 
 a.name = "haha2"
@@ -47,6 +251,8 @@ del a.name
 print(a.name)		# haha1
 print(a.__dict__)	# {};实例a没有了属性name, 因此再次去继承其类A的name属性
 ```
+
+数据描述符：
 
 ```python
 class A:
@@ -77,6 +283,8 @@ b.name = "haha"		# SET;给实例b增加name属性,此时已调用类A的__set__�
 print(b.name)		# GET 输出haha;此时调用类A的__get__方法
 print(b.__dict__)	# {}
 ```
+
+数据描述符和非数据描述符：
 
 ```python
 class C1:
@@ -109,13 +317,13 @@ d2.name = "haha"	# SET;给实例d2设置name属性的值
 print(d2.name)		# GET 输出None;实例字典不能覆盖数据描述符, 继续调用__get__
 ```
 
+简单来说，数据描述器和非数据描述器的区别在于：它们相对于实例的字典的优先级不同。
+
 ***
 
-## 优先级
+`obj.x` 属性被访问时，取决于 `obj` 是实例还是类。
 
-`obj.x` 属性被访问时，取决于 `obj` 是对象还是类。
-
-对于对象来说，机制是 `object.__getattribute__()` 中将 `b.x` 转换为 `type(b).__dict__['x'].__get__(b, type(b))` 。这个实现通过优先级完成，该优先级赋予数据描述符优先于实例变量，实例变量优先于非数据描述符，并且如果 `__getattr__()` 方法存在，为其分配最低的优先级。 
+对于实例来说，机制是 `object.__getattribute__()` 中将 `b.x` 转换为 `type(b).__dict__['x'].__get__(b, type(b))` 。这个实现通过优先级完成，该优先级赋予数据描述符优先于实例变量，实例变量优先于非数据描述符，并且如果 `__getattr__()` 方法存在，为其分配最低的优先级。 
 
 对于类来说，机制是 `type.__getattribute__()` 中将 `B.x` 转换为 `B.__dict__['x'].__get__(None, B)` 。
 
@@ -135,46 +343,8 @@ obj.__dict__['x'] --> type(obj).__dict__['x'] --> type(type(obj)).__dict__['x']
 
 直至 `obj` 的基类，顺序符合 C3 算法。Python中对象的属性具有 **层次性**，属性在哪个对象上定义，便会出现在哪个对象的`__dict__`中。
 
-descriptor 会**改变默认的属性读写方式**。
+描述符会**改变默认的属性读写方式**。数据描述器和非数据描述器的区别在于：它们相对于实例的字典的优先级不同。如果实例字典中有与描述符同名的属性，如果描述符是数据描述符，优先使用数据描述符，如果是非数据描述符，优先使用字典中的属性。
 
-***
-
-```python
-class DataDes:
-    def __get__(self, instance, owner):
-        print('DataDes.__get__')
-    def __set__(self, instance, value):
-        print('DataDes.__set__', value)
- 
-
-class DataDes_noget:
-    def __set__(self, instance, value):
-        print('DataDes_noget.__set__', value)
-       
-    
-class DataDes_noset:
-    def __get__(self, instance, owner):
-        print('non_DataDes.__get__')
-        
-        
-class Manage:
-    datades = DataDes()
-    data_noget = DataDes_noget()
-    data_noset = DataDes_noset()
-```
-
-```python
-In :a = Manage()
-
-In : a.__dict__
-Out: {}
-    
-In : a.datades = 1
-DataDes.__set__ 1
-
-In : a.__dict__
-Out: {}                 # 没有调用实例__dict__
-```
 * 赋值时，三者的不同：
 
 ```python
@@ -414,6 +584,107 @@ print(g.bar)	# 10
 
 `bar`是类变量，因此所有的 `Foo`实例都共享同一个`bar`。
 
+在上述成绩管理程序中：
+
+```python
+class Score:
+    def __init__(self, default=0):
+        self._score = default
+
+    def __set__(self, instance, value):
+        if not isinstance(value, int):
+            raise TypeError('Score must be integer')
+        if not 0 <= value <= 100:
+            raise ValueError('Valid value must be in [0, 100]')
+
+        self._score = value
+
+    def __get__(self, instance, owner):
+        return self._score
+
+    def __delete__(self):
+        del self._score
+
+class Student:
+    math = Score(0)
+    chinese = Score(0)
+    english = Score(0)
+
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        self.math = math
+        self.chinese = chinese
+        self.english = english
+
+
+    def __repr__(self):
+        return "<Student: {}, math:{}, chinese: {}, english:{}>".format(
+                self.name, self.math, self.chinese, self.english)
+```
+
+出现如下问题是显而易见的：
+
+```python
+In [20]: std1 = Student('小明', 76, 87, 68)
+
+In [21]: std2 = Student('小李', 100, 87, 68)
+
+In [22]: std1
+Out[22]: <Student: 小明, math:100, chinese: 87, english:68>
+
+In [23]: std2
+Out[23]: <Student: 小李, math:100, chinese: 87, english:68>
+```
+
+std2 居然共享了 std1 的属性值，只要其中一个实例的变量发生改变，另一个实例的变量也会跟着改变。探其根因，是由于此时 math，chinese，english 三个全部是类变量，导致 std2 和 std1 在访问 math，chinese，english 这三个变量时，其实都是访问类变量。
+
+```python
+class Score:
+    def __init__(self, subject):
+        self.name = subject
+
+    def __get__(self, instance, owner):
+        return instance.__dict__[self.name]
+
+    def __set__(self, instance, value):
+        if 0 <= value <= 100:
+            instance.__dict__[self.name] = value
+        else:
+            raise ValueError
+
+
+class Student:
+    math = Score("math")
+    chinese = Score("chinese")
+    english = Score("english")
+
+    def __init__(self, name, math, chinese, english):
+        self.name = name
+        self.math = math
+        self.chinese = chinese
+        self.english = english
+
+    def __repr__(self):
+        return "<Student math:{}, chinese:{}, english:{}>".format(self.math, self.chinese, self.english)
+```
+
+```python
+In [27]: std1 = Student('小明', 76, 87, 68)
+
+In [28]: std2 = Student('小李', 100, 87, 68)
+
+In [29]: std1
+Out[29]: <Student math:76, chinese:87, english:68>
+
+In [30]: std2
+Out[30]: <Student math:100, chinese:87, english:68>
+```
+
+不难看出：
+
+- 之前的错误代码，更像是把描述符当做了存储节点。
+- 之后的正确代码，则是把描述符直接当做代理，本身不存储值。
+
 ### 3. 注意：使用描述符的不可哈希类（unhashable descriptor owners）
 
 ```python
@@ -637,11 +908,11 @@ class property([fget[, fset[, fdel[, doc]]]])
 
 ### 2.静态方法和类方法
 
-非数据描述符为把函数绑定为方法的通常模式提供了一种简单的机制。概括地说，函数具有 `get__()` 方法，以便在作为属性访问时可以将其转换为方法。非数据描述符将 `obj.f(*args)` 的调用转换为 `f(obj, *args)` 。调用 `klass.f(*args)` 因而变成 `f(*args)` 。
+非数据描述符为把函数绑定为方法的通常模式提供了一种简单的机制。概括地说，函数具有 `__get__()` 方法，以便在作为属性访问时可以将其转换为方法。非数据描述符将 `obj.f(*args)` 的调用转换为 `f(obj, *args)` 。调用 `klass.f(*args)` 因而变成 `f(*args)` 。
 
 `@staticmethod`、`@classmethod`也是描述符。
 
- [`staticmethod()`](https://docs.python.org/3/library/functions.html#staticmethod) and [`classmethod()`](https://docs.python.org/3/library/functions.html#classmethod)) are implemented as non-data descriptors.  
+ [`staticmethod()`](https://docs.python.org/3/library/functions.html#staticmethod) and [`classmethod()`](https://docs.python.org/3/library/functions.html#classmethod) are implemented as non-data descriptors.  
 
 | 转换形式 | 通过对象调用          | 通过类调用        |
 | -------- | --------------------- | ----------------- |
@@ -680,6 +951,8 @@ class property([fget[, fset[, fdel[, doc]]]])
 ###  3.`super()`
 
 The object returned by `super()` also has a custom `__getattribute__` method for invoking descriptors.  The call `super(B, obj).m()` searches `obj.__class__.__mro__` for the base class `A` immediately following `B` and then returns `A.__dict__['m'].__get__(obj, B)`.  If not a descriptor, `m` is returned unchanged.  If not in the dictionary, `m` reverts to a search using `object.__getattribute__`.
+
+***
 
 ### 4. function
 
@@ -860,3 +1133,5 @@ The problem here arises from the asymmetry between `__getattr__` and `__setattr_
 [数据描述符与非数据描述符](https://blog.csdn.net/Liv2005/article/details/77942276)，Liv2005
 
 [Class properties and `__setattr__` ](https://stackoverflow.com/questions/15750522/class-properties-and-setattr)，Stack Overflow
+
+[深入理解描述符](http://magic.iswbm.com/zh/latest/c04/c04_02.html)，王炳明
