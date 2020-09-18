@@ -348,7 +348,34 @@ print(len(table), table[3])	# 5 9
 
 #### 简单的日志
 
-每次函数调用，都会在屏幕中打印日志信息。
+打印调用函数名称：
+
+```python
+def logging(func):
+    def wrapper(*args, **kwargs):
+        print("enter function {func}()".format(func=func.__name__))
+        return func(*args, **kwargs)
+    return wrapper
+
+@logging
+def say(something):
+    print("say {}!".format(something))
+
+say('hi')
+```
+
+```python
+enter function say()
+say hi!
+```
+
+装饰器本质上是一个 Python 函数或类，它可以让其他函数或类在不需要做任何代码修改的前提下增加额外功能，装饰器的返回值也是一个函数/类对象。可以抽离出大量与函数功能本身无关的雷同代码到装饰器中并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。典型的行为：把被装饰的函数替换成新函数，二者接受相同的参数，而且返回被装饰函数本该返回的值，同时还会做些而外的操作。
+
+***
+
+#### 带参数的日志装饰器
+
+在上面例子中，加入设置日志等级：
 
 ```python
 def logging(level):
@@ -381,13 +408,7 @@ say hello!
 do my work...
 ```
 
-装饰器本质上是一个 Python 函数或类，它可以让其他函数或类在不需要做任何代码修改的前提下增加额外功能，装饰器的返回值也是一个函数/类对象。可以抽离出大量与函数功能本身无关的雷同代码到装饰器中并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。典型的行为：把被装饰的函数替换成新函数，二者接受相同的参数，而且返回被装饰函数本该返回的值，同时还会做些而外的操作。
-
-***
-
-#### 带参数的日志装饰器
-
-插入参数 `logfile` 是日志信息输出的文件。被装饰函数调用成功和失败，都会打印不同的日志信息。
+下例中，插入参数 `logfile` 是日志信息输出的文件。被装饰函数调用成功和失败，都会打印不同的日志信息。
 
 ```python
 import functools, logging
@@ -576,6 +597,10 @@ WARNING:root:bar stopped
 ***
 
 ### 带参数的类装饰器
+
+`__init__` ：不再接收被装饰函数，而是接收传入参数。 
+
+`__call__` ：接收被装饰函数，实现装饰逻辑。
 
 ```python
 class logging(object):
