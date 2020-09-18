@@ -67,3 +67,71 @@ is_leap = (year % 4 == 0 and year % 100 != 0 or
 print(is_leap)
 ```
 
+***
+
+## 海象运算符
+
+下例中，`len(a)`会被调用两次。
+
+```python
+if len(a) > 10:
+    print("List is to long({len(a)} elements, expected <= 10)")
+```
+
+或者这样写，避免调用两次`len()`方法，却又多了一次赋值给中间变量的步骤。
+
+```python
+n = len(a)
+if n > 10:
+    print("List is to long({n} elements, expected <= 10)")
+```
+
+采用海象运算符。
+
+```python
+if (n := len(a)) > 10:
+    print(f"List is too long ({n} elements, expected <= 10)")
+```
+
+不仅减少了一次调用，还省去了一个赋值中间变量的步骤。简化流程，提高运算速度。
+
+***
+
+**while循环控制**
+
+省去赋值：
+
+```python
+n = 0
+while n < 3:
+   print(n) # 0,1,2
+   n += 1
+
+# when converting to walrus operator...
+w = 0
+while (w := w + 1) < 3:
+   print(w) # 1,2
+```
+
+节省赋值和判断：
+
+```python
+while 1:
+    block = f.read(256)
+    if block != '':
+        process(block)
+        
+while (block := f.read(256)) != '':
+    process(block)
+```
+
+***
+
+**简化列表解析**
+
+```python
+[f(x) for x in y if f(x)]
+
+[r for x in y if (r := f(x))]
+```
+
