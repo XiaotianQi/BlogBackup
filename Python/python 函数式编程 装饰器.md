@@ -52,9 +52,12 @@ registry = []
 
 def register(func):
     print('running register(%s)' % func.__name__)
-    registry.append(func.__name__)
-    result = func()
-    return result
+    def inner():
+        print('running register(%s)' % func.__name__)
+        registry.append(func.__name__)
+        result = func()
+        return result
+    return inner
 
 @register
 def f1():
@@ -64,18 +67,11 @@ def f1():
 def f2():
     print('running f2')
 
-def f3():
-    print('running f3')
-
-
 if __name__ == '__main__':
     print('running main')
     print('registry --> ', registry)
-```
-
-```python
-if __name__ == '__main__':
-    print('running main')
+    f1()
+    f2()
     print('registry --> ', registry)
 ```
 
@@ -83,6 +79,11 @@ if __name__ == '__main__':
 running register(f1)
 running register(f2)
 running main
+registry -->  []
+running register(f1)
+running f1
+running register(f2)
+running f2
 registry -->  ['f1', 'f2']
 ```
 
@@ -161,7 +162,7 @@ def register(func):
     return inner
 ```
 
-#### NOTE：位置错误的代码
+#### NOTE：在外层函数添加逻辑功能，容易让装饰器就不受控制。
 
 ```python
 def html_tags(tag_name):
