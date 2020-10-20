@@ -437,6 +437,47 @@ avg = [float(sum(col))/len(col) for col in zip(*data)]
 # [243.0, 240.5, 236.5]
 ```
 
+#### 同时遍历多个列表
+
+```python
+name_lst = ['张三', '赵四', '王五']
+age_lst = [30, 40, 50]
+```
+
+```python
+for name, age in zip(name_lst, age_lst):
+    print(name, ':', age)
+
+for i, j in enumerate(name_lst):
+    print(name_lst[i], ':', age_lst[i])
+```
+
+```python
+张三 : 30
+赵四 : 40
+王五 : 50
+```
+
+区别于下例：
+
+```python
+from itertools import product
+for name, age in product(name_lst, age_lst):
+    print(name, ':', age
+```
+
+```python
+张三 : 30
+张三 : 40
+张三 : 50
+赵四 : 30
+赵四 : 40
+赵四 : 50
+王五 : 30
+王五 : 40
+王五 : 50
+```
+
 #### `list.copy()` 和 `=` 的区别
 
 ```python
@@ -1235,8 +1276,6 @@ True
 >>> a is b
 True
 ```
-
-
 
 ***
 
