@@ -200,3 +200,33 @@ def table(n):
 print(table)	# [0, 1, 2, 3, 4]
 ```
 
+***
+
+## `@functools.lru_cache`
+
+```python
+@functools.lru_cache(maxsize=None, typed=False)
+```
+
+```python
+from functools import lru_cache
+
+@lru_cache(None)
+def add(x, y):
+    print("calculating: %s + %s" % (x, y))
+    return x + y
+
+print(add(1, 2))
+print(add(1, 2))
+print(add(2, 3))
+```
+
+```python
+calculating: 1 + 2
+3
+3
+calculating: 2 + 3
+5
+```
+
+可以看到第二次调用并没有真正的执行函数体，而是直接返回缓存里的结果。
