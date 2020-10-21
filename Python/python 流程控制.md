@@ -229,6 +229,8 @@ for i in range(10):
 print(i)	# 5
 ```
 
+除此外，还有`for...else...`，与 `try...else...` 相同，只要代码不被 break，不抛出异常，就可以执行`else`。
+
 ### while 循环
 
 while循环用伪代码描述就是：当条件满足的时候，就一直运行while所管理的代码块，当条件不满足的时候，就结束while循环。
