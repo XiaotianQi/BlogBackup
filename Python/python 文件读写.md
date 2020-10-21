@@ -490,6 +490,75 @@ print(r)	# {'encoding': 'GB2312', 'confidence': 0.7407407407407407, 'language': 
 
 ***
 
+## 读取大文件
+
+python 读文件有一套标准流程：
+
+```python
+with open(fname) as file:
+	for line in file:
+        ...
+```
+
+为什么这种文件读取方式会成为标准？这是因为它有两个好处：
+
+* with 上下文管理器采用的文件描述符
+* 在迭代文件对象时，内容是一行一行返回的，不会占用太多内存
+
+但这套标准做法并非没有缺点。如果被读取的文件里，根本就没有任何换行符，那么上面的第二个好处就不成立了。当代码执行到 for line in file 时，line 将会变成一个非常巨大的字符串对象，消耗掉非常可观的内存。
+
+如果有一个 5GB 大的文件 big_file.txt，它里面装满了随机字符串。只不过它存储内容的方式稍有不同，所有的文本都被放在了同一行里。
+
+为了解决这个问题，我们需要暂时把这个“标准做法”放到一边，使用更底层的 `file.read()` 方法。与直接循环迭代文件对象不同，每次调用 `file.read(chunk_size)` 会直接返回从当前位置往后读取 `chunk_size` 大小的文件内容，不必等待任何换行符出现。
+
+所以，如果使用 `file.read()` 方法，我们的函数可以改写成这样:
+
+```python
+with open(fname) as fp:
+	while True:
+		chunk = fp.read(1024 * 8)
+		# 当文件没有更多内容时，read 调用将会返回空字符串 ''
+		if not chunk:
+			break
+	...
+```
+
+使用了一个 `while` 循环来读取文件内容，每次最多读取 8kb 大小，这样可以避免之前需要拼接一个巨大字符串的过程，把内存占用降低非常多。
+
+然而，在循环体内部，存在着两个独立的逻辑：数据生成与数据消费。而这两个独立逻辑被耦合在了一起。为了提升复用能力，我们可以定义一个新的 `chunked_file_reader` 生成器函数，由它来负责所有与“数据生成”相关的逻辑。
+
+```python
+def chunked_file_reader(fp, block_size=1024 * 8):
+    """生成器函数：分块读取文件内容
+    """
+    while True:
+        chunk = fp.read(block_size)
+        # 当文件没有更多内容时，read 调用将会返回空字符串 ''
+        if not chunk:
+            break
+        yield chunk
+
+with open(fname) as fp:
+	for chunk in chunked_file_reader(fp):
+        ...
+```
+
+进行到这一步，代码似乎已经没有优化的空间了，但其实不然。`iter(iterable)` 是一个用来构造迭代器的内建函数，但它还有一个更少人知道的用法。当我们使用 `iter(callable, sentinel)` 的方式调用它时，会返回一个特殊的对象，迭代它将不断产生可调用对象 callable 的调用结果，直到结果为 `setinel` 时，迭代终止。
+
+```python
+def chunked_file_reader(file, block_size=1024 * 8):
+    """生成器函数：分块读取文件内容，使用 iter 函数
+    """
+    # 首先使用 partial(fp.read, block_size) 构造一个新的无需参数的函数
+    # 循环将不断返回 fp.read(block_size) 调用结果，直到其为 '' 时终止
+    for chunk in iter(partial(file.read, block_size), ''):
+        yield chunk
+```
+
+最后只需要两行代码，就构造出了一个可复用的分块读取方法。
+
+***
+
 参考：
 
 [文件系统](https://zh.wikipedia.org/wiki/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F)，wiki
@@ -499,3 +568,5 @@ print(r)	# {'encoding': 'GB2312', 'confidence': 0.7407407407407407, 'language': 
 [7. Input and Output](https://docs.python.org/3/tutorial/inputoutput.html)，官方文档
 
 [文件和异常](https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/11.%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8.md)，骆昊
+
+[Python花式读取大文件(10g/50g/1t)遇到的性能问题](https://juejin.im/post/6844904154037485576)，刘悦
