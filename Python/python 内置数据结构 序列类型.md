@@ -223,25 +223,6 @@ print(l)
 ['a', 'bc', 'def']
 ```
 
-根据列表中元素的一个或者多个属性进行排序：
-
-```python
-l = [
-    (1, 3, 'a'), (2, 2, 'a'), (3, 1, 'b')
-]
-l.sort(key=lambda x:x[2])
-print(l)
-l.sort(key=lambda x:x[2]+str(x[1]))
-print(l)
-
-
-输出结果：
-[(1, 3, 'a'), (2, 2, 'a'), (3, 1, 'b')]
-[(2, 2, 'a'), (1, 3, 'a'), (3, 1, 'b')]
-```
-
-当同时存在 int 和 str 时，二者无法直接比较。
-
 * `list.clear()`
 
 清空列表，等价于 `del list[:]`。
@@ -476,6 +457,30 @@ for name, age in product(name_lst, age_lst):
 王五 : 30
 王五 : 40
 王五 : 50
+```
+
+#### 自定义排序
+
+```python
+l = [
+    (1, 3, 'a'), (2, 2, 'a'), (3, 1, 'b')
+]
+l.sort(key=lambda x:x[2])
+print(l)	# [(1, 3, 'a'), (2, 2, 'a'), (3, 1, 'b')]
+l.sort(key=lambda x:x[2]+str(x[1]))
+print(l)	# [(2, 2, 'a'), (1, 3, 'a'), (3, 1, 'b')]
+```
+
+#### 多级排序
+
+根据列表中元素多个属性进行排序：
+
+```python
+l = [
+    (1, 3, 'a'), (2, 2, 'a'), (3, 1, 'b')
+]
+l.sort(key=lambda x:(x[2], x[1]))
+print(l)	# [(2, 2, 'a'), (1, 3, 'a'), (3, 1, 'b')]
 ```
 
 #### `list.copy()` 和 `=` 的区别
