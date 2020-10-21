@@ -105,7 +105,7 @@ finally block
 finally
 ```
 
-如果有 `finally` 语句，且当中存在 `return` 时，那么无论是否发生异常，都将会得到 `finally` 语句中 `return` 的信息。同时，`else` 语句不再执行。
+如果有 `finally` 语句，且当中存在 `return` 时，那么无论是否发生异常，都将会得到 `finally` 语句中 `return` 的信息。同时，`try` 语句中如果执行了 `return`，那么 `else`  语句不再执行。
 
 * 当 `finally` 语句不存在 `return`时：
 

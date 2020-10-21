@@ -212,6 +212,6 @@ while (block := f.read(256)) != '':
 ```python
 [f(x) for x in y if f(x)]
 
-[r for x in y if (r := f(x))]
+[z for x in y if (z := f(x))]
 ```
 
