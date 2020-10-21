@@ -230,3 +230,94 @@ calculating: 2 + 3
 ```
 
 可以看到第二次调用并没有真正的执行函数体，而是直接返回缓存里的结果。
+
+***
+
+`@singledispatch`
+
+单分派泛函数：根据一个参数的类型，以不同方式执行相同的操作的行为。
+
+```python
+def check_type(func):
+    def wrapper(*args):
+        arg1, arg2 = args[:2]
+        if type(arg1) != type(arg2):
+            return '【错误】：参数类型不同，无法拼接!!'
+        return func(*args)
+    return wrapper
+
+
+@singledispatch
+def add(obj, new_obj):
+    raise TypeError
+
+@add.register(str)
+@check_type
+def _(obj, new_obj):
+    obj += new_obj
+    return obj
+
+
+@add.register(list)
+@check_type
+def _(obj, new_obj):
+    obj.extend(new_obj)
+    return obj
+
+@add.register(dict)
+@check_type
+def _(obj, new_obj):
+    obj.update(new_obj)
+    return obj
+
+@add.register(tuple)
+@check_type
+def _(obj, new_obj):
+    return (*obj, *new_obj)
+
+print(add('hello',', world'))
+print(add([1,2,3], [4,5,6]))
+print(add({'name': 'wangbm'}, {'age':25}))
+print(add(('apple', 'huawei'), ('vivo', 'oppo')))
+
+# list 和 字符串 无法拼接
+print(add([1,2,3], '4,5,6'))
+```
+
+```python
+hello, world
+[1, 2, 3, 4, 5, 6]
+{'name': 'wangbm', 'age': 25}
+('apple', 'huawei', 'vivo', 'oppo')
+【错误】：参数类型不同，无法拼接!!
+```
+
+不使用的话：
+
+```python
+def check_type(func):
+    def wrapper(*args):
+        arg1, arg2 = args[:2]
+        if type(arg1) != type(arg2):
+            return '【错误】：参数类型不同，无法拼接!!'
+        return func(*args)
+    return wrapper
+
+@check_type
+def add(obj, new_obj):
+    if isinstance(obj, str) :
+        obj += new_obj
+        return obj
+
+    if isinstance(obj, list) :
+        obj.extend(new_obj)
+        return obj
+
+    if isinstance(obj, dict) :
+        obj.update(new_obj)
+        return obj
+
+    if isinstance(obj, tuple) :
+        return (*obj, *new_obj)
+```
+
