@@ -215,3 +215,88 @@ while (block := f.read(256)) != '':
 [z for x in y if (z := f(x))]
 ```
 
+***
+
+## 三元运算符
+
+```python
+>>> age1 = 17
+>>> age2 = 20
+```
+
+**1**
+
+```python
+condition_is_true if condition else condition_is_false
+```
+
+```python
+>>> '已成年' if age1 > 18 else '未成年'
+'未成年'
+>>> '已成年' if age2 > 18 else '未成年'
+'已成年'
+```
+
+**2**
+
+```python
+<condition> and <on_true> or <on_false>
+```
+
+```python
+>>> age1 >18 and '已成年' or '未成年'
+'未成年'
+>>> age2 >18 and '已成年' or '未成年'
+'已成年'
+```
+
+```python
+((<condition>) and (<on_true>,) or (<on_false>,))[0]
+```
+
+```python
+>>> ((age1 > 18) and ('已成年',) or ('未成年',))[0]
+'未成年'
+>>> ((age1 > 18) and ('已成年',) or ('未成年',))[0]
+'已成年'
+```
+
+**3**
+
+```python
+(<on_false>, <on_true>)[condition]
+```
+
+```python
+>>> ('未成年', '已成年')[age1 > 18]
+'未成年'
+>>> ('未成年', '已成年')[age2 > 18]
+'已成年'
+```
+
+**4**
+
+```python
+(lambda: <on_false>, lambda:<on_true>)[<condition>]()
+```
+
+```python
+>>> (lambda:'未成年', lambda:'已成年')[age1 > 18]()
+'未成年'
+>>> (lambda:'未成年', lambda:'已成年')[age2 > 18]()
+'已成年'
+```
+
+**5**
+
+```python
+{True: <on_true>, False: <on_false>}[<condition>]
+```
+
+```python
+>>> {True: '未成年', False: '已成年'}[age1 > 18]
+'未成年'
+>>> {True: '未成年', False: '已成年'}[age2 > 18]
+'已成年'
+```
+
