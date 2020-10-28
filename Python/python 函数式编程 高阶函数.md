@@ -12,7 +12,9 @@ def add(x, y, f):
     return f(x) + f(y)
 ```
 
-## map/reduce
+***
+
+## map
 
 ```text
 map(function, iterable, ...)
@@ -27,6 +29,34 @@ In [102]: list(map(lambda x, y: x + y, range(1,10,2), range(2,11,2)))
 Out[102]: [3, 7, 11, 15, 19]
 ```
 
+将元组中的字符串，转化为数字：
+
+```python
+T1 = (('13', '17', '18', '21', '32'),
+      ('07', '11', '13', '14', '28'),
+      ('01', '05', '06', '08', '15', '16')
+      )
+print([list(map(int, x)) for x in T1])
+```
+
+同理，可迭代对象也可以是一个函数列表：
+
+```python
+def multiply(x):
+        return (x*x)
+def add(x):
+        return (x+x)
+
+funcs = [multiply, add]
+for i in range(5):
+    value = map(lambda x: x(i), funcs)
+    print(list(value))
+```
+
+***
+
+## reduce
+
 在Python 3里，`reduce()` 函数已经被从全局名字空间里移除了，它现在被放置在`fucntools` 模块里
 
 ```text
@@ -39,7 +69,7 @@ In [30]: reduce(lambda x,y:x+y, range(5))
 Out[30]: 10
 ```
 
-二者结合使用，将`str`转换为`int`的函数：
+与 `map` 函数结合使用：
 
 ```python
 from functools import reduce
@@ -70,6 +100,8 @@ def str2nums(s):
 r = str2nums('123')
 print(r)	# 123
 ```
+
+***
 
 ## filter
 
@@ -111,19 +143,12 @@ list(filter(not_empty, ['A', '', 'B', None, 'C', '  ']))
 获得质数（素数）：
 
 ```python
-def _odd_iter():
-    n = 1
-    while True:
-        n = n + 2
-        yield n
-
 def _not_divisible(n):
     return lambda x: x % n > 0
 
 def primes():
     yield 2
-    it = _odd_iter() # 初始序列
-    # it = iter(range(3, 50, 2)) # it并不是生成器
+    it = iter(range(3, 50, 2))
     while True:
         n = next(it) # 返回序列的第一个数
         yield n
@@ -135,6 +160,8 @@ for n in primes():
     else:
         break
 ```
+
+***
 
 ## sorted
 
@@ -166,6 +193,6 @@ list 的 sort 方法返回的是对已经存在的列表进行操作，而内建
 
 参考：
 
-https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014317849054170d563b13f0fa4ce6ba1cd86e18103f28000
+[高阶函数](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000/0014317849054170d563b13f0fa4ce6ba1cd86e18103f28000)，廖雪峰
 
-https://www.cnblogs.com/ArsenalfanInECNU/p/9620931.html
+[Python的高阶函数小结](https://www.cnblogs.com/ArsenalfanInECNU/p/9620931.html)，青山牧云人

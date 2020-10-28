@@ -227,6 +227,12 @@ print(favourite_colours)
 defaultdict(<class 'list'>, {'Yasoob': ['Yellow', 'Red'], 'Ali': ['Blue', 'Black'], 'Arham': ['Green'], 'Ahmed': ['Silver']})
 ```
 
+使用 `lambda`：
+
+```python
+collections.defaultdict(lambda: "default value")
+```
+
 ***
 
 ## `Counter`

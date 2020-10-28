@@ -564,7 +564,23 @@ if __name__ == '__main__':
 
 ***
 
+#### 授权
+
+```python
+def requires_auth(func):
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            authenticate()
+        return func(*args, **kwargs)
+    return decorated
+```
+
+***
+
 ## 类装饰器
+
+类装饰器比函数装饰器实现更多功能，比如将日志通过邮件发送等。
 
 装饰器函数其实是这样一个接口约束，它必须接受一个callable对象作为参数，然后返回一个callable对象。在Python中一般callable对象都是函数，但也有例外。只要某个对象重载了`__call__()`方法，那么这个对象就是callable的。
 
