@@ -59,7 +59,7 @@ $ python3.8 -m pip install requests
 
 虚拟环境是程序执行时的独立执行环境，在同一台服务器中可以创建不同的虚拟环境供不同的系统使用，项目之间的运行环境保持独立性而相互不受影响。
 
-涉及第三方包：
+### 涉及第三方包
 
 * virtualenv
 * virtualenvwrapper（Windows版本：virtualenvwrapper-win）
@@ -88,7 +88,7 @@ virtualenvwrapper 提供了一些便捷的命令。
 λ rmvirtualenv env27
 ```
 
-virtualenvwrapper配置：
+### virtualenvwrapper 配置
 
 ```text
 WORKON_HOME：	虚拟环境的存放位置
@@ -144,6 +144,34 @@ source：			待载入Shell文件的路径
   ```
   
   将`VIRTUALENVWRAPPER_PYTHON="$(command \which python)"`修改为`VIRTUALENVWRAPPER_PYTHON="$(command \which python3)"`。
+
+### 其他
+
+在 powershell 中，无法使用 `workon <envname>` 该命令，解决方法如下：
+
+在 win10 中，在环境变量中设置了 `WORKON_HOME`，那么可以使用，但这只是个临时函数：
+
+```powershell
+function workonEnvs ($env) {
+        & $env:WORKON_HOME\$env\Scripts\activate.ps1
+}
+```
+
+如果想设置成永久存在的函数，那么：
+
+```powershell
+# 打开 powershell 的 profile 文件
+code $profile
+```
+
+在 profile 中添加：
+
+```bash
+function workonEnvs ($env) {
+        & $env:WORKON_HOME\$env\Scripts\activate.ps1
+}
+Set-Alias wk workonEnvs
+```
 
 ***
 

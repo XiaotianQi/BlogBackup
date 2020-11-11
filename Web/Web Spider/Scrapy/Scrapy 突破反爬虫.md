@@ -76,7 +76,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-增加 UA_TYPE项，便于控制生成的浏览器类型。
+增加 `UA_TYPE` 项，便于控制生成的浏览器类型。
 
 ***
 
